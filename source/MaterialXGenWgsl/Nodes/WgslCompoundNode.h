@@ -13,8 +13,8 @@
 MATERIALX_NAMESPACE_BEGIN
 
 /// Compound node that emits a WGSL function ("fn name(param: type, ...)").
-/// For closure/surface-shader compound nodes a `vd: VertexData` parameter is threaded so the
-/// surface node body can access vertex data (normalWorld, positionWorld, ...).
+/// For closure compounds and graphs that contain geometric nodes, a `vd: VertexData` parameter
+/// is threaded so nested WGSL functions can access vertex data (normalWorld, positionWorld, ...).
 class MX_GENWGSL_API WgslCompoundNode : public CompoundNode
 {
   public:

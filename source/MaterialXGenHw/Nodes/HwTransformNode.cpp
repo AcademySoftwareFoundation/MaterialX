@@ -66,12 +66,18 @@ void HwTransformNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
 
         if (shouldNormalize())
         {
-            shadergen.emitLineBegin(stage);
-            shadergen.emitOutput(output, false, false, context, stage);
-            shadergen.emitString(" = normalize(" + output->getVariable() + ")", stage);
-            shadergen.emitLineEnd(stage);
+            emitNormalizeCall(output, context, stage);
         }
     }
+}
+
+void HwTransformNode::emitNormalizeCall(const ShaderOutput* output, GenContext& context, ShaderStage& stage) const
+{
+    const ShaderGenerator& shadergen = context.getShaderGenerator();
+    shadergen.emitLineBegin(stage);
+    shadergen.emitOutput(output, false, false, context, stage);
+    shadergen.emitString(" = normalize(" + output->getVariable() + ")", stage);
+    shadergen.emitLineEnd(stage);
 }
 
 string HwTransformNode::getFromSpace(const ShaderNode& node) const

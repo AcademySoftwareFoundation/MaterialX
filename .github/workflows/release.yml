@@ -41,7 +41,7 @@ jobs:
         run: python -m pip install -r source/MaterialXGenWgsl/tools/requirements-transpile.txt
 
       - name: Generate WGSL library
-        run: NAGA=$HOME/.cargo/bin/naga python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
+        run: NAGA=$HOME/.cargo/bin/naga MTLX_REQUIRE_WGSL_CLEANUP=1 python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out libraries
 
       - name: Generate Archives
         run: |

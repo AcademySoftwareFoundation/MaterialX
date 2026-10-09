@@ -12,6 +12,12 @@ mx_add_library(MaterialXGenWgsl
     EXPORT_DEFINE
         MATERIALX_GENWGSL_EXPORTS)
 
+if(MATERIALX_BUILD_OCIO)
+    find_package(OpenColorIO REQUIRED)
+    target_link_libraries(${TARGET_NAME} PRIVATE OpenColorIO::OpenColorIO)
+    target_compile_definitions(${TARGET_NAME} PUBLIC MATERIALX_BUILD_OCIO)
+endif()
+
 # ---------------------------------------------------------------------------
 # Optional build-time regeneration of the genwgsl library from genglsl.
 #
@@ -135,4 +141,36 @@ add_custom_target(MaterialXGenWgslLibrary ALL
 
 if(_wgsl_install_naga)
     add_dependencies(MaterialXGenWgslLibrary MaterialXInstallNaga)
+endif()
+
+# -- OCIO: pre-bake GpuShaderDesc GLSL to stdlib/genwgsl/ocio/*.wgsl -----------------
+
+if(MATERIALX_BUILD_OCIO)
+    get_filename_component(_ocio_install_root "${OpenColorIO_DIR}/../../.." ABSOLUTE)
+    set(_ocio_wgsl_out "${_wgsl_out_dir}/stdlib/genwgsl/ocio")
+    set(_ocio_py_stage "${CMAKE_BINARY_DIR}/ocio_bake_py")
+    file(TO_NATIVE_PATH "${_ocio_py_stage}" _ocio_py_stage_native)
+    add_custom_target(MaterialXGenWgslOcioLibrary
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_ocio_wgsl_out}"
+        COMMAND "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxstagepymaterialx.py"
+                --repo "${PROJECT_SOURCE_DIR}"
+                --pyd-dir "${CMAKE_BINARY_DIR}/bin/$<CONFIG>"
+                --stage-root "${_ocio_py_stage}"
+                --ocio-bin "${_ocio_install_root}/bin"
+        COMMAND ${CMAKE_COMMAND} -E env
+                "NAGA=${MATERIALX_NAGA_EXECUTABLE}"
+                "PYTHONPATH=${_ocio_py_stage_native}"
+                "${_wgsl_python}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/mxgenwgsl.py"
+                --bake-ocio
+                --repo "${PROJECT_SOURCE_DIR}"
+                --out "${_ocio_wgsl_out}"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Baking OCIO WGSL fragments (${_ocio_wgsl_out})"
+        VERBATIM)
+    if(_wgsl_install_naga)
+        add_dependencies(MaterialXGenWgslOcioLibrary MaterialXInstallNaga)
+    endif()
+    if(TARGET MaterialXGenWgslLibrary)
+        add_dependencies(MaterialXGenWgslLibrary MaterialXGenWgslOcioLibrary)
+    endif()
 endif()

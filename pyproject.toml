@@ -58,6 +58,10 @@ wheel.packages = ["python/MaterialX"]
 
 sdist.include = [
     "/documents",
+    "/libraries/stdlib/genwgsl",
+    "/libraries/pbrlib/genwgsl",
+    "/libraries/bxdf/genwgsl",
+    "/libraries/lights/genwgsl",
 ]
 
 sdist.exclude = [

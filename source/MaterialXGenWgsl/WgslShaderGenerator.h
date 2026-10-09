@@ -45,6 +45,8 @@ class MX_GENWGSL_API WgslShaderGenerator : public HwShaderGenerator
     /// Return the target identifier ("genwgsl").
     const string& getTarget() const override { return TARGET; }
 
+    void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem) override;
+
     /// Return the WGSL version string.
     virtual const string& getVersion() const { return VERSION; }
 
@@ -100,6 +102,9 @@ class MX_GENWGSL_API WgslShaderGenerator : public HwShaderGenerator
     /// plus the closure type library (ClosureData, BSDF, FresnelData, makeClosureData).
     void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const override;
 
+    /// Register document typedefs with WGSL struct syntax and member types.
+    void registerTypeDefs(const DocumentPtr& doc) override;
+
     /// Vertex data is accessed via the "vd." prefix.
     string getVertexDataPrefix(const VariableBlock& vertexData) const override;
 
@@ -110,6 +115,9 @@ class MX_GENWGSL_API WgslShaderGenerator : public HwShaderGenerator
 
     /// Emit the transmission rendering library (refraction or opacity).
     virtual void emitTransmissionRender(GenContext& context, ShaderStage& stage) const;
+
+    /// Emit variance shadow map library code when shadow mapping is enabled.
+    virtual void emitShadowSupport(GenContext& context, ShaderStage& stage, bool lighting) const;
 
     /// WGSL has no preprocessor directives; this is a structural no-op.
     virtual void emitDirectives(GenContext& context, ShaderStage& stage) const;

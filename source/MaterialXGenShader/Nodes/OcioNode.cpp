@@ -23,12 +23,12 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
-// Internal OCIO strings:
-constexpr const char OCIO_COLOR3[] = "color3";
+// OCIO implementation name suffixes (IMPL_MXOCIO_<function>_color3|color4) and OSL temp naming.
+constexpr const char IMPL_SUFFIX_COLOR3[] = "_color3";
+constexpr const char IMPL_SUFFIX_COLOR4[] = "_color4";
+constexpr size_t IMPL_SUFFIX_COLOR3_LEN = sizeof(IMPL_SUFFIX_COLOR3) - 1;
+constexpr size_t IMPL_SUFFIX_COLOR4_LEN = sizeof(IMPL_SUFFIX_COLOR4) - 1;
 constexpr const char COLOR4_SUFFIX[] = "_color4_temp";
-
-// Lengths where needed:
-constexpr auto OCIO_COLOR3_LEN = sizeof(OCIO_COLOR3) / sizeof(OCIO_COLOR3[0]);
 
 } // anonymous namespace
 
@@ -151,15 +151,26 @@ void OcioNode::emitFunctionCall(
     }
 }
 
+string OcioNode::getFunctionNameFromImplName(const string& implName)
+{
+    const size_t startPos = OcioColorManagementSystem::IMPL_PREFIX.size();
+    if (implName.size() <= startPos)
+    {
+        return implName;
+    }
+    // Same length trim as legacy getFunctionName() (_color3 / _color4 suffix).
+    const size_t suffixLen = implName.size() > startPos + IMPL_SUFFIX_COLOR4_LEN &&
+                                     implName.compare(implName.size() - IMPL_SUFFIX_COLOR4_LEN, IMPL_SUFFIX_COLOR4_LEN,
+                                                      IMPL_SUFFIX_COLOR4) == 0
+                                 ? IMPL_SUFFIX_COLOR4_LEN
+                                 : IMPL_SUFFIX_COLOR3_LEN;
+    const size_t length = implName.size() - suffixLen - startPos;
+    return implName.substr(startPos, length);
+}
+
 string OcioNode::getFunctionName() const
 {
-    auto name = getName();
-
-    // Strip _color3 and _color4 suffixes and impl prefix:
-    size_t startPos = OcioColorManagementSystem::IMPL_PREFIX.size();
-    size_t length = name.size() - OCIO_COLOR3_LEN - 1 - startPos;
-
-    return name.substr(startPos, length);
+    return getFunctionNameFromImplName(getName());
 }
 
 MATERIALX_NAMESPACE_END

@@ -10,3 +10,4 @@ libraries/**/genwgsl/**/*.wgsl
 !libraries/lights/genwgsl/mx_point_light.wgsl
 !libraries/lights/genwgsl/mx_spot_light.wgsl
 !libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl
+!libraries/pbrlib/genwgsl/lib/mx_shadow_platform.wgsl

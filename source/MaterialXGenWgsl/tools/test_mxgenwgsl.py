@@ -30,7 +30,7 @@ EXPECTED_TOKEN_EXPANSIONS = {
     "$envLightIntensity": "mtlx_env_light_intensity()",
     "$envPrefilterMip": "mtlx_env_prefilter_mip()",
     "$envRadianceSampler2D": "mtlx_tex_sampler",
-    "$refractionTwoSided": "false",
+    "$refractionTwoSided": "mtlx_refraction_two_sided()",
     "$closureDataConstructor": "ClosureData(closureType, L, V, N, P, occlusion)",
 }
 
@@ -193,6 +193,17 @@ def test_post_restore_expands_env_latlong_calls():
     out2 = gen.applyWgslLibPostRestore(raw2)
     assert "mx_latlong_map_lookup(_e156, _e157, _e158, $envRadiance, $envRadianceSampler)" in out2, out2
     assert "_e159" not in out2, out2
+
+
+def test_post_restore_nested_latlong_prefilter():
+    """Nested calls like mx_latlong_alpha_to_lod(avgAlpha) must not break sampler expansion."""
+    raw = (
+        "let sampleColor = mx_latlong_map_lookup(L, $envMatrix, "
+        "mx_latlong_alpha_to_lod(avgAlpha), $envRadiance);"
+    )
+    out = gen.applyWgslLibPostRestore(raw)
+    assert "$envRadianceSampler" in out, out
+    assert "mx_latlong_map_lookup(L, $envMatrix, mx_latlong_alpha_to_lod(avgAlpha), $envRadiance, $envRadianceSampler)" in out, out
 
 
 def test_post_restore_wgsl_order_sampler_stub():

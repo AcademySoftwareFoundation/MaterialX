@@ -7,11 +7,18 @@
 
 #include <MaterialXGenWgsl/WgslSyntax.h>
 #include <MaterialXGenWgsl/WgslResourceBindingContext.h>
-#include <MaterialXGenHw/Nodes/HwSurfaceNode.h>
+
 #include <MaterialXGenWgsl/Nodes/WgslCompoundNode.h>
 #include <MaterialXGenWgsl/Nodes/WgslLightNodes.h>
 #include <MaterialXGenWgsl/Nodes/WgslSourceCodeNode.h>
 #include <MaterialXGenWgsl/Nodes/WgslMaterialNode.h>
+#include <MaterialXGenWgsl/Nodes/WgslSurfaceNode.h>
+#include <MaterialXGenWgsl/Nodes/WgslTransformNormalNode.h>
+#ifdef MATERIALX_BUILD_OCIO
+#include <MaterialXGenShader/OcioColorManagementSystem.h>
+#include <MaterialXGenWgsl/Nodes/WgslOcioNode.h>
+#endif
+
 #include <MaterialXGenHw/HwConstants.h>
 #include <MaterialXGenHw/HwLightShaders.h>
 #include <MaterialXGenHw/Nodes/HwImageNode.h>
@@ -33,6 +40,7 @@
 #include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderStage.h>
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/GenOptions.h>
 #include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -54,8 +62,10 @@ void toVec4Wgsl(const TypeDesc& type, string& variable)
         variable = "vec4f(" + variable + ", 1.0)";
     else if (type.isFloat2())
         variable = "vec4f(" + variable + ", 0.0, 1.0)";
-    else if (type == Type::FLOAT || type == Type::INTEGER)
+    else if (type == Type::FLOAT)
         variable = "vec4f(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+    else if (type == Type::INTEGER)
+        variable = "vec4f(f32(" + variable + "), f32(" + variable + "), f32(" + variable + "), 1.0)";
     else if (type == Type::BSDF || type == Type::EDF)
         variable = "vec4f(" + variable + ", 1.0)";
     else
@@ -69,24 +79,20 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
 {
     registerImplementations(TARGET);
 
-    // WGSL splits each FILENAME uniform into a separate texture and sampler (see
-    // WgslResourceBindingContext), so the environment lookups take the texture and
-    // sampler as two arguments. Override the default combined-sampler tokens to the
-    // split "<name>_texture" / "<name>_sampler" forms emitted by the binding context.
-    // ($envRadianceSampler / $envIrradianceSampler are WGSL-specific companion tokens
-    // used by the genwgsl environment libraries; they have no HwConstants entry.)
+    // FILENAME uniforms and image nodes use split texture_2d + sampler bindings (WgslResourceBindingContext).
     _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE + "_texture";
     _tokenSubstitutions["$envRadianceSampler"] = HW::ENV_RADIANCE + "_sampler";
     _tokenSubstitutions[HW::T_ENV_IRRADIANCE] = HW::ENV_IRRADIANCE + "_texture";
     _tokenSubstitutions["$envIrradianceSampler"] = HW::ENV_IRRADIANCE + "_sampler";
-
-    // Image/texture nodes: split combined sampler2D into texture_2d + sampler (see MslShaderGenerator).
+    _tokenSubstitutions[HW::T_SHADOW_MAP] = HW::SHADOW_MAP;
+    _tokenSubstitutions["$shadowMapSampler"] = HW::SHADOW_MAP + "_sampler";
+    _tokenSubstitutions[HW::T_AMB_OCC_MAP] = HW::AMB_OCC_MAP;
+    _tokenSubstitutions["$ambOccMapSampler"] = HW::AMB_OCC_MAP + "_sampler";
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SAMPLER2D] = HW::TEX_SAMPLER_SAMPLER2D_WGSL;
     _tokenSubstitutions[HW::T_TEX_SAMPLER_SIGNATURE] = HW::TEX_SAMPLER_SIGNATURE_WGSL;
 
-    // Private-uniform tokens resolve to struct-qualified access (e.g. $envMatrix -> u_prv.u_envMatrix).
+    // Private uniform $-tokens map to u_prv.<member> (booleans are u32 in the struct; cast at use sites, not here — see emitInput).
     static const string PRV = "u_prv.";
-    // Matrix uniforms
     _tokenSubstitutions[HW::T_WORLD_MATRIX] = PRV + HW::WORLD_MATRIX;
     _tokenSubstitutions[HW::T_WORLD_INVERSE_MATRIX] = PRV + HW::WORLD_INVERSE_MATRIX;
     _tokenSubstitutions[HW::T_WORLD_TRANSPOSE_MATRIX] = PRV + HW::WORLD_TRANSPOSE_MATRIX;
@@ -104,7 +110,6 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_WORLD_VIEW_PROJECTION_MATRIX] = PRV + HW::WORLD_VIEW_PROJECTION_MATRIX;
     _tokenSubstitutions[HW::T_SHADOW_MATRIX] = PRV + HW::SHADOW_MATRIX;
     _tokenSubstitutions[HW::T_ENV_MATRIX] = PRV + HW::ENV_MATRIX;
-    // Scalar/vector uniforms
     _tokenSubstitutions[HW::T_VIEW_POSITION] = PRV + HW::VIEW_POSITION;
     _tokenSubstitutions[HW::T_VIEW_DIRECTION] = PRV + HW::VIEW_DIRECTION;
     _tokenSubstitutions[HW::T_FRAME] = PRV + HW::FRAME;
@@ -118,9 +123,23 @@ WgslShaderGenerator::WgslShaderGenerator(TypeSystemPtr typeSystem) :
     _tokenSubstitutions[HW::T_ENV_PREFILTER_MIP] = PRV + HW::ENV_PREFILTER_MIP;
     _tokenSubstitutions[HW::T_AMB_OCC_GAIN] = PRV + HW::AMB_OCC_GAIN;
     _tokenSubstitutions[HW::T_ALBEDO_TABLE_SIZE] = PRV + HW::ALBEDO_TABLE_SIZE;
+    _tokenSubstitutions[HW::T_GEOMPROP] = PRV + HW::GEOMPROP;
+    _tokenSubstitutions["$directionalAlbedoMethod"] = "MTLX_DIRECTIONAL_ALBEDO_METHOD";
+    _tokenSubstitutions["$airyFresnelIterations"] = "MTLX_AIRY_FRESNEL_ITERATIONS";
 
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "numActiveLightSources", WgslNumLightsNode::create()));
     _lightSamplingNodes.push_back(ShaderNode::create(nullptr, "sampleLightSource", WgslLightSamplerNode::create()));
+}
+
+void WgslShaderGenerator::setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
+{
+    HwShaderGenerator::setColorManagementSystem(colorManagementSystem);
+#ifdef MATERIALX_BUILD_OCIO
+    if (auto ocioCms = std::dynamic_pointer_cast<OcioColorManagementSystem>(colorManagementSystem))
+    {
+        ocioCms->setShaderNodeImplFactory(WgslOcioNode::create);
+    }
+#endif
 }
 
 void WgslShaderGenerator::registerImplementations(const string& target)
@@ -155,7 +174,7 @@ void WgslShaderGenerator::registerImplementations(const string& target)
     registerImplementation("IM_time_float_" + target, HwTimeNode::create);
     registerImplementation("IM_viewdirection_vector3_" + target, HwViewDirectionNode::create);
 
-    registerImplementation("IM_surface_" + target, HwSurfaceNode::create);
+    registerImplementation("IM_surface_" + target, WgslSurfaceNode::create);
     registerImplementation("IM_light_" + target, HwLightNode::create);
     registerImplementation("IM_point_light_" + target, HwLightShaderNode::create);
     registerImplementation("IM_directional_light_" + target, HwLightShaderNode::create);
@@ -163,7 +182,7 @@ void WgslShaderGenerator::registerImplementations(const string& target)
 
     registerImplementation("IM_transformpoint_vector3_" + target, HwTransformPointNode::create);
     registerImplementation("IM_transformvector_vector3_" + target, HwTransformVectorNode::create);
-    registerImplementation("IM_transformnormal_vector3_" + target, HwTransformNormalNode::create);
+    registerImplementation("IM_transformnormal_vector3_" + target, WgslTransformNormalNode::create);
 
     elementNames = {
         "IM_image_float_" + target,
@@ -307,6 +326,8 @@ void WgslShaderGenerator::emitTypeDefinitions(GenContext& context, ShaderStage& 
     // ClosureData, BSDF, VDF, EDF, material, FresnelData, makeClosureData.
     emitLibraryInclude("pbrlib/genwgsl/lib/mx_closure_type.wgsl", context, stage);
     emitLineBreak(stage);
+
+    ShaderGenerator::emitTypeDefinitions(context, stage);
 }
 
 void WgslShaderGenerator::emitUniforms(GenContext& context, ShaderStage& stage) const
@@ -391,6 +412,18 @@ void WgslShaderGenerator::emitTransmissionRender(GenContext& context, ShaderStag
         emitLibraryInclude("pbrlib/genwgsl/lib/mx_transmission_opacity.wgsl", context, stage);
     }
     emitLineBreak(stage);
+}
+
+void WgslShaderGenerator::emitShadowSupport(GenContext& context, ShaderStage& stage, bool lighting) const
+{
+    const bool shadowing = (lighting && context.getOptions().hwShadowMap) ||
+                           context.getOptions().hwWriteDepthMoments;
+    if (shadowing)
+    {
+        emitLibraryInclude("pbrlib/genwgsl/lib/mx_shadow.wgsl", context, stage);
+        emitLibraryInclude("pbrlib/genwgsl/lib/mx_shadow_platform.wgsl", context, stage);
+        emitLineBreak(stage);
+    }
 }
 
 void WgslShaderGenerator::emitLightFunctionDefinitions(const ShaderGraph& graph, GenContext& context, ShaderStage& stage) const
@@ -499,6 +532,7 @@ void WgslShaderGenerator::emitVertexStage(const ShaderGraph& graph, GenContext& 
     emitOutputs(context, stage);
 
     emitLibraryInclude("stdlib/genwgsl/lib/mx_math.wgsl", context, stage);
+    emitLibraryInclude("stdlib/genwgsl/lib/mx_math_platform.wgsl", context, stage);
     emitLineBreak(stage);
 
     emitFunctionDefinitions(graph, context, stage);
@@ -542,6 +576,11 @@ void WgslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
     // Constants.
     emitConstants(context, stage);
 
+    // GenOptions-controlled constants (mirror GLSL/MSL #define emission).
+    emitLine("const MTLX_DIRECTIONAL_ALBEDO_METHOD: i32 = " + std::to_string(int(context.getOptions().hwDirectionalAlbedoMethod)), stage);
+    emitLine("const MTLX_AIRY_FRESNEL_ITERATIONS: i32 = " + std::to_string(context.getOptions().hwAiryFresnelIterations), stage);
+    emitLineBreak(stage);
+
     // Uniforms (material + private), excluding the light data block.
     emitUniforms(context, stage);
 
@@ -550,6 +589,7 @@ void WgslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
 
     // Common math helpers.
     emitLibraryInclude("stdlib/genwgsl/lib/mx_math.wgsl", context, stage);
+    emitLibraryInclude("stdlib/genwgsl/lib/mx_math_platform.wgsl", context, stage);
     emitLineBreak(stage);
 
     const bool lighting = requiresLighting(graph);
@@ -567,6 +607,8 @@ void WgslShaderGenerator::emitPixelStage(const ShaderGraph& graph, GenContext& c
         emitSpecularEnvironment(context, stage);
         emitTransmissionRender(context, stage);
     }
+
+    emitShadowSupport(context, stage, lighting);
 
     if (emitLightUniforms)
     {
@@ -794,6 +836,72 @@ void WgslShaderGenerator::emitClosureDataParameter(const ShaderNode& node, GenCo
 void WgslShaderGenerator::emitBlock(const string& str, const FilePath& sourceFilename, GenContext& context, ShaderStage& stage) const
 {
     stage.addBlock(str, sourceFilename, context);
+}
+
+void WgslShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
+{
+    for (const auto& mxTypeDef : doc->getTypeDefs())
+    {
+        const string& typeName = mxTypeDef->getName();
+        const auto& members = mxTypeDef->getMembers();
+        if (members.empty())
+        {
+            continue;
+        }
+
+        auto structMembers = std::make_shared<StructMemberDescVec>();
+        for (const auto& member : members)
+        {
+            const auto memberType = _typeSystem->getType(member->getType());
+            const auto memberName = member->getName();
+            const auto memberDefaultValue = member->getValueString();
+            structMembers->emplace_back(StructMemberDesc(memberType, memberName, memberDefaultValue));
+        }
+
+        _typeSystem->registerType(typeName, TypeDesc::BASETYPE_STRUCT, TypeDesc::SEMANTIC_NONE, 1, structMembers);
+    }
+
+    for (TypeDesc typeDesc : _typeSystem->getTypes())
+    {
+        if (!typeDesc.isStruct())
+        {
+            continue;
+        }
+
+        const string& structTypeName = typeDesc.getName();
+        string defaultValue = structTypeName + "(";
+        string uniformDefaultValue = EMPTY_STRING;
+        string typeAlias = EMPTY_STRING;
+        string typeDefinition = "struct " + structTypeName + " {\n";
+
+        auto structMembers = typeDesc.getStructMembers();
+        if (structMembers)
+        {
+            string separator;
+            for (const auto& structMember : *structMembers)
+            {
+                const string& memberName = structMember.getName();
+                const string& memberDefaultValue = structMember.getDefaultValueStr();
+                const string memberTypeName = _syntax->getTypeName(structMember.getType());
+
+                defaultValue += separator + memberDefaultValue;
+                separator = ", ";
+                typeDefinition += "    " + memberName + ": " + memberTypeName + ",\n";
+            }
+        }
+
+        typeDefinition += "}";
+        defaultValue += ")";
+
+        StructTypeSyntaxPtr structTypeSyntax = _syntax->createStructSyntax(
+            structTypeName,
+            defaultValue,
+            uniformDefaultValue,
+            typeAlias,
+            typeDefinition);
+
+        _syntax->registerTypeSyntax(typeDesc, structTypeSyntax);
+    }
 }
 
 MATERIALX_NAMESPACE_END

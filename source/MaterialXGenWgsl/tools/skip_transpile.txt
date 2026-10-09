@@ -12,3 +12,6 @@ libraries/lights/genwgsl/mx_spot_light.wgsl
 
 # stdlib lib: WGSL platform gaps (mx_mod, mx_isinf; naga rejects GLSL isinf/mod)
 libraries/stdlib/genwgsl/lib/mx_math_platform.wgsl
+
+# pbrlib lib: shadow map sampling uses split texture/sampler (hand-written)
+libraries/pbrlib/genwgsl/lib/mx_shadow_platform.wgsl

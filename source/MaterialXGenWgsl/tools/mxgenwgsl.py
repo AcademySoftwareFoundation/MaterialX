@@ -34,6 +34,7 @@ Usage:
   python mxgenwgsl.py --libraries libraries --out build/genwgsl_generated
   python mxgenwgsl.py --libraries libraries --only mx_conductor_bsdf mx_math
   python mxgenwgsl.py --libraries libraries --clean   # delete generated .wgsl, keep skip_transpile.txt
+  python mxgenwgsl.py --bake-ocio --repo . --out libraries/stdlib/genwgsl/ocio
 '''
 
 import argparse
@@ -71,7 +72,7 @@ TOKEN_EXPANSIONS = {
     "$envLightIntensity": "mtlx_env_light_intensity()",
     "$envPrefilterMip": "mtlx_env_prefilter_mip()",
     "$envRadianceSampler2D": "mtlx_tex_sampler",
-    "$refractionTwoSided": "false",
+    "$refractionTwoSided": "mtlx_refraction_two_sided()",
     "$closureDataConstructor": "ClosureData(closureType, L, V, N, P, occlusion)",
 }
 
@@ -86,6 +87,9 @@ TOKEN_RESTORE_RULES = [
     (re.compile(re.escape("mtlx_env_light_intensity()")), "$envLightIntensity"),
     (re.compile(re.escape("mtlx_env_prefilter_mip()")), "$envPrefilterMip"),
     (re.compile(r"\bmtlx_tex_sampler\b"), "$texSamplerSampler2D"),
+    (re.compile(re.escape("mtlx_refraction_two_sided()")), "$refractionTwoSided"),
+    (re.compile(r"\bMTLX_DIRECTIONAL_ALBEDO_METHOD\b"), "$directionalAlbedoMethod"),
+    (re.compile(r"\bMTLX_AIRY_FRESNEL_ITERATIONS\b"), "$airyFresnelIterations"),
     (re.compile(r"\bmtlx_albedo_table\b"), "$albedoTable"),
     (re.compile(r"\bmtlx_env_radiance_stub\b"), "$envRadiance"),
     (re.compile(r"\bmtlx_env_irradiance_stub\b"), "$envIrradiance"),
@@ -96,6 +100,10 @@ TOKEN_RESTORE_RULES = [
 WGSL_ONLY_TOKENS = {
     "$envRadianceSampler": "u_envRadiance_sampler",
     "$envIrradianceSampler": "u_envIrradiance_sampler",
+    "$shadowMapSampler": "u_shadowMap_sampler",
+    "$ambOccMapSampler": "u_ambOccMap_sampler",
+    "$directionalAlbedoMethod": "MTLX_DIRECTIONAL_ALBEDO_METHOD",
+    "$airyFresnelIterations": "MTLX_AIRY_FRESNEL_ITERATIONS",
 }
 
 # $-tokens whose runtime values are i32 uniforms (naga `int - 1.0` → `int - 1i` fixup).
@@ -370,20 +378,72 @@ def nagaTokenDefinePreamble(libroot=None):
 
 # Post-transpile fixups: patch WGSL output for texture/sampler splitting and type correctness.
 
+def _matchBalancedCall(text, pos):
+    '''Return the end index (after closing paren) of a balanced call starting at ``pos``.
+
+    ``pos`` must point at the opening '(' of the call.  Returns -1 if no
+    balanced close is found.'''
+    depth = 0
+    i = pos
+    while i < len(text):
+        ch = text[i]
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return -1
+
+
 def patchWgslEnvLatlongCalls(text):
-    '''Expand combined env texture tokens to split texture+sampler args for WGSL.'''
+    '''Expand combined env texture tokens to split texture+sampler args for WGSL.
+
+    Uses parenthesis-aware matching so nested calls like
+    ``mx_latlong_alpha_to_lod(avgAlpha)`` inside the argument list are handled
+    correctly (the previous ``[^)]*`` regex stopped at the inner ')').
+    '''
     for env, samp in (("$envRadiance", "$envRadianceSampler"),
                       ("$envIrradiance", "$envIrradianceSampler")):
-        text = re.sub(
-            rf"mx_latlong_map_lookup\(([^)]*,\s*{re.escape(env)})\s*\)",
-            rf"mx_latlong_map_lookup(\1, {samp})",
-            text)
-        # Naga hoists env textures to a temp; expand the following latlong call.
-        text = re.sub(
-            rf"let\s+\w+\s*=\s*{re.escape(env)};\s*\n"
-            rf"(\s*let\s+\w+\s*=\s*)mx_latlong_map_lookup\(([^)]*,\s*)\w+\s*\)",
-            rf"\1mx_latlong_map_lookup(\2{env}, {samp})",
-            text)
+        # Pattern 2 first: naga hoists env texture to a temp variable.
+        # e.g. ``let _e159 = $envRadiance;\n   let _e160 = mx_latlong_map_lookup(..., _e159);``
+        # Remove the temp assignment and replace the temp name inside the call
+        # with the real env token.
+        hoist_re = re.compile(
+            rf"let\s+(\w+)\s*=\s*{re.escape(env)};\s*\n")
+        while True:
+            m = hoist_re.search(text)
+            if not m:
+                break
+            temp_name = m.group(1)
+            # Remove the temp-assignment line.
+            text = text[:m.start()] + text[m.end():]
+            # Replace the temp name with the env token in subsequent code
+            # (word-boundary match to avoid partial replacements).
+            text = re.sub(rf"\b{re.escape(temp_name)}\b", env, text)
+
+        # Pattern 1: direct call  mx_latlong_map_lookup(..., $envRadiance)
+        # Append sampler arg using balanced-paren matching.
+        tag = "mx_latlong_map_lookup("
+        start = 0
+        while True:
+            idx = text.find(tag, start)
+            if idx == -1:
+                break
+            paren_open = idx + len(tag) - 1  # index of '('
+            paren_close = _matchBalancedCall(text, paren_open)
+            if paren_close == -1:
+                start = idx + 1
+                continue
+            inner = text[paren_open + 1 : paren_close - 1]
+            # Already has sampler or doesn't end with our env token → skip.
+            if samp in inner or not inner.rstrip().endswith(env):
+                start = paren_close
+                continue
+            patched = text[idx:paren_close - 1] + ", " + samp + ")"
+            text = text[:idx] + patched + text[paren_close:]
+            start = idx + len(patched)
     return text
 
 
@@ -924,7 +984,7 @@ def _activeLibroot():
 TEXTURE_SAMPLER_NAMES = [
     "MTLXTOK_texSamplerSampler2D", "mtlx_tex_sampler",
     "mtlx_env_radiance_stub", "mtlx_env_irradiance_stub", "mtlx_albedo_table",
-    "MTLXTOK_envRadianceSampler2D",
+    "MTLXTOK_albedoTable", "MTLXTOK_envRadianceSampler2D",
 ]
 
 # GLSL texture → placeholder rewrite rules. Applied for each sampler name above.
@@ -986,6 +1046,17 @@ def expandLibTokens(text, libroot=None):
         escaped = re.escape(sampler)
         for pattern, replacement in TEXTURE_REWRITE_RULES:
             text = re.sub(pattern.replace("{S}", escaped), replacement, text)
+        uv = r"vec2\s*\([^)]+\)"
+        text = re.sub(rf"texture\s*\(\s*{escaped}\s*,\s*({uv})\s*\)\.rg",
+                      r"mtlx_tex_lookup_rg(\1)", text)
+        text = re.sub(rf"texture\s*\(\s*{escaped}\s*,\s*({uv})\s*\)\.b",
+                      r"mtlx_tex_lookup_b(\1)", text)
+        text = re.sub(rf"texture\s*\(\s*{escaped}\s*,\s*({uv})\s*\)\.rgb",
+                      r"mtlx_tex_lookup_rgb(\1, 0.0)", text)
+        text = re.sub(rf"textureLod\s*\(\s*{escaped}\s*,\s*({uv})\s*,\s*([^)]+)\)\.rgb",
+                      r"mtlx_tex_lookup_level_rgb(\1, \2)", text)
+        text = re.sub(rf"texture\s*\(\s*{escaped}\s*,\s*({uv})\s*\)(?!\.)",
+                      r"mtlx_tex_lookup_rgba(\1)", text)
     return text, tokenMap
 
 
@@ -1046,6 +1117,44 @@ def _restoreSamplerSignatures(text):
     return text
 
 
+def _find_matching_brace(source, open_brace):
+    depth = 0
+    for i in range(open_brace, len(source)):
+        if source[i] == "{":
+            depth += 1
+        elif source[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+    return -1
+
+
+def _hollowDeadPlaceholderIfFalse(text):
+    '''Remove bodies of `if false` blocks that reference transpile sampler/table placeholders.
+
+    Naga keeps preprocessor-dead code; after $-token restore those bodies contain
+    textureSample($texSamplerSampler2D, …) or mtlx_tex_size_x() with no valid bindings.
+    '''
+    search_from = 0
+    while True:
+        pos = text.find("if false {", search_from)
+        if pos == -1:
+            break
+        open_brace = text.find("{", pos)
+        if open_brace == -1:
+            break
+        close_brace = _find_matching_brace(text, open_brace)
+        if close_brace == -1:
+            break
+        body = text[open_brace + 1 : close_brace]
+        if ("$texSamplerSampler2D" in body or "mtlx_tex_size_x" in body
+                or "textureSample(tex_texture" in body):
+            if close_brace > open_brace + 1:
+                text = text[: open_brace + 1] + text[close_brace:]
+        search_from = close_brace + 1
+    return text
+
+
 def applyWgslLibPostRestore(text, libroot=None):
     '''WGSL-specific fixes applied after $-token restoration on generated lib/node output.
 
@@ -1068,6 +1177,13 @@ def applyWgslLibPostRestore(text, libroot=None):
     # Phase 5: arithmetic and env-latlong fixups.
     text = patchIntUniformTokenArithmetic(text)
     text = patchWgslEnvLatlongCalls(text)
+    # Phase 6: u32 bool uniforms restored as $-tokens need bool() when stored in locals for if().
+    text = re.sub(
+        r"(\blet _\w+ = )(\$refractionTwoSided)\s*;",
+        r"\1bool(\2);",
+        text,
+    )
+    text = _hollowDeadPlaceholderIfFalse(text)
     return text
 
 
@@ -1221,7 +1337,9 @@ def transpileGlslConsts(text):
         scope = scope.replace(fn["full"], "")
     out = []
     for m in re.finditer(r"^\s*const\s+(\w+)\s+(\w+)\s*=\s*([^;]+);", scope, re.M):
-        out.append(f"const {m.group(2)}: {glslTypeToWgsl(m.group(1))} = {m.group(3)};")
+        value = re.sub(r"\bmat3\s*\(", "mat3x3f(", m.group(3))
+        value = re.sub(r"\bmat4\s*\(", "mat4x4f(", value)
+        out.append(f"const {m.group(2)}: {glslTypeToWgsl(m.group(1))} = {value};")
     return out
 
 
@@ -1576,7 +1694,7 @@ def validateExpansionSymmetry():
     for rx, _tok in TOKEN_RESTORE_RULES:
         restored_patterns.add(rx.pattern.replace("\\", ""))
     # Tokens that are intentionally not restored (literals, sampler sig, closure ctor).
-    skip_tokens = {"$texSamplerSignature", "$albedoTableSize", "$refractionTwoSided",
+    skip_tokens = {"$texSamplerSignature", "$albedoTableSize",
                    "$closureDataConstructor"}
     errors = []
     for token, expr in TOKEN_EXPANSIONS.items():
@@ -1625,6 +1743,7 @@ int mtlx_env_radiance_tex() { return mtlx_env_radiance_stub; }
 int mtlx_env_irradiance_tex() { return mtlx_env_irradiance_stub; }
 vec3 mtlx_env_light_intensity() { return vec3(1.0); }
 float mtlx_env_prefilter_mip() { return 0.0; }
+bool mtlx_refraction_two_sided() { return false; }
 vec3 mtlx_tex_lookup_rgb(vec2 uv, float lod) { return vec3(0.0); }
 vec4 mtlx_tex_lookup_rgba(vec2 uv) { return vec4(0.0); }
 vec2 mtlx_tex_lookup_rg(vec2 uv) { return vec2(0.0); }
@@ -1651,6 +1770,34 @@ def nagaVersion(naga):
         return None
 
 
+def transpileOcioGlslFunction(glslBody, functionName, nagaPath=None):
+    '''Transpile OCIO GpuShaderDesc GLSL (single function) to a WGSL fn body.
+
+    Returns (wgsl_text, None) or (None, error_message).'''
+    global NAGA
+    if nagaPath:
+        NAGA = nagaPath
+    elif not NAGA:
+        NAGA = os.environ.get("NAGA", "naga")
+    glsl = ("#version 450\nprecision highp float;\n" + glslBody.strip() + FRAG_MAIN_EPILOGUE)
+    wgsl, err = nagaTranspileGlsl(glsl)
+    if wgsl is None:
+        return None, err
+    text = extractTranspiledFn(wgsl, functionName, functionName)
+    if text is None:
+        return None, f"function {functionName!r} not found in naga output"
+    text = cleanupFunction(text, None)
+    for rx, repl in TYPE_FIXUPS:
+        text = rx.sub(repl, text)
+    text = re.sub(r"\b(\d+\.\d+(?:[eE][-+]?\d+)?)f\b", r"\1", text)
+    text = re.sub(r"(?<![\w.])(\d+)f\b", r"\1.0", text)
+    try:
+        text = assertValidWgslSyntax(text, functionName or "ocio")
+    except ValueError as exc:
+        return None, str(exc)
+    return text, None
+
+
 def nagaTranspileGlsl(glslSrc, debugPath=None):
     '''Run naga on a complete GLSL fragment shader; return (WGSL text, None) or (None, error).
 
@@ -1670,12 +1817,46 @@ def nagaTranspileGlsl(glslSrc, debugPath=None):
         return wtmp.read_text(encoding="utf-8"), None
 
 
-# Pin preprocessor branches to match current genwgsl behavior. Method 0 = analytic directional
-# albedo (table/MC paths in microfacet libs are excluded from the WGSL port).
+# Placeholders for GenOptions-controlled settings. These are declared as const int
+# in the naga GLSL preamble (with default values) and later restored to $-tokens by
+# TOKEN_RESTORE_RULES. The WGSL shader generator emits the runtime values as module
+# constants at the top of each generated shader.
 LIB_PREAMBLE = """
-#define DIRECTIONAL_ALBEDO_METHOD 0
-#define AIRY_FRESNEL_ITERATIONS 2
+const int MTLX_DIRECTIONAL_ALBEDO_METHOD = 0;
+const int MTLX_AIRY_FRESNEL_ITERATIONS = 2;
 """
+
+
+def preprocessAlbedoDirectives(text):
+    '''Rewrite ``#if DIRECTIONAL_ALBEDO_METHOD == N`` / ``#elif`` / ``#endif`` chains into
+    runtime ``if`` / ``else if`` / ``else`` blocks so all branches survive naga transpilation.
+
+    Also rewrites bare ``AIRY_FRESNEL_ITERATIONS`` references to the placeholder const.
+    '''
+    # Replace #if / #elif / #else / #endif for DIRECTIONAL_ALBEDO_METHOD
+    text = re.sub(r"#if\s+DIRECTIONAL_ALBEDO_METHOD\s*==\s*(\d+)",
+                  r"if (MTLX_DIRECTIONAL_ALBEDO_METHOD == \1) {", text)
+    text = re.sub(r"#elif\s+DIRECTIONAL_ALBEDO_METHOD\s*==\s*(\d+)",
+                  r"} else if (MTLX_DIRECTIONAL_ALBEDO_METHOD == \1) {", text)
+    text = re.sub(r"#else\s*(?=\n)", "} else {", text)
+    text = re.sub(r"#endif\s*(?=\n)", "}", text)
+    # Replace bare AIRY_FRESNEL_ITERATIONS with the placeholder const.
+    text = re.sub(r"\bAIRY_FRESNEL_ITERATIONS\b", "MTLX_AIRY_FRESNEL_ITERATIONS", text)
+    text = re.sub(
+        r"if \(MTLX_DIRECTIONAL_ALBEDO_METHOD == 0\) \{\s*float dirAlbedo = ([^;]+);\s*\}"
+        r" else if \(MTLX_DIRECTIONAL_ALBEDO_METHOD == 1\) \{\s*float dirAlbedo = ([^;]+);\s*\}"
+        r" else \{\s*float dirAlbedo = ([^;]+);\s*\}\s*"
+        r"return clamp\(dirAlbedo, 0\.0, 1\.0\);",
+        r"float dirAlbedo = (MTLX_DIRECTIONAL_ALBEDO_METHOD == 0) ? (\1) : "
+        r"((MTLX_DIRECTIONAL_ALBEDO_METHOD == 1) ? (\2) : (\3));\n    return clamp(dirAlbedo, 0.0, 1.0);",
+        text)
+    text = re.sub(
+        r"if \(MTLX_DIRECTIONAL_ALBEDO_METHOD == 2\) \{\s*float dirAlbedo = ([^;]+);\s*\}"
+        r" else \{\s*float dirAlbedo = ([^;]+);\s*\}\s*"
+        r"return clamp\(dirAlbedo, 0\.0, 1\.0\);",
+        r"float dirAlbedo = (MTLX_DIRECTIONAL_ALBEDO_METHOD == 2) ? (\1) : (\2);\n    return clamp(dirAlbedo, 0.0, 1.0);",
+        text)
+    return text
 
 # naga's GLSL frontend requires a staged shader with an entry point; every wrapped fragment ends
 # with this do-nothing fragment `main`. naga keeps the non-entry function bodies we actually want.
@@ -2007,6 +2188,9 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
     raw = glslPath.read_text(encoding="utf-8")
     fileStem = glslPath.stem
     raw = preFilterLibGlsl(fileStem, raw)
+    # Rewrite #if DIRECTIONAL_ALBEDO_METHOD / AIRY_FRESNEL_ITERATIONS preprocessor
+    # chains into runtime if/else so all branches survive naga transpilation.
+    raw = preprocessAlbedoDirectives(raw)
     # Replace $-tokens with MTLXTOK_* sentinels so naga sees valid GLSL identifiers.
     src, tokenMap = expandLibTokens(raw)
     tokenDefines = nagaTokenDefinePreamble(libroot)
@@ -2025,6 +2209,10 @@ def transpileLibFile(glslPath, outPath, base, protos, overloaded, libName, libro
     for f in localFns:
         depSrc = depSrc.replace(f["full"], "")
     depSrc = sortDepFunctionBodies(depSrc)
+    if depSrc:
+        depSrc = preprocessAlbedoDirectives(depSrc)
+        depSrc, depMap = expandLibTokens(depSrc)
+        tokenMap.update(depMap)
     # Only include texture placeholders if the source actually references texture operations.
     samplerPreamble = (TEXTURE_EXPANSION_PREAMBLE
                          if libNeedsTextureExpansions(raw) or libNeedsTextureExpansions(depSrc) else "")
@@ -2251,8 +2439,11 @@ def transpile(nodePath, outPath, base, protos, overloaded, libSymbols):
     banner = generatedBanner(srcRel)
 
     fileLead = fileLeadComment(nodeSrc)
+    # Emit file-scope constants (e.g. mx_blackbody's XYZ_to_RGB matrix).
+    consts = transpileGlslConsts(nodeSrc)
+    constBlock = ("\n".join(consts) + "\n\n") if consts else ""
     body = applyWgslLibPostRestore("\n\n".join(outputs))
-    writeGenerated(outPath, banner + fileLead + header + body + "\n",
+    writeGenerated(outPath, banner + fileLead + header + constBlock + body + "\n",
                     nodePath.name)
     return True
 
@@ -2276,6 +2467,187 @@ def cleanGenerated(libroot):
     return removed
 
 
+# OCIO bake defaults (see --bake-ocio).
+_OCIO_IMPL_PREFIX = "IMPL_MXOCIO_"
+_OCIO_COLOR3_SUFFIX_LEN = len("_color3")
+_OCIO_COLOR4_SUFFIX_LEN = len("_color4")
+_OCIO_DEFAULT_TARGET_SPACE = "lin_rec709_scene"
+_OCIO_DEFAULT_CONFIGS = (
+    "ocio://studio-config-latest",
+    "ocio://cg-config-latest",
+)
+_OCIO_DEFAULT_MTLX = (
+    "resources/Materials/TestSuite/stdlib/color_management/ocio_color_management.mtlx",
+)
+_OCIO_TYPE_DESC_CTX = None
+
+
+def _ocio_function_name_from_impl(impl_name: str) -> str:
+    start = len(_OCIO_IMPL_PREFIX)
+    if len(impl_name) <= start:
+        return impl_name
+    if impl_name.endswith("_color4"):
+        suffix_len = _OCIO_COLOR4_SUFFIX_LEN
+    else:
+        suffix_len = _OCIO_COLOR3_SUFFIX_LEN
+    length = len(impl_name) - suffix_len - start
+    return impl_name[start : start + length]
+
+
+def _ocio_type_desc_context(mx, mx_gen_shader):
+    global _OCIO_TYPE_DESC_CTX
+    if _OCIO_TYPE_DESC_CTX is not None:
+        return _OCIO_TYPE_DESC_CTX
+    try:
+        import MaterialX.PyMaterialXGenWgsl as mx_gen_wgsl
+
+        gen = mx_gen_wgsl.WgslShaderGenerator.create()
+    except ImportError:
+        import MaterialX.PyMaterialXGenGlsl as mx_gen_glsl
+
+        gen = mx_gen_glsl.GlslShaderGenerator.create()
+    _OCIO_TYPE_DESC_CTX = mx_gen_shader.GenContext(gen)
+    return _OCIO_TYPE_DESC_CTX
+
+
+def _ocio_iter_color_ports(mx, element):
+    if element.isA(mx.Input):
+        cs = element.getAttribute("colorspace")
+        if cs:
+            typ = element.getType()
+            if typ in ("color3", "color4"):
+                yield cs, typ
+    for child in element.getChildren():
+        yield from _ocio_iter_color_ports(mx, child)
+
+
+def _ocio_collect_transforms(mx, doc, target_space: str):
+    pairs = set()
+    for source, typ in _ocio_iter_color_ports(mx, doc):
+        pairs.add((source, target_space, typ))
+    return pairs
+
+
+def _ocio_load_documents(mx, repo_root: str, mtlx_paths):
+    search_path = mx.FileSearchPath(repo_root)
+    search_path.append(mx.getDefaultDataSearchPath())
+    docs = []
+    for rel in mtlx_paths:
+        path = os.path.join(repo_root, rel.replace("/", os.sep))
+        if not os.path.isfile(path):
+            print(f"  SKIP missing: {rel}", file=sys.stderr)
+            continue
+        doc = mx.createDocument()
+        mx.readFromXmlFile(doc, path, search_path)
+        docs.append((rel, doc))
+    return docs, search_path
+
+
+def _ocio_register_transforms(mx, mx_gen_shader, cms, transforms):
+    ctx = _ocio_type_desc_context(mx, mx_gen_shader)
+
+    def type_desc(name: str):
+        return ctx.getTypeDesc(name)
+
+    for source, target, typ in sorted(transforms):
+        t = mx_gen_shader.ColorSpaceTransform(source, target, type_desc(typ))
+        if not cms.supportsTransform(t):
+            print(f"  SKIP unsupported transform: {source!r} -> {target!r} ({typ})")
+            continue
+        cms.ensureTransformNodeDef(t)
+
+
+def _ocio_implementations(doc):
+    for impl in doc.getImplementations():
+        name = impl.getName()
+        if not name.startswith(_OCIO_IMPL_PREFIX):
+            continue
+        if impl.getTarget() != "genwgsl":
+            continue
+        yield impl
+
+
+def bakeOcioConfig(config_name: str, repo_root: str, out_dir: str, mtlx_paths, target_space: str, naga: str):
+    try:
+        import MaterialX as mx
+        import MaterialX.PyMaterialXGenShader as mx_gen_shader
+    except ImportError as exc:
+        print(f"ERROR: --bake-ocio requires PyMaterialXGenShader: {exc}", file=sys.stderr)
+        return 1
+
+    stdlib = mx.createDocument()
+    search_path = mx.FileSearchPath(repo_root)
+    search_path.append(mx.getDefaultDataSearchPath())
+    mx.loadLibraries(mx.getDefaultDataLibraryFolders(), search_path, stdlib)
+
+    cms = mx_gen_shader.OcioColorManagementSystem.createFromBuiltinConfig(config_name, "genglsl")
+    cms.loadLibrary(stdlib)
+
+    transforms = set()
+    docs, _ = _ocio_load_documents(mx, repo_root, mtlx_paths)
+    for _, doc in docs:
+        transforms |= _ocio_collect_transforms(mx, doc, target_space)
+
+    if not transforms:
+        print(f"  No color transforms found for {config_name}")
+        return 0
+
+    _ocio_register_transforms(mx, mx_gen_shader, cms, transforms)
+
+    lib_doc = cms.getDocument()
+    os.makedirs(out_dir, exist_ok=True)
+    written = 0
+    failures = 0
+
+    for impl in _ocio_implementations(lib_doc):
+        impl_name = impl.getName()
+        if not cms.hasImplementation(impl_name):
+            continue
+        fn = _ocio_function_name_from_impl(impl_name)
+        glsl = cms.getGpuProcessorCode(impl_name, fn)
+        if not glsl:
+            print(f"  FAIL empty GLSL: {impl_name}", file=sys.stderr)
+            failures += 1
+            continue
+        wgsl, err = transpileOcioGlslFunction(glsl, fn, nagaPath=naga)
+        if wgsl is None:
+            print(f"  FAIL transpile {fn}: {err}", file=sys.stderr)
+            failures += 1
+            continue
+        out_path = os.path.join(out_dir, fn + ".wgsl")
+        with open(out_path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(wgsl if wgsl.endswith("\n") else wgsl + "\n")
+        written += 1
+        print(f"  wrote {fn}.wgsl")
+
+    print(f"OCIO bake ({config_name}): {written} file(s), {failures} failure(s)")
+    return failures
+
+
+def runBakeOcio(args) -> int:
+    tools_dir = Path(__file__).resolve().parent
+    repo_root = args.repo or str(tools_dir.parent.parent.parent)
+    out_dir = args.out or os.path.join(repo_root, "libraries", "stdlib", "genwgsl", "ocio")
+    configs = args.ocio_config or list(_OCIO_DEFAULT_CONFIGS)
+    mtlx_paths = args.ocio_mtlx or list(_OCIO_DEFAULT_MTLX)
+    naga = args.naga or os.environ.get("NAGA") or shutil.which("naga") or "naga"
+
+    if not nagaVersion(naga):
+        print(f"ERROR: naga not runnable: {naga!r} (install naga-cli or set NAGA)", file=sys.stderr)
+        return 2
+
+    total_failures = 0
+    for config in configs:
+        try:
+            total_failures += bakeOcioConfig(
+                config, repo_root, out_dir, mtlx_paths, args.ocio_target_space, naga)
+        except Exception as exc:
+            print(f"  FAIL config {config}: {exc}", file=sys.stderr)
+            total_failures += 1
+
+    return 1 if total_failures else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="Transpile genglsl node fragments to genwgsl.")
     ap.add_argument("--libraries", default="libraries")
@@ -2284,8 +2656,21 @@ def main():
     ap.add_argument("--clean", action="store_true",
                     help="Delete generated genwgsl .wgsl under --libraries (keeping the hand-written "
                          "files in skip_transpile.txt), then exit. Does not run naga.")
+    ap.add_argument("--bake-ocio", action="store_true",
+                    help="Pre-transpile OCIO GpuShaderDesc GLSL to stdlib/genwgsl/ocio/*.wgsl, then exit.")
+    ap.add_argument("--repo", default=None,
+                    help="MaterialX repo root for --bake-ocio (default: auto-detect from this script).")
+    ap.add_argument("--ocio-config", action="append", dest="ocio_config", default=[],
+                    help=f"OCIO built-in config URI for --bake-ocio (default: {_OCIO_DEFAULT_CONFIGS}).")
+    ap.add_argument("--ocio-mtlx", action="append", dest="ocio_mtlx", default=[],
+                    help="Relative .mtlx path under --repo for transform discovery (repeatable).")
+    ap.add_argument("--ocio-target-space", default=_OCIO_DEFAULT_TARGET_SPACE,
+                    help=f"Rendering color space for --bake-ocio (default: {_OCIO_DEFAULT_TARGET_SPACE}).")
     ap.add_argument("--naga", help="Path to the naga CLI (overrides the NAGA env var / PATH lookup).")
     args = ap.parse_args()
+
+    if args.bake_ocio:
+        return runBakeOcio(args)
 
     if args.clean:
         cleanGenerated(args.libraries)
@@ -2306,6 +2691,11 @@ def main():
     # tree-sitter (readability cleanup) is optional; announce once if absent so the verbose output
     # isn't mistaken for a bug. Generation itself does not need it.
     if not cleanupAvailable():
+        if os.environ.get("MTLX_REQUIRE_WGSL_CLEANUP", ""):
+            print("ERROR: MTLX_REQUIRE_WGSL_CLEANUP is set but tree-sitter-language-pack "
+                  "is not installed. Install: pip install -r "
+                  "source/MaterialXGenWgsl/tools/requirements-transpile.txt")
+            sys.exit(1)
         print("INFO: tree-sitter-language-pack not installed; skipping WGSL readability cleanup "
               "(output is valid WGSL but verbose). Install: pip install -r "
               "source/MaterialXGenWgsl/tools/requirements-transpile.txt")

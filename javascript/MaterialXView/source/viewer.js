@@ -1156,10 +1156,9 @@ export class Material
             const isTransparent = configureWebGPUGenContext(mx, gen, genContext, elem);
             const { shader, vertexWgsl, pixelWgsl, manifest } = generateWebGPUShader(mx, gen, genContext, elem);
 
-            const flipV = viewer.getScene().getFlipGeometryV();
             const uniforms = {
-                ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath, flipV),
-                ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath, flipV),
+                ...getUniformValues(shader.getStage('vertex'), textureLoader, searchPath),
+                ...getUniformValues(shader.getStage('pixel'), textureLoader, searchPath),
             };
             const textures = buildTextureMap(manifest, uniforms, THREE);
 

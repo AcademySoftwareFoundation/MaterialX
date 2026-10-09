@@ -98,3 +98,14 @@ if (MATERIALX_BUILD_DOCS)
         endif()
     endforeach()
 endif()
+
+# MaterialXGenWgsl configures before PyMaterialX; wire OCIO bake after py modules exist.
+if(TARGET MaterialXGenWgslOcioLibrary AND TARGET PyMaterialXGenShader)
+    add_dependencies(MaterialXGenWgslOcioLibrary
+        PyMaterialXGenShader PyMaterialXCore PyMaterialXFormat)
+    if(TARGET PyMaterialXGenWgsl)
+        add_dependencies(MaterialXGenWgslOcioLibrary PyMaterialXGenWgsl)
+    elseif(TARGET PyMaterialXGenGlsl)
+        add_dependencies(MaterialXGenWgslOcioLibrary PyMaterialXGenGlsl)
+    endif()
+endif()

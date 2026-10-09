@@ -31,7 +31,9 @@ class WgslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
 
     void addSkipFiles() override
     {
+#ifndef MATERIALX_BUILD_OCIO
         _skipFiles.insert("ocio_color_management.mtlx");
+#endif
         ParentClass::addSkipFiles();
     }
 

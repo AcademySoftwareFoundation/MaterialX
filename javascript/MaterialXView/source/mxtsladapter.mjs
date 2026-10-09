@@ -166,8 +166,9 @@ function flattenLightDataUniform( wgsl ) {
 		maxCount = constM ? parseInt( constM[ 1 ], 10 ) : 1;
 
 	}
-	const flatCount = maxCount * layout.vec4Stride;
-	const stride = layout.vec4Stride;
+	// Host-shareable struct size in vec4 units (vec3 members occupy a full 16-byte slot).
+	const stride = Math.max( 1, Math.ceil( layout.structSize / 16 ) );
+	const flatCount = maxCount * stride;
 
 	const unpackLines = [ 'var out: LightData;' ];
 	for ( const p of layout.placements ) {

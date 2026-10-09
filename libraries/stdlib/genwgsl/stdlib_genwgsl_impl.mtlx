@@ -220,10 +220,10 @@
   <implementation name="IM_add_vector3FA_genwgsl" nodedef="ND_add_vector3FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_vector4_genwgsl" nodedef="ND_add_vector4" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
   <implementation name="IM_add_vector4FA_genwgsl" nodedef="ND_add_vector4FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
-  <implementation name="IM_add_matrix33_genwgsl" nodedef="ND_add_matrix33" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
-  <implementation name="IM_add_matrix33FA_genwgsl" nodedef="ND_add_matrix33FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
-  <implementation name="IM_add_matrix44_genwgsl" nodedef="ND_add_matrix44" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
-  <implementation name="IM_add_matrix44FA_genwgsl" nodedef="ND_add_matrix44FA" target="genwgsl" sourcecode="{{in1}} + {{in2}}" />
+  <implementation name="IM_add_matrix33_genwgsl" nodedef="ND_add_matrix33" target="genwgsl" sourcecode="mx_add_mat3x3({{in1}}, {{in2}})" />
+  <implementation name="IM_add_matrix33FA_genwgsl" nodedef="ND_add_matrix33FA" target="genwgsl" sourcecode="mx_add_mat3x3_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_add_matrix44_genwgsl" nodedef="ND_add_matrix44" target="genwgsl" sourcecode="mx_add_mat4x4({{in1}}, {{in2}})" />
+  <implementation name="IM_add_matrix44FA_genwgsl" nodedef="ND_add_matrix44FA" target="genwgsl" sourcecode="mx_add_mat4x4_f32({{in1}}, {{in2}})" />
 
   <!-- <subtract> -->
   <implementation name="IM_subtract_float_genwgsl" nodedef="ND_subtract_float" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
@@ -238,10 +238,10 @@
   <implementation name="IM_subtract_vector3FA_genwgsl" nodedef="ND_subtract_vector3FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_vector4_genwgsl" nodedef="ND_subtract_vector4" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
   <implementation name="IM_subtract_vector4FA_genwgsl" nodedef="ND_subtract_vector4FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
-  <implementation name="IM_subtract_matrix33_genwgsl" nodedef="ND_subtract_matrix33" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
-  <implementation name="IM_subtract_matrix33FA_genwgsl" nodedef="ND_subtract_matrix33FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
-  <implementation name="IM_subtract_matrix44_genwgsl" nodedef="ND_subtract_matrix44" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
-  <implementation name="IM_subtract_matrix44FA_genwgsl" nodedef="ND_subtract_matrix44FA" target="genwgsl" sourcecode="{{in1}} - {{in2}}" />
+  <implementation name="IM_subtract_matrix33_genwgsl" nodedef="ND_subtract_matrix33" target="genwgsl" sourcecode="mx_sub_mat3x3({{in1}}, {{in2}})" />
+  <implementation name="IM_subtract_matrix33FA_genwgsl" nodedef="ND_subtract_matrix33FA" target="genwgsl" sourcecode="mx_sub_mat3x3_f32({{in1}}, {{in2}})" />
+  <implementation name="IM_subtract_matrix44_genwgsl" nodedef="ND_subtract_matrix44" target="genwgsl" sourcecode="mx_sub_mat4x4({{in1}}, {{in2}})" />
+  <implementation name="IM_subtract_matrix44FA_genwgsl" nodedef="ND_subtract_matrix44FA" target="genwgsl" sourcecode="mx_sub_mat4x4_f32({{in1}}, {{in2}})" />
 
   <!-- <multiply> -->
   <implementation name="IM_multiply_float_genwgsl" nodedef="ND_multiply_float" target="genwgsl" sourcecode="{{in1}} * {{in2}}" />
@@ -270,8 +270,8 @@
   <implementation name="IM_divide_vector3FA_genwgsl" nodedef="ND_divide_vector3FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4_genwgsl" nodedef="ND_divide_vector4" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
   <implementation name="IM_divide_vector4FA_genwgsl" nodedef="ND_divide_vector4FA" target="genwgsl" sourcecode="{{in1}} / {{in2}}" />
-  <implementation name="IM_divide_matrix33_genwgsl" nodedef="ND_divide_matrix33" target="genwgsl" sourcecode="(mx_inverse({{in2}}) * {{in1}})" />
-  <implementation name="IM_divide_matrix44_genwgsl" nodedef="ND_divide_matrix44" target="genwgsl" sourcecode="(mx_inverse({{in2}}) * {{in1}})" />
+  <implementation name="IM_divide_matrix33_genwgsl" nodedef="ND_divide_matrix33" target="genwgsl" sourcecode="(mx_inverse_mat3({{in2}}) * {{in1}})" />
+  <implementation name="IM_divide_matrix44_genwgsl" nodedef="ND_divide_matrix44" target="genwgsl" sourcecode="(mx_inverse_mat4({{in2}}) * {{in1}})" />
 
   <!-- <modulo> — WGSL has no built-in mod(); use mx_mod_* wrappers from mx_math.wgsl -->
   <implementation name="IM_modulo_float_genwgsl" nodedef="ND_modulo_float" target="genwgsl" sourcecode="mx_mod_f32({{in1}}, {{in2}})" />
@@ -488,8 +488,8 @@
   <implementation name="IM_determinant_matrix44_genwgsl" nodedef="ND_determinant_matrix44" target="genwgsl" sourcecode="determinant({{in}})" />
 
   <!-- <invertmatrix> -->
-  <implementation name="IM_invertmatrix_matrix33_genwgsl" nodedef="ND_invertmatrix_matrix33" target="genwgsl" sourcecode="mx_inverse({{in}})" />
-  <implementation name="IM_invertmatrix_matrix44_genwgsl" nodedef="ND_invertmatrix_matrix44" target="genwgsl" sourcecode="mx_inverse({{in}})" />
+  <implementation name="IM_invertmatrix_matrix33_genwgsl" nodedef="ND_invertmatrix_matrix33" target="genwgsl" sourcecode="mx_inverse_mat3({{in}})" />
+  <implementation name="IM_invertmatrix_matrix44_genwgsl" nodedef="ND_invertmatrix_matrix44" target="genwgsl" sourcecode="mx_inverse_mat4({{in}})" />
 
   <!-- <rotate2d> -->
   <implementation name="IM_rotate2d_vector2_genwgsl" nodedef="ND_rotate2d_vector2" file="mx_rotate_vector2.wgsl" function="mx_rotate_vector2" target="genwgsl" />
@@ -625,8 +625,8 @@
   <implementation name="IM_ifgreater_vector2_genwgsl" nodedef="ND_ifgreater_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_vector3_genwgsl" nodedef="ND_ifgreater_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_vector4_genwgsl" nodedef="ND_ifgreater_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
-  <implementation name="IM_ifgreater_matrix33_genwgsl" nodedef="ND_ifgreater_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
-  <implementation name="IM_ifgreater_matrix44_genwgsl" nodedef="ND_ifgreater_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix33_genwgsl" nodedef="ND_ifgreater_matrix33" target="genwgsl" sourcecode="mx_ifgreater_mat3({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreater_matrix44_genwgsl" nodedef="ND_ifgreater_matrix44" target="genwgsl" sourcecode="mx_ifgreater_mat4({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_boolean_genwgsl" nodedef="ND_ifgreater_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_floatI_genwgsl" nodedef="ND_ifgreater_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_integerI_genwgsl" nodedef="ND_ifgreater_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
@@ -635,8 +635,8 @@
   <implementation name="IM_ifgreater_vector2I_genwgsl" nodedef="ND_ifgreater_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_vector3I_genwgsl" nodedef="ND_ifgreater_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
   <implementation name="IM_ifgreater_vector4I_genwgsl" nodedef="ND_ifgreater_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
-  <implementation name="IM_ifgreater_matrix33I_genwgsl" nodedef="ND_ifgreater_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
-  <implementation name="IM_ifgreater_matrix44I_genwgsl" nodedef="ND_ifgreater_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} > {{value2}}))" />
+  <implementation name="IM_ifgreater_matrix33I_genwgsl" nodedef="ND_ifgreater_matrix33I" target="genwgsl" sourcecode="mx_ifgreater_i_mat3({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreater_matrix44I_genwgsl" nodedef="ND_ifgreater_matrix44I" target="genwgsl" sourcecode="mx_ifgreater_i_mat4({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreater_booleanI_genwgsl" nodedef="ND_ifgreater_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} > {{value2}}))" />
 
   <!-- <ifgreatereq -->
@@ -647,8 +647,8 @@
   <implementation name="IM_ifgreatereq_vector2_genwgsl" nodedef="ND_ifgreatereq_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_vector3_genwgsl" nodedef="ND_ifgreatereq_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_vector4_genwgsl" nodedef="ND_ifgreatereq_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
-  <implementation name="IM_ifgreatereq_matrix33_genwgsl" nodedef="ND_ifgreatereq_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
-  <implementation name="IM_ifgreatereq_matrix44_genwgsl" nodedef="ND_ifgreatereq_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix33_genwgsl" nodedef="ND_ifgreatereq_matrix33" target="genwgsl" sourcecode="mx_ifgreatereq_mat3({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreatereq_matrix44_genwgsl" nodedef="ND_ifgreatereq_matrix44" target="genwgsl" sourcecode="mx_ifgreatereq_mat4({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_boolean_genwgsl" nodedef="ND_ifgreatereq_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_floatI_genwgsl" nodedef="ND_ifgreatereq_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_integerI_genwgsl" nodedef="ND_ifgreatereq_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
@@ -657,8 +657,8 @@
   <implementation name="IM_ifgreatereq_vector2I_genwgsl" nodedef="ND_ifgreatereq_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_vector3I_genwgsl" nodedef="ND_ifgreatereq_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
   <implementation name="IM_ifgreatereq_vector4I_genwgsl" nodedef="ND_ifgreatereq_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
-  <implementation name="IM_ifgreatereq_matrix33I_genwgsl" nodedef="ND_ifgreatereq_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
-  <implementation name="IM_ifgreatereq_matrix44I_genwgsl" nodedef="ND_ifgreatereq_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} >= {{value2}}))" />
+  <implementation name="IM_ifgreatereq_matrix33I_genwgsl" nodedef="ND_ifgreatereq_matrix33I" target="genwgsl" sourcecode="mx_ifgreatereq_i_mat3({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifgreatereq_matrix44I_genwgsl" nodedef="ND_ifgreatereq_matrix44I" target="genwgsl" sourcecode="mx_ifgreatereq_i_mat4({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifgreatereq_booleanI_genwgsl" nodedef="ND_ifgreatereq_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} >= {{value2}}))" />
 
   <!-- <ifequal -->
@@ -669,8 +669,8 @@
   <implementation name="IM_ifequal_vector2_genwgsl" nodedef="ND_ifequal_vector2" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector3_genwgsl" nodedef="ND_ifequal_vector3" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector4_genwgsl" nodedef="ND_ifequal_vector4" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix33_genwgsl" nodedef="ND_ifequal_matrix33" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix44_genwgsl" nodedef="ND_ifequal_matrix44" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33_genwgsl" nodedef="ND_ifequal_matrix33" target="genwgsl" sourcecode="mx_ifequal_mat3_float({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_matrix44_genwgsl" nodedef="ND_ifequal_matrix44" target="genwgsl" sourcecode="mx_ifequal_mat4_float({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_boolean_genwgsl" nodedef="ND_ifequal_boolean" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_floatI_genwgsl" nodedef="ND_ifequal_floatI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_integerI_genwgsl" nodedef="ND_ifequal_integerI" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
@@ -679,8 +679,8 @@
   <implementation name="IM_ifequal_vector2I_genwgsl" nodedef="ND_ifequal_vector2I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector3I_genwgsl" nodedef="ND_ifequal_vector3I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector4I_genwgsl" nodedef="ND_ifequal_vector4I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix33I_genwgsl" nodedef="ND_ifequal_matrix33I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix44I_genwgsl" nodedef="ND_ifequal_matrix44I" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33I_genwgsl" nodedef="ND_ifequal_matrix33I" target="genwgsl" sourcecode="mx_ifequal_mat3_int({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_matrix44I_genwgsl" nodedef="ND_ifequal_matrix44I" target="genwgsl" sourcecode="mx_ifequal_mat4_int({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_booleanI_genwgsl" nodedef="ND_ifequal_booleanI" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_floatB_genwgsl" nodedef="ND_ifequal_floatB" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_integerB_genwgsl" nodedef="ND_ifequal_integerB" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
@@ -689,8 +689,8 @@
   <implementation name="IM_ifequal_vector2B_genwgsl" nodedef="ND_ifequal_vector2B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector3B_genwgsl" nodedef="ND_ifequal_vector3B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
   <implementation name="IM_ifequal_vector4B_genwgsl" nodedef="ND_ifequal_vector4B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix33B_genwgsl" nodedef="ND_ifequal_matrix33B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
-  <implementation name="IM_ifequal_matrix44B_genwgsl" nodedef="ND_ifequal_matrix44B" target="genwgsl" sourcecode="select({{in2}}, {{in1}}, ({{value1}} == {{value2}}))" />
+  <implementation name="IM_ifequal_matrix33B_genwgsl" nodedef="ND_ifequal_matrix33B" target="genwgsl" sourcecode="mx_ifequal_mat3_bool({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
+  <implementation name="IM_ifequal_matrix44B_genwgsl" nodedef="ND_ifequal_matrix44B" target="genwgsl" sourcecode="mx_ifequal_mat4_bool({{value1}}, {{value2}}, {{in1}}, {{in2}})" />
   <implementation name="IM_ifequal_booleanB_genwgsl" nodedef="ND_ifequal_booleanB" target="genwgsl" sourcecode="select(false, true, ({{value1}} == {{value2}}))" />
 
   <!-- ======================================================================== -->
@@ -740,9 +740,10 @@
   <!-- Logical operator nodes                                                   -->
   <!-- ======================================================================== -->
 
-  <implementation name="IM_logical_and_genwgsl" nodedef="ND_logical_and" target="genwgsl" sourcecode="{{in1}} &amp;&amp; {{in2}}" />
-  <implementation name="IM_logical_or_genwgsl" nodedef="ND_logical_or" target="genwgsl" sourcecode="{{in1}} || {{in2}}" />
-  <implementation name="IM_logical_not_genwgsl" nodedef="ND_logical_not" target="genwgsl" sourcecode="!{{in}}" />
+  <implementation name="IM_logical_and_genwgsl" nodedef="ND_logical_and" target="genwgsl" sourcecode="({{in1}} &amp;&amp; {{in2}})" />
+  <implementation name="IM_logical_or_genwgsl" nodedef="ND_logical_or" target="genwgsl" sourcecode="({{in1}} || {{in2}})" />
+  <implementation name="IM_logical_xor_genwgsl" nodedef="ND_logical_xor" target="genwgsl" sourcecode="({{in1}} != {{in2}})" />
+  <implementation name="IM_logical_not_genwgsl" nodedef="ND_logical_not" target="genwgsl" sourcecode="(!{{in}})" />
 
   <!-- ======================================================================== -->
   <!-- Organization nodes                                                       -->

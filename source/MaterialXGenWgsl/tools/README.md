@@ -1,5 +1,20 @@
 # genwgsl library transpiler
 
+MaterialX WGSL tooling in this folder (all `mx*` names):
+
+| Script | Purpose |
+| --- | --- |
+| `mxgenwgsl.py` | Transpile `genglsl` → `genwgsl` (`--clean`, `--bake-ocio`, …) |
+| `mxvalidategenwgsl.py` | Full-shader naga validation + optional MaterialXView TSL parity |
+| `mxvalidategenwgsl_viewer.mjs` | Node helper for viewer parity (used by the validator) |
+| `mxstagepymaterialx.py` | CMake-only PyMaterialX staging for OCIO bake |
+| `mxwgslcleanup.py` | Optional tree-sitter readability pass on naga output |
+| `test_mxgenwgsl.py` / `test_mxwgslcleanup.py` | Offline unit tests |
+
+See also [WGSL Shader Generation](../../../documents/DeveloperGuide/WGSLShaderGeneration.md).
+
+---
+
 `mxgenwgsl.py` generates the MaterialX **genwgsl** WGSL node library from the existing
 **genglsl** sources, so GLSL stays the single source of truth and the WGSL library never has to be
 hand-ported. It transpiles:
@@ -69,6 +84,9 @@ python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --only m
 # Delete generated .wgsl from an in-place tree, keeping only the hand-written skip_transpile.txt set
 # (needs no naga):
 python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --clean
+
+# Bake OCIO GpuShaderDesc GLSL to stdlib/genwgsl/ocio/*.wgsl (needs OCIO-enabled PyMaterialX + naga):
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --bake-ocio --repo . --out libraries/stdlib/genwgsl/ocio
 ```
 
 `--out libraries` writes each generated file straight into `libraries/<lib>/genwgsl/`, populating
@@ -191,10 +209,19 @@ MaterialX `$`-token *names* and their naga-parseable GLSL *expansions* are defin
 
 | Module | Role |
 | --- | --- |
-| [`mxgenwgsl.py`](mxgenwgsl.py) | CLI, token expansion tables, overload mangling, lib/node transpile drivers, closure preambles, preflight validation |
+| [`mxgenwgsl.py`](mxgenwgsl.py) | CLI, token expansion tables, overload mangling, lib/node transpile drivers, closure preambles, preflight validation, `--bake-ocio` |
 | [`mxwgslcleanup.py`](mxwgslcleanup.py) | Optional tree-sitter readability cleanup (no token coupling) |
+| [`mxvalidategenwgsl.py`](mxvalidategenwgsl.py) | Full-shader naga validation (TestSuite/Examples by default, GenOptions presets, optional MaterialXView TSL parity) |
+| [`mxvalidategenwgsl_viewer.mjs`](mxvalidategenwgsl_viewer.mjs) | Node helper for TSL-portable pixel WGSL + naga (used by `mxvalidategenwgsl.py`) |
+| [`mxstagepymaterialx.py`](mxstagepymaterialx.py) | CMake-only: stage PyMaterialX + OCIO DLL paths for OCIO bake |
 
 Run [`test_mxgenwgsl.py`](test_mxgenwgsl.py) for fast validation without naga.
+
+Example (from `python/` after a WGSL-enabled build):
+
+```
+python ../source/MaterialXGenWgsl/tools/mxvalidategenwgsl.py --naga path/to/naga
+```
 
 ### Comment preservation
 

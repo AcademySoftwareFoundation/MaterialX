@@ -32,8 +32,8 @@ void WgslCompoundNode::emitFunctionDefinition(const ShaderNode& node, GenContext
         // Closure data parameter (emits a trailing ", " when present).
         shadergen.emitClosureDataParameter(node, context, stage);
 
-        // Thread vertex data into closure/surface-shader functions.
-        const bool needsVertexData = nodeOutputIsClosure(node);
+        // Thread vertex data into functions that need it (closures or geometry readers).
+        const bool needsVertexData = nodeOutputIsClosure(node) || _rootGraph->hasGeometricNodes();
         if (needsVertexData)
         {
             const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
@@ -121,8 +121,8 @@ void WgslCompoundNode::emitFunctionCall(const ShaderNode& node, GenContext& cont
         // Closure data argument (emits trailing ", " when present).
         shadergen.emitClosureDataArg(node, context, stage);
 
-        // Pass the vertex data instance into closure/surface-shader functions.
-        if (nodeOutputIsClosure(node))
+        // Pass the vertex data instance into functions that need it.
+        if (nodeOutputIsClosure(node) || _rootGraph->hasGeometricNodes())
         {
             const VariableBlock& vertexData = stage.getInputBlock(HW::VERTEX_DATA);
             shadergen.emitString(vertexData.getInstance() + ", ", stage);

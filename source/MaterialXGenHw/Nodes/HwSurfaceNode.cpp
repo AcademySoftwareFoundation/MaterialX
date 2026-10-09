@@ -147,7 +147,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                 shadergen.emitComment("Shadow occlusion", stage);
                 if (context.getOptions().hwShadowMap)
                 {
-                    shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + prefix + HW::T_POSITION_WORLD + ")", stage);
+                    emitShadowOcclusionCall(node, context, stage, prefix);
                 }
                 shadergen.emitLineBreak(stage);
 
@@ -165,7 +165,7 @@ void HwSurfaceNode::emitFunctionCall(const ShaderNode& node, GenContext& context
                     {
                         shadergen.emitLine("ambOccUv = "+vec2+"(ambOccUv.x, 1.0 - ambOccUv.y)", stage);
                     }
-                    shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", ambOccUv).x, " + HW::T_AMB_OCC_GAIN + ")", stage);
+                    emitAmbientOcclusionCall(context, stage, "ambOccUv");
                 }
                 else
                 {
@@ -325,6 +325,18 @@ void HwSurfaceNode::emitLightLoop(const ShaderNode& node, GenContext& context, S
         shadergen.emitScopeEnd(stage);
         shadergen.emitLineBreak(stage);
     }
+}
+
+void HwSurfaceNode::emitShadowOcclusionCall(const ShaderNode& /*node*/, GenContext& context, ShaderStage& stage, const string& vertexPrefix) const
+{
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+    shadergen.emitLine("occlusion = mx_shadow_occlusion(" + HW::T_SHADOW_MAP + ", " + HW::T_SHADOW_MATRIX + ", " + vertexPrefix + HW::T_POSITION_WORLD + ")", stage);
+}
+
+void HwSurfaceNode::emitAmbientOcclusionCall(GenContext& context, ShaderStage& stage, const string& ambOccUv) const
+{
+    const HwShaderGenerator& shadergen = static_cast<const HwShaderGenerator&>(context.getShaderGenerator());
+    shadergen.emitLine("occlusion = mix(1.0, texture(" + HW::T_AMB_OCC_MAP + ", " + ambOccUv + ").x, " + HW::T_AMB_OCC_GAIN + ")", stage);
 }
 
 MATERIALX_NAMESPACE_END

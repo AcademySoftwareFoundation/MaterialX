@@ -16,9 +16,19 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
-// Matches the inline-expression markers used by the shared SourceCodeNode.
 const string INLINE_VARIABLE_PREFIX("{{");
 const string INLINE_VARIABLE_SUFFIX("}}");
+
+// Shader expression for a connected inline placeholder; boolean ports are wrapped in bool().
+string inlineInputExpression(const ShaderInput* input, const ShaderGenerator& shadergen, GenContext& context)
+{
+    string result = shadergen.getUpstreamResult(input, context);
+    if (input->getType() == Type::BOOLEAN)
+    {
+        result = "bool(" + result + ")";
+    }
+    return result;
+}
 
 } // anonymous namespace
 
@@ -29,10 +39,6 @@ ShaderNodeImplPtr WgslSourceCodeNode::create()
 
 void WgslSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
-    // Only the inlined path needs WGSL-specific handling for its constant
-    // temporaries; the ordinary function-call path defers to the base class,
-    // whose argument emission already routes through the WGSL generator's
-    // emitInput / emitOutput overrides.
     if (!_inlined)
     {
         SourceCodeNode::emitFunctionCall(node, context, stage);
@@ -45,7 +51,6 @@ void WgslSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& co
 
         if (nodeOutputIsClosure(node))
         {
-            // Emit calls for any closure dependencies upstream from this nodedef.
             shadergen.emitDependentFunctionCalls(node, context, stage, ShaderNode::Classification::CLOSURE);
         }
 
@@ -73,22 +78,20 @@ void WgslSourceCodeNode::emitFunctionCall(const ShaderNode& node, GenContext& co
 
             if (input->getConnection())
             {
-                code.push_back(shadergen.getUpstreamResult(input, context));
+                code.push_back(inlineInputExpression(input, shadergen, context));
             }
             else
             {
                 string variableName = node.getName() + "_" + input->getName() + "_tmp";
                 if (!variableNames.count(variableName))
                 {
-                    // Emit the constant temporary in WGSL declaration order via the
-                    // generator's emitVariableDeclaration override ("const name: type = value").
                     ShaderPort v(nullptr, input->getType(), variableName, input->getValue());
                     shadergen.emitLineBegin(stage);
                     shadergen.emitVariableDeclaration(&v, shadergen.getSyntax().getConstantQualifier(), context, stage);
                     shadergen.emitLineEnd(stage);
                     variableNames.insert(variableName);
                 }
-                code.push_back(variableName);
+                code.push_back(input->getType() == Type::BOOLEAN ? "bool(" + variableName + ")" : variableName);
             }
 
             pos = j + 2;

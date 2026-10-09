@@ -121,6 +121,9 @@ if(TARGET MaterialXGenWgslLibrary)
     # Stage libraries/ into build/bin/libraries only after CI transpile completes.
     add_dependencies(MaterialXTestData MaterialXGenWgslLibrary)
 endif()
+if(TARGET MaterialXGenWgslOcioLibrary)
+    add_dependencies(MaterialXTestData MaterialXGenWgslOcioLibrary)
+endif()
 
 if(MATERIALX_BUILD_GEN_MDL)
     install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../source/MaterialXGenMdl/mdl/"

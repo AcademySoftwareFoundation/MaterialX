@@ -367,3 +367,26 @@ export function buildWgslManifest( shader, pixelWgsl, vertexWgsl ) {
 	return result;
 
 }
+
+/** Shader stub for manifest reconstruction when only WGSL text is available (CI parity checks). */
+const EMPTY_SHADER_FOR_MANIFEST = {
+	getStage() {
+
+		return { getUniformBlocks() { return {}; } };
+
+	}
+};
+
+/**
+ * Build a manifest from generated WGSL only (no mx.Shader port defaults).
+ * Uniform roles default to host/public via struct expansion in parseBindings().
+ *
+ * @param {string} pixelWgsl
+ * @param {string} [vertexWgsl]
+ * @return {Object}
+ */
+export function buildWgslManifestFromWgsl( pixelWgsl, vertexWgsl ) {
+
+	return buildWgslManifest( EMPTY_SHADER_FOR_MANIFEST, pixelWgsl, vertexWgsl );
+
+}

@@ -27,7 +27,7 @@ Both stages must preserve tokens end-to-end. Hand-written files in `skip_transpi
 
 **Adding or changing a token:** The token tables (`TOKEN_EXPANSIONS`, `TOKEN_RESTORE_RULES`) live in [`mxgenwgsl.py`](../../source/MaterialXGenWgsl/tools/mxgenwgsl.py). See the checklist in [`tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md#when-you-change-hwconstants) for the full steps when editing `HwConstants.cpp`.
 
-The library lives under `libraries/{stdlib,pbrlib,lights}/genwgsl/`, with the target defined in `libraries/targets/genwgsl.mtlx`.
+The library lives under `libraries/{stdlib,pbrlib,lights,nprlib}/genwgsl/` (plus baked OCIO fragments under `stdlib/genwgsl/ocio/` when `MATERIALX_BUILD_OCIO=ON`). The target is defined in `libraries/targets/genwgsl.mtlx`. Most `.wgsl` files are generated at build time and are not committed; see [`skip_transpile.txt`](../../source/MaterialXGenWgsl/tools/skip_transpile.txt).
 
 ## Prerequisites
 
@@ -73,6 +73,12 @@ python source/MaterialXGenWgsl/tools/mxgenwgsl.py --libraries libraries --out li
 ```
 
 A non-zero exit code means an unexpected node failed (a regression). Nodes listed in `skip_transpile.txt` are skipped entirely.
+
+Subcommands and companion scripts are documented in [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md).
+
+### `mxvalidategenwgsl.py`
+
+Full-shader validation: generates vertex and pixel WGSL for each renderable in the input documents, runs **naga** on each stage, and optionally runs **MaterialXView TSL parity** (`mxvalidategenwgsl_viewer.mjs` + `mxtsladapter.mjs`). With no `--input`, defaults to `resources/Materials/TestSuite` and `resources/Materials/Examples` (same layout as `WgslShaderGeneratorTester`). Use `--input` for other folders (e.g. StandardSurface) and `--preset` for GenOptions matrices. Fast transpiler checks without a C++ build: `test_mxgenwgsl.py` and `test_mxwgslcleanup.py`.
 
 ### What the transpiler does
 
@@ -148,7 +154,7 @@ Generated files carry a `// Generated from … do not edit` banner.
 | Light shaders         | `mx_point_light`     | Need the dynamic `LightData` struct — auto-skipped                         |
 | Unmapped overloads    | Some BSDF helpers    | `mangle()` returns `None` — node stays hand-written                        |
 
-**Specular environment IBL:** `WgslShaderGenerator` supports FIS, prefilter, and none methods (`mx_environment_fis.wgsl`, `mx_environment_prefilter.wgsl`, `mx_environment_none.wgsl`). Bake passes and shadow mapping are deferred — see [Deferred Features](#deferred-features).
+**Specular environment IBL:** `WgslShaderGenerator` supports FIS, prefilter, and none methods (`mx_environment_fis.wgsl`, `mx_environment_prefilter.wgsl`, `mx_environment_none.wgsl`). Shadow mapping and ambient occlusion GenOptions are supported via `mx_shadow*.wgsl` and split texture bindings.
 
 The result is a **reduced library**: most nodes and all 22 `lib/` helpers are generated from genglsl; texture, light, and a few edge-case nodes remain hand-written. A non-zero exit only means something *unexpected* broke.
 
@@ -238,15 +244,57 @@ Generated `.wgsl` files are excluded via `.gitignore`. Only hand-written files l
 
 ## WGSL Validation
 
-CI validates generated WGSL at three levels:
+CI validates generated WGSL at four levels:
 
 1. **Transpile-time** — `mxgenwgsl.py` runs naga for each node; any naga error is fatal.
 2. **Full-shader validation** — `generateshader.py --target wgsl --validator naga` generates complete shaders from example materials and validates each with naga.
-3. **Generator coverage** — the `[genwgsl]` C++ tests run `WgslShaderGeneratorTester` over TestSuite and Examples materials.
+3. **Generator coverage** — the `[genwgsl]` C++ tests run `WgslShaderGeneratorTester` over TestSuite and Examples materials (generation only).
+4. **Naga validation job** — `mxvalidategenwgsl.py` naga-compiles TestSuite + Examples (default GenOptions) and StandardSurface with a GenOptions matrix (default, prefilter, shadow, AO, combined).
+
+Local commands (from `python/` after building with `MATERIALX_BUILD_GEN_WGSL=ON`):
+
+```sh
+python ../source/MaterialXGenWgsl/tools/mxvalidategenwgsl.py \
+  --naga path/to/naga --preset default
+
+python ../source/MaterialXGenWgsl/tools/mxvalidategenwgsl.py \
+  --input ../resources/Materials/Examples/StandardSurface \
+  --naga path/to/naga \
+  --preset default prefilter shadow ao shadow_ao
+```
+
+By default the validator also runs **MaterialXView viewer parity**: generated pixel WGSL is converted with `mxtsladapter.js` (same path as WebGPU `wgslFn`) and naga-validated again. This catches issues such as unresolved `mtlx_tex_size_x()` that full-module naga alone can miss when the browser compiles a different TSL bundle. Requires Node.js. Disable with `--no-viewer-parity`.
+
+`ocio_color_management.mtlx` is skipped automatically when OCIO is not available (same as the C++ `[genwgsl]` tester).
+
+## OpenColorIO (OCIO)
+
+OpenColorIO does not emit WGSL directly. For `genwgsl`, MaterialX:
+
+1. Builds each color transform with `GpuShaderDesc` in **GLSL 4.0** (same as `genglsl`).
+2. **Pre-transpiles** those functions to WGSL at build time via `mxgenwgsl.py --bake-ocio` / `transpileOcioGlslFunction` (naga), writing one file per OCIO GPU function under `stdlib/genwgsl/ocio/<functionName>.wgsl` (synced into the build’s library tree with the rest of `genwgsl`).
+3. **`WgslOcioNode`** includes that path at codegen time (`emitLibraryInclude`); no Python or naga at runtime.
+
+Requirements:
+
+- Configure with `-DMATERIALX_BUILD_OCIO=ON` (OpenColorIO 2.4+).
+- **`NAGA`** on `PATH` (or `NAGA` env) when **baking** or regenerating OCIO WGSL.
+- OCIO-enabled **PyMaterialXGenShader** for the bake script (not required for normal shader generation once `.wgsl` files are present).
+
+CMake runs the bake when `MATERIALX_BUILD_OCIO=ON` and WGSL library generation is enabled (`MaterialXGenWgslOcioLibrary`, ordered before `MaterialXSyncGenWgslData`).
+
+Regenerate after OCIO or test material changes:
+
+```sh
+python source/MaterialXGenWgsl/tools/mxgenwgsl.py --bake-ocio --repo . --out libraries/stdlib/genwgsl/ocio
+```
+
+By default the bake discovers transforms from TestSuite `ocio_color_management.mtlx`; pass `--ocio-mtlx` / `--ocio-config` for other corpora. Custom OCIO configs need matching baked fragments. Transforms that require OCIO **LUT textures** (1D/3D) are still rejected, matching the `genglsl` limitation.
 
 ## Related Documentation
 
 - [Shader Generation](ShaderGeneration.md) — general shader generation framework
 - [`source/MaterialXGenWgsl/README.md`](../../source/MaterialXGenWgsl/README.md) — back-end layout and design
 - [`source/MaterialXGenWgsl/tools/README.md`](../../source/MaterialXGenWgsl/tools/README.md) — transpiler internals, overload naming, and `skip_transpile.txt`
-- [`javascript/README.md`](../../javascript/README.md) — JavaScript bindings and viewer setup
+- [`javascript/README.md`](../../javascript/README.md) — JavaScript bindings and MaterialXView (WebGL and WebGPU)
+- [`libraries/README.md`](../../libraries/README.md) — standard data libraries and `genwgsl` targets

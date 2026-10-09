@@ -26,8 +26,9 @@ its node library is a *hybrid*:
   that the fragment context cannot supply to the transpiler.
   See [`skip_transpile.txt`](tools/skip_transpile.txt) for the full list.
 
-The library lives in `libraries/{stdlib,pbrlib,lights}/genwgsl/` with the target defined in
+The library lives in `libraries/{stdlib,pbrlib,lights,nprlib}/genwgsl/` with the target defined in
 `libraries/targets/genwgsl.mtlx`; node implementations are wired up via `*_genwgsl_impl.mtlx`.
+When OpenColorIO is enabled, pre-baked OCIO GPU functions live under `stdlib/genwgsl/ocio/`.
 
 ## Generating the library
 
@@ -45,6 +46,17 @@ The transpiler exits non-zero on any lib or node failure outside `skip_transpile
 it doubles as validation that a change hasn't broken the WGSL target. See
 [`tools/README.md`](tools/README.md) for the tool, its overload mapping table, and its lib-arity
 self-validation.
+
+**Other tools** (same folder):
+
+| Script | Role |
+| --- | --- |
+| [`mxvalidategenwgsl.py`](tools/mxvalidategenwgsl.py) | Full-shader naga validation + optional MaterialXView TSL parity |
+| [`mxvalidategenwgsl_viewer.mjs`](tools/mxvalidategenwgsl_viewer.mjs) | Node helper used by the validator |
+| [`mxstagepymaterialx.py`](tools/mxstagepymaterialx.py) | CMake-only staging for OCIO bake (`MaterialXGenWgslOcioLibrary`) |
+| [`test_mxgenwgsl.py`](tools/test_mxgenwgsl.py) / [`test_mxwgslcleanup.py`](tools/test_mxwgslcleanup.py) | Fast offline tests (no naga required for most checks) |
+
+Developer guide: [`documents/DeveloperGuide/WGSLShaderGeneration.md`](../../documents/DeveloperGuide/WGSLShaderGeneration.md).
 
 The separate `-DMATERIALX_GENERATE_WGSL_LIBRARY=ON` option (without `MATERIALX_BUILD_GEN_WGSL`) adds
 a `MaterialXGenWgslLibrary` target that re-transpiles into the *build tree* as a local validation
