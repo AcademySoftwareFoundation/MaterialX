@@ -64,7 +64,7 @@ docker run --rm -v {path_to_MaterialX_repo}:/src emscripten/emsdk sh -c "cd buil
 For follow-up builds (i.e. after changing the source code), remove the `<cmake generator command>` step from the above call.
 
 ### Output
-After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project.
+After building the project the `JsMaterialXCore.wasm`, `JsMaterialXCore.js`, `JsMaterialXGenShader.wasm`, `JsMaterialXGenShader.js` and `JsMaterialXGenShader.data` files can be found in the global install directory of this project. When `MATERIALX_BUILD_GEN_WGSL=ON` (default in CI and `build_javascript_win.bat`), the install also includes `JsMaterialXGenWgsl.js` / `.wasm` / `.data` for native WGSL generation.
 
 ## Testing
 JavaScript unit tests are located in the `MaterialXTest` folder and use the `.spec.js` suffix. A sample browser is located in the `MaterialXView` folder which allows preview of some of provided sample MaterialX materials.
@@ -97,6 +97,9 @@ These tests require `node.js`, which is shipped with the emscripten environment.
     call http-server . -p 8000
     # Open browser
     ```
+
+3. **WebGPU path:** open `dist/index-webgpu.html` (built by webpack as a second bundle). This uses Three.js `WebGPURenderer`, MaterialX `WgslShaderGenerator` (via `JsMaterialXGenWgsl`), and the TSL bridge in [`MaterialXView/source/mxtsladapter.mjs`](MaterialXView/source/mxtsladapter.mjs). Requires a browser with WebGPU. See [WGSL Shader Generation](../documents/DeveloperGuide/WGSLShaderGeneration.md#javascript--webgpu-viewer-testing).
+
 ## Sample build scripts
 Note that a sample build script is provided in 
 `javascript/build_javascript_win.bat` with a corresponding script to clean the build area in

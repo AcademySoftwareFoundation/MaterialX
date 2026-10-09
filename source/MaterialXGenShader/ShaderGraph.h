@@ -72,6 +72,10 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     /// Get a vector of all nodes in order
     const vector<ShaderNode*>& getNodes() const { return _nodeOrder; }
 
+    /// Return true if any node in the graph reads geometry from vertex data
+    /// (position, normal, tangent, texcoord, geomcolor, ...).
+    bool hasGeometricNodes() const;
+
     /// Get number of input sockets
     size_t numInputSockets() const { return numOutputs(); }
 

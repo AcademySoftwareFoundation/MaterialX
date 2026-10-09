@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Generate shader code for each renderable element in a MaterialX document or folder.
-The currently supported target languages are GLSL, ESSL, MSL, OSL, and MDL.
+The currently supported target languages are GLSL, ESSL, MSL, OSL, MDL, Slang, and WGSL.
 '''
 
 import sys, os, argparse, subprocess
@@ -14,6 +14,12 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenSlang as mx_gen_slang
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
+# The WGSL generator is an optional
+try:
+    import MaterialX.PyMaterialXGenWgsl as mx_gen_wgsl
+except ImportError:
+    mx_gen_wgsl = None
+
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
         cmd = codevalidator.split()
@@ -25,8 +31,8 @@ def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
             cmd_flatten += c + ' '
         print(cmd_flatten)
         try:
-            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            return output.decode(encoding='utf-8')
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            return ""
         except subprocess.CalledProcessError as out:                                                                                                   
             return (out.output.decode(encoding='utf-8'))
     return ""
@@ -100,7 +106,11 @@ def main():
         elif gentarget == 'vulkan':
             shadergen = mx_gen_glsl.VkShaderGenerator.create()
         elif gentarget == 'wgsl':
-            shadergen = mx_gen_glsl.WgslShaderGenerator.create()
+            if mx_gen_wgsl is None:
+                print('WGSL shader generation is not available in this build '
+                      '(MATERIALX_BUILD_GEN_WGSL was disabled).')
+                sys.exit(1)
+            shadergen = mx_gen_wgsl.WgslShaderGenerator.create()
         elif gentarget == 'msl':
             shadergen = mx_gen_msl.MslShaderGenerator.create()
         elif gentarget == 'slang':
@@ -159,21 +169,23 @@ def main():
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
+                    pixelValidator = (opts.validator + ' --input-kind wgsl --shader-stage frag') if (gentarget == 'wgsl' and opts.validator) else opts.validator
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".frag"
                     print('--- Wrote pixel shader to: ' + filename)
                     file = open(filename, 'w+')
                     file.write(pixelSource)
                     file.close()
-                    errors = validateCode(filename, opts.validator, opts.validatorArgs)                
+                    errors = validateCode(filename, pixelValidator, opts.validatorArgs)
 
+                    vertexValidator = (opts.validator + ' --input-kind wgsl --shader-stage vert') if (gentarget == 'wgsl' and opts.validator) else opts.validator
                     vertexSource = shader.getSourceCode(mx_gen_shader.VERTEX_STAGE)
                     filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".vert"
                     print('--- Wrote vertex shader to: ' + filename)
                     file = open(filename, 'w+')
                     file.write(vertexSource)
                     file.close()
-                    errors += validateCode(filename, opts.validator, opts.validatorArgs)
+                    errors += validateCode(filename, vertexValidator, opts.validatorArgs)
 
                 else:
                     pixelSource = shader.getSourceCode(mx_gen_shader.PIXEL_STAGE)
