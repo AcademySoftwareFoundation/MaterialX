@@ -125,6 +125,34 @@ TEST_CASE("GenShader: GLSL Light Shaders", "[genglsl]")
     REQUIRE_NOTHROW(mx::HwShaderGenerator::bindLightShader(*spotLightShader, 66, context));
 }
 
+TEST_CASE("GenShader: GLSL glTF PBR Occlusion", "[genglsl]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    loadLibraries({ "libraries" }, searchPath, doc);
+    readFromXmlFile(doc, searchPath.find("resources/Materials/Examples/GltfPbr/gltf_pbr_default.mtlx"));
+
+    mx::NodeDefPtr surfaceDef = doc->getNodeDef("ND_surface");
+    REQUIRE(surfaceDef != nullptr);
+    REQUIRE(surfaceDef->getInput("occlusion") != nullptr);
+
+    mx::TypedElementPtr gltfPbr = doc->getNode("SR_default");
+    REQUIRE(gltfPbr != nullptr);
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    context.getShaderGenerator().registerTypeDefs(doc);
+
+    mx::ShaderPtr shader = context.getShaderGenerator().generate("gltfPbrOcclusion", gltfPbr, context);
+    REQUIRE(shader != nullptr);
+
+    const std::string& pixelSourceCode = shader->getSourceCode(mx::Stage::PIXEL);
+    REQUIRE(pixelSourceCode.find("float closureOcclusion = 1.0") != std::string::npos);
+    REQUIRE(pixelSourceCode.find("closureOcclusion *=") != std::string::npos);
+    REQUIRE(pixelSourceCode.find("makeClosureData(CLOSURE_TYPE_INDIRECT, L, V, N, P, closureOcclusion)") != std::string::npos);
+    REQUIRE(pixelSourceCode.find("float occlusion = 1.0") == std::string::npos);
+}
+
 #ifdef MATERIALX_BUILD_BENCHMARK_TESTS
 TEST_CASE("GenShader: GLSL Performance Test", "[genglsl]")
 {
