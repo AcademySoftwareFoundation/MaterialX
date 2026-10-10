@@ -31,7 +31,7 @@ void HwViewDirectionNode::createVariables(const ShaderNode& node, GenContext&, S
     addStageConnector(HW::VERTEX_DATA, Type::VECTOR3, HW::T_POSITION_WORLD, vs, ps);
     if (space == OBJECT_SPACE || space == MODEL_SPACE)
     {
-        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX, ps);
+        addStageUniform(HW::PRIVATE_UNIFORMS, Type::MATRIX44, HW::T_WORLD_INVERSE_MATRIX, ps);
     }
 }
 
@@ -70,7 +70,7 @@ void HwViewDirectionNode::emitFunctionCall(const ShaderNode& node, GenContext& c
         }
         else
         {
-            shadergen.emitString(" = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
+            shadergen.emitString(" = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_MATRIX + ", "+vec4+"(" + prefix + position->getVariable() + " - " + HW::T_VIEW_POSITION + ", 0.0)).xyz)", stage);
         }
         shadergen.emitLineEnd(stage);
     }
