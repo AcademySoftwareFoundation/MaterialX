@@ -261,7 +261,15 @@ void GlslProgram::bindAttribute(const GlslProgram::InputMap& inputs, MeshPtr mes
         MeshStreamPtr stream = mesh->getStream(input.first);
         if (!stream)
         {
-            throw ExceptionRenderError("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
+            // Fall back to the first texcoord stream when the mesh has fewer UV sets than the material.
+            if (input.first.find("i_texcoord_") != std::string::npos)
+            {
+                stream = mesh->getStream(MeshStream::TEXCOORD_ATTRIBUTE, 0);
+            }
+            if (!stream)
+            {
+                throw ExceptionRenderError("Geometry buffer could not be retrieved for binding: " + input.first + ". Index: " + std::to_string(index));
+            }
         }
         MeshFloatBuffer& attributeData = stream->getData();
         stride = stream->getStride();
