@@ -70,6 +70,10 @@ class MX_FORMAT_API XmlWriteOptions
     /// XIncludes rather than explicit data.  Defaults to true.
     bool writeXIncludeEnable;
 
+    /// If true, node instances are written as "node" elements rather than 
+    /// elements based on category. Defaults to false.
+    bool writeNodeInstanceAsNode;
+
     /// If provided, this function will be used to exclude specific elements
     /// (those returning false) from the write operation.  Defaults to nullptr.
     ElementPredicate elementPredicate;
