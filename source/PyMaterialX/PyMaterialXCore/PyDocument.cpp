@@ -26,6 +26,9 @@ void bindPyDocument(py::module& mod)
 {
     mod.def("createDocument", &mx::createDocument);
 
+    py::class_<mx::DefinitionOptions>(mod, "DefinitionOptions")
+        .def_readwrite("addImplementationAsChild", &mx::DefinitionOptions::addImplementationAsChild);
+
     py::class_<mx::Document, mx::DocumentPtr, mx::GraphElement>(mod, "Document")
         .def("initialize", &mx::Document::initialize)
         .def("copy", &mx::Document::copy)
@@ -74,7 +77,7 @@ void bindPyDocument(py::module& mod)
         .def("removeTypeDef", &mx::Document::removeTypeDef)
         .def("addNodeDef", &mx::Document::addNodeDef,
             py::arg("name") = mx::EMPTY_STRING, py::arg("type") = mx::DEFAULT_TYPE_STRING, py::arg("node") = mx::EMPTY_STRING)
-        .def("addNodeDefFromGraph", (mx::NodeDefPtr (mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&)) & mx::Document::addNodeDefFromGraph)
+        .def("addNodeDefFromGraph", (mx::NodeDefPtr (mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&, mx::DefinitionOptions*)) & mx::Document::addNodeDefFromGraph)
         .def("addNodeDefFromGraph", (mx::NodeDefPtr(mx::Document::*)(mx::NodeGraphPtr, const std::string&, const std::string&, const std::string&,
             bool, const std::string&, const std::string& )) & PyBindDocument::old_addNodeDefFromGraph)
         .def("getNodeDef", &mx::Document::getNodeDef)
