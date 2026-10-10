@@ -142,6 +142,8 @@ covered in the GitHub documentation
 and
 [Configuring a remote for a fork](https://help.github.com/articles/configuring-a-remote-for-a-fork/).
 
+The MaterialX project includes submodules, so developers cloning the project from the command line should include the `--recurse-submodules` flag in their command.
+
 ### Pull Requests
 
 Contributions should be submitted as GitHub pull requests. See
