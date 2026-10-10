@@ -6,9 +6,12 @@
 
   <nodegraph name="Brass_Wire_Mesh_Input_Graph">
     <!-- SurfaceAlbedo -->
-    <image name="SurfaceAlbedo_color" type="color3">
+    <image name="SurfaceAlbedo_float" type="float">
       <input name="file" type="filename" value="textures/mesh_wire_spec.png" colorspace="lin_rec709" />
     </image>
+    <convert name="SurfaceAlbedo_color" type="color3">
+      <input name="in" type="float" nodename="SurfaceAlbedo_float" />
+    </convert>
     <output name="SurfaceAlbedo_output" type="color3" nodename="SurfaceAlbedo_color" />
 
     <!-- SurfaceNormal -->

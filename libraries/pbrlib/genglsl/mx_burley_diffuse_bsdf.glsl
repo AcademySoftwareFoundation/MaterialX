@@ -3,7 +3,8 @@
 
 void mx_burley_diffuse_bsdf(ClosureData closureData, float weight, vec3 color, float roughness, vec3 N, inout BSDF bsdf)
 {
-    bsdf.throughput = vec3(0.0);
+    // As an opaque BSDF, transmit light only through the fraction of the surface not covered by the weight.
+    bsdf.throughput = vec3(1.0 - weight);
 
     if (weight < M_FLOAT_EPS)
     {

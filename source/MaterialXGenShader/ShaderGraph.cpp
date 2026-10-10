@@ -12,6 +12,7 @@
 
 #include <MaterialXTrace/Tracing.h>
 
+#include <algorithm>
 #include <queue>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -873,7 +874,11 @@ ShaderGraphEdgeIterator ShaderGraph::traverseUpstream(ShaderOutput* output)
 
 void ShaderGraph::addNode(ShaderNodePtr node)
 {
-    _nodeMap[node->getUniqueId()] = node;
+    // Replacing an existing node would leave dangling pointers in the node order and connections.
+    if (!_nodeMap.emplace(node->getUniqueId(), node).second)
+    {
+        throw ExceptionShaderGenError("Shader graph already contains a node with unique ID '" + node->getUniqueId() + "'.");
+    }
     _nodeOrder.push_back(node.get());
 }
 
@@ -1241,7 +1246,15 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
                 }
                 else
                 {
-                    _outputColorTransformMap.emplace_back(static_cast<ShaderOutput*>(shaderPort), transform);
+                    const auto entry = std::make_pair(static_cast<ShaderOutput*>(shaderPort), transform);
+                    // An output can carry only one transform, even when filename inputs use different color spaces.
+                    // Retain the first request until per-image transforms inside compound nodes are supported.
+                    if (std::find_if(_outputColorTransformMap.begin(), _outputColorTransformMap.end(),
+                                     [shaderPort](const auto& request) { return request.first == shaderPort; }) ==
+                        _outputColorTransformMap.end())
+                    {
+                        _outputColorTransformMap.push_back(entry);
+                    }
                 }
             }
             else
