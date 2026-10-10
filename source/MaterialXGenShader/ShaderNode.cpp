@@ -146,6 +146,29 @@ ShaderNodePtr createEmptyNode()
 
 const ShaderNodePtr ShaderNode::NONE = createEmptyNode();
 
+const uint32_t ShaderNode::Classification::TEXTURE;
+const uint32_t ShaderNode::Classification::CLOSURE;
+const uint32_t ShaderNode::Classification::SHADER;
+const uint32_t ShaderNode::Classification::MATERIAL;
+const uint32_t ShaderNode::Classification::FILETEXTURE;
+const uint32_t ShaderNode::Classification::CONDITIONAL;
+const uint32_t ShaderNode::Classification::CONSTANT;
+const uint32_t ShaderNode::Classification::BSDF;
+const uint32_t ShaderNode::Classification::BSDF_R;
+const uint32_t ShaderNode::Classification::BSDF_T;
+const uint32_t ShaderNode::Classification::EDF;
+const uint32_t ShaderNode::Classification::VDF;
+const uint32_t ShaderNode::Classification::LAYER;
+const uint32_t ShaderNode::Classification::MIX;
+const uint32_t ShaderNode::Classification::SURFACE;
+const uint32_t ShaderNode::Classification::VOLUME;
+const uint32_t ShaderNode::Classification::LIGHT;
+const uint32_t ShaderNode::Classification::UNLIT;
+const uint32_t ShaderNode::Classification::SAMPLE2D;
+const uint32_t ShaderNode::Classification::SAMPLE3D;
+const uint32_t ShaderNode::Classification::GEOMETRIC;
+const uint32_t ShaderNode::Classification::DOT;
+
 const string ShaderNode::CONSTANT = "constant";
 const string ShaderNode::DOT = "dot";
 const string ShaderNode::IMAGE = "image";

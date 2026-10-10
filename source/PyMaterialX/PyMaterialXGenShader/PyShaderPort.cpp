@@ -18,6 +18,7 @@ void bindPyShaderPort(py::module& mod)
         .def("setName", &mx::ShaderPort::setName)
         .def("getName", &mx::ShaderPort::getName)
         .def("getFullName", &mx::ShaderPort::getFullName)
+        .def("getNode", static_cast<mx::ShaderNode* (mx::ShaderPort::*)()>(&mx::ShaderPort::getNode), py::return_value_policy::reference)
         .def("setVariable", &mx::ShaderPort::setVariable)
         .def("getVariable", &mx::ShaderPort::getVariable)
         .def("setSemantic", &mx::ShaderPort::setSemantic)
@@ -35,4 +36,10 @@ void bindPyShaderPort(py::module& mod)
         .def("getColorSpace", &mx::ShaderPort::getColorSpace)
         .def("isUniform", &mx::ShaderPort::isUniform)
         .def("isEmitted", &mx::ShaderPort::isEmitted);
+
+    py::class_<mx::ShaderInput, mx::ShaderInputPtr, mx::ShaderPort>(mod, "ShaderInput")
+        .def("getConnection", static_cast<mx::ShaderOutput* (mx::ShaderInput::*)()>(&mx::ShaderInput::getConnection), py::return_value_policy::reference);
+
+    py::class_<mx::ShaderOutput, mx::ShaderOutputPtr, mx::ShaderPort>(mod, "ShaderOutput")
+        .def("getConnections", &mx::ShaderOutput::getConnections, py::return_value_policy::reference);
 }

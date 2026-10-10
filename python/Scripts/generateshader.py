@@ -14,6 +14,168 @@ import MaterialX.PyMaterialXGenOsl as mx_gen_osl
 import MaterialX.PyMaterialXGenSlang as mx_gen_slang
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 
+
+def createMermaidGraph(shader, orientation='TB', showInputValues=False):
+    '''
+    Generate a Mermaid graph of the shader graph for a given shader.
+    @param shader: The shader to generate a graph for.
+    @param orientation: The orientation of the graph. Can be 'TB' (top to bottom), 'LR' (left to right), 'RL' (right to left), or 'BT' (bottom to top).
+    @param showInputValues: If True, include input values in the graph.
+    @return: A string containing the Mermaid graph.
+    '''
+    lines = ['graph ' + orientation]
+    nodes = shader.getNodes()
+
+    # Get input socket list 
+    inputSockets = shader.getInputSockets()
+    inputSocketNames = []
+    for inputSocket in inputSockets:
+        inputSocketNames.append(mx.createValidName(inputSocket.getName()))
+
+    # Color mapper for node classifications
+    classificationMap = {
+        # Material / shader family (green-blue)
+        mx_gen_shader.ShaderNode.MATERIAL: '#7ccba2',
+        mx_gen_shader.ShaderNode.SHADER: "#0e7865",
+        mx_gen_shader.ShaderNode.SURFACE: '#4f9fc5',
+        mx_gen_shader.ShaderNode.VOLUME: '#3d84b8',
+        mx_gen_shader.ShaderNode.LIGHT: '#2f6fa3',
+        mx_gen_shader.ShaderNode.UNLIT: '#94d2bd',
+
+        # Closure family
+        mx_gen_shader.ShaderNode.CLOSURE: '#f4a261',
+        mx_gen_shader.ShaderNode.BSDF: '#e76f51',
+        mx_gen_shader.ShaderNode.BSDF_R: '#f4c06a',
+        mx_gen_shader.ShaderNode.BSDF_T: '#f2a65a',
+        mx_gen_shader.ShaderNode.EDF: '#f6bd60',
+        mx_gen_shader.ShaderNode.VDF: '#f28482',
+        mx_gen_shader.ShaderNode.LAYER: '#f7a072',
+        mx_gen_shader.ShaderNode.MIX: '#f5b971',
+
+        # Texture sampling family
+        mx_gen_shader.ShaderNode.TEXTURE: "#6b5e76",
+        mx_gen_shader.ShaderNode.FILETEXTURE: "#3d174c",
+        mx_gen_shader.ShaderNode.SAMPLE2D: "#7a558a",
+        mx_gen_shader.ShaderNode.SAMPLE3D: "#7a4485",
+
+        # Other utility classes
+        mx_gen_shader.ShaderNode.CONSTANT: "#787878",
+        mx_gen_shader.ShaderNode.CONDITIONAL: "#e8400d",
+        mx_gen_shader.ShaderNode.GEOMETRIC: "#4B0349",
+        mx_gen_shader.ShaderNode.DOT: '#e9f5db'
+    }
+
+    # Label mapper for node classifications
+    classificationLabelMap = {
+        mx_gen_shader.ShaderNode.MATERIAL: 'MATERIAL',
+        mx_gen_shader.ShaderNode.SHADER: 'SHADER',
+        mx_gen_shader.ShaderNode.SURFACE: 'SURFACE',
+        mx_gen_shader.ShaderNode.VOLUME: 'VOLUME',
+        mx_gen_shader.ShaderNode.LIGHT: 'LIGHT',
+        mx_gen_shader.ShaderNode.UNLIT: 'UNLIT',
+        mx_gen_shader.ShaderNode.CLOSURE: 'CLOSURE',
+        mx_gen_shader.ShaderNode.BSDF: 'BSDF',
+        mx_gen_shader.ShaderNode.BSDF_R: 'BSDF_R',
+        mx_gen_shader.ShaderNode.BSDF_T: 'BSDF_T',
+        mx_gen_shader.ShaderNode.EDF: 'EDF',
+        mx_gen_shader.ShaderNode.VDF: 'VDF',
+        mx_gen_shader.ShaderNode.LAYER: 'LAYER',
+        mx_gen_shader.ShaderNode.MIX: 'MIX',
+        mx_gen_shader.ShaderNode.TEXTURE: 'TEXTURE',
+        mx_gen_shader.ShaderNode.FILETEXTURE: 'FILETEXTURE',
+        mx_gen_shader.ShaderNode.SAMPLE2D: 'SAMPLE2D',
+        mx_gen_shader.ShaderNode.SAMPLE3D: 'SAMPLE3D',
+        mx_gen_shader.ShaderNode.CONSTANT: 'CONSTANT',
+        mx_gen_shader.ShaderNode.CONDITIONAL: 'CONDITIONAL',
+        mx_gen_shader.ShaderNode.GEOMETRIC: 'GEOMETRIC',
+        mx_gen_shader.ShaderNode.DOT: 'DOT'
+    }
+
+    strokeColor = "#222222"
+    socketFillColor = "#053333"
+
+    def getTextColor(fillColor):
+        color = fillColor.lstrip('#')
+        if len(color) != 6:
+            return '#000000'
+
+        red = int(color[0:2], 16)
+        green = int(color[2:4], 16)
+        blue = int(color[4:6], 16)
+
+        # Relative luminance approximation for contrast selection.
+        brightness = (0.299 * red) + (0.587 * green) + (0.114 * blue)
+        return '#000000' if brightness >= 186 else '#ffffff'
+
+    def getClassificationFill(classificationBits):
+        # Strip out texture 
+        classificationBits = classificationBits & ~mx_gen_shader.ShaderNode.TEXTURE
+        returnFill = classificationMap[mx_gen_shader.ShaderNode.TEXTURE]
+        for classification, fillColor in classificationMap.items():
+            if classificationBits & classification:# and (classificationBits & mx_gen_shader.ShaderNode.TEXTURE) == 0:
+                return fillColor
+        return returnFill
+
+    def getClassificationLabel(classificationBits):
+        labels = []
+        for classification, label in classificationLabelMap.items():
+            if classificationBits & classification:
+                labels.append(label)
+        if labels:
+            return '|'.join(labels)
+        return 'UNKNOWN'
+
+    # Output nodes with formatting
+    for node in nodes:
+        nodeId = node.getUniqueId()
+        nodeClassification = node.getClassification()
+        classificationFill = getClassificationFill(nodeClassification)
+        classificationLabel = getClassificationLabel(nodeClassification)
+        textColor = getTextColor(classificationFill)
+        lines.append(f'    {nodeId}["{nodeId} ({classificationLabel})"]')
+        lines.append(f'    style {nodeId} fill:{classificationFill},stroke:{strokeColor},stroke-width:1px,color:{textColor}')
+
+    # Output connections
+    for node in nodes:
+        nodeId = node.getUniqueId()
+
+        for output in node.getOutputs():
+            for inputPort in output.getConnections():
+                if inputPort:
+                    inputNode = inputPort.getNode()
+                    if inputNode.getUniqueId() != nodeId:
+                        connector = f' --"{output.getName()} --> {inputPort.getName()}"--> '
+                        lines.append(f'    {nodeId}{connector}{inputPort.getNode().getUniqueId()}')
+
+        if showInputValues:
+            for inputPort in node.getInputs():
+                if inputPort:
+                    connectedOutput = inputPort.getConnection()
+                    fullInputPortName = inputPort.getName()
+                    isInputSocket = False
+                    if connectedOutput:
+                        outputName = connectedOutput.getName()
+                        # Test if it's an input socket
+                        if inputSocketNames and outputName in inputSocketNames:
+                            fullInputPortName = f'{outputName}'
+                            isInputSocket = True
+                        else:
+                            fullInputPortName = connectedOutput.getFullName() 
+                    valueString = inputPort.getValueString()
+                    if valueString:
+                        if isInputSocket:
+                            # Fill input sockets (exposed uniforms) with a different color to distinguish them from internal hard-coded shader values
+                            lines.append(
+                                f'    {node.getUniqueId()}/{inputPort.getName()}["{fullInputPortName} = {valueString} [SOCKET]"] --"{inputPort.getName()}"--> {nodeId}'                                
+                            )
+                            lines.append(f'    style {node.getUniqueId()}/{inputPort.getName()} fill:{socketFillColor},stroke:{strokeColor},stroke-width:2px,color:#FFFFFF')
+                        else:
+                            lines.append(
+                                f'    {node.getUniqueId()}/{inputPort.getName()}["{fullInputPortName} = {valueString}"] --"{inputPort.getName()}"--> {nodeId}'
+                            )
+
+    return '\n'.join(lines)
+
 def validateCode(sourceCodeFile, codevalidator, codevalidatorArgs):
     if codevalidator:
         cmd = codevalidator.split()
@@ -53,6 +215,8 @@ def main():
     parser.add_argument('--validatorArgs', dest='validatorArgs', nargs='?', const=' ', type=str, help='Optional arguments for code validator.')
     parser.add_argument('--vulkanGlsl', dest='vulkanCompliantGlsl', default=False, type=bool, help='Set to True to generate Vulkan-compliant GLSL when using the genglsl target.')
     parser.add_argument('--shaderInterfaceType', dest='shaderInterfaceType', default=0, type=int, help='Set the type of shader interface to be generated')
+    parser.add_argument('--graph', dest='graph', action='store_true', help='Set to True to generate a Mermaid graph of the shader graph for each shader.')
+    parser.add_argument('--graphValues', dest='graphValues', action='store_true', help='Set to True to output input values for Mermaid graphs.')
     parser.add_argument(dest='inputFilename', help='Path to input document or folder containing input documents.')
     opts = parser.parse_args()
 
@@ -156,6 +320,17 @@ def main():
             elemName = mx.createValidName(elemName)
             shader = shadergen.generate(elemName, elem, context)        
             if shader:
+                # Generate a Mermaid graph of the shader graph if requested
+                if opts.graph:
+                    graphValues = opts.graphValues == True
+                    mermaidGraph = createMermaidGraph(shader, 'LR', graphValues)
+                    mermaidGraph = "```mermaid\n" + mermaidGraph + "\n```"
+                    filename = pathPrefix + "/" + shader.getName() + "." + gentarget + ".md"
+                    print('--- Wrote Mermaid graph to: ' + filename)
+                    file = open(filename, 'w+')
+                    file.write(mermaidGraph)
+                    file.close()
+
                 # Use extension of .vert and .frag as it's type is
                 # recognized by glslangValidator
                 if gentarget in ['glsl', 'essl', 'vulkan', 'msl', 'wgsl']:
