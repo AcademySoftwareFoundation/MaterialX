@@ -11,6 +11,10 @@
 
 #import <Metal/Metal.h>
 
+#if !__has_feature(objc_arc)
+#error "MaterialXRenderMsl must be compiled with ARC enabled"
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 //
@@ -83,9 +87,9 @@ void MslRenderer::renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax)
     MTLRenderPassDescriptor* desc = [MTLRenderPassDescriptor new];
     _framebuffer->bind(desc);
 
-    _cmdBuffer = [_cmdQueue commandBuffer];
+    id<MTLCommandBuffer> cmdBuffer = [_cmdQueue commandBuffer];
 
-    id<MTLRenderCommandEncoder> rendercmdEncoder = [_cmdBuffer renderCommandEncoderWithDescriptor:desc];
+    id<MTLRenderCommandEncoder> rendercmdEncoder = [cmdBuffer renderCommandEncoderWithDescriptor:desc];
     _program->bind(rendercmdEncoder);
     _program->prepareUsedResources(rendercmdEncoder,
                                    _camera,
@@ -107,10 +111,8 @@ void MslRenderer::renderTextureSpace(const Vector2& uvMin, const Vector2& uvMax)
     _framebuffer->unbind();
     [rendercmdEncoder endEncoding];
 
-    [_cmdBuffer commit];
-    [_cmdBuffer waitUntilCompleted];
-
-    [desc release];
+    [cmdBuffer commit];
+    [cmdBuffer waitUntilCompleted];
 
     if (captureRenderTextureSpace)
         stopProgrammaticCapture();
@@ -175,14 +177,14 @@ void MslRenderer::render()
     if (captureFrame)
         triggerProgrammaticCapture();
 
-    _cmdBuffer = [_cmdQueue commandBuffer];
-    MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor new];
+    id<MTLCommandBuffer> cmdBuffer = [_cmdQueue commandBuffer];
+    MTLRenderPassDescriptor* renderpassDesc = [MTLRenderPassDescriptor renderPassDescriptor];
 
     _framebuffer->bind(renderpassDesc);
     [renderpassDesc.colorAttachments[0] setClearColor:
                                             MTLClearColorMake(_screenColor[0], _screenColor[1], _screenColor[2], 1.0f)];
 
-    id<MTLRenderCommandEncoder> renderCmdEncoder = [_cmdBuffer renderCommandEncoderWithDescriptor:renderpassDesc];
+    id<MTLRenderCommandEncoder> renderCmdEncoder = [cmdBuffer renderCommandEncoderWithDescriptor:renderpassDesc];
 
     MTLDepthStencilDescriptor* depthStencilDesc = [MTLDepthStencilDescriptor new];
     depthStencilDesc.depthWriteEnabled = !(_program->isTransparent());
@@ -235,11 +237,8 @@ void MslRenderer::render()
 
     _framebuffer->unbind();
 
-    [_cmdBuffer commit];
-    [_cmdBuffer waitUntilCompleted];
-
-    [_cmdBuffer release];
-    _cmdBuffer = nil;
+    [cmdBuffer commit];
+    [cmdBuffer waitUntilCompleted];
 
     if (captureFrame)
         stopProgrammaticCapture();

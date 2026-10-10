@@ -114,7 +114,9 @@ ShaderPtr createBlurShader(GenContext& context,
     OutputPtr output = nodeGraph->addOutput();
     output->setConnectedNode(blurNode);
 
-    // Generate the shader
+    // Generate the shader, with file texture lookups left unflipped, since
+    // the blur input is a texture rendered on the GPU rather than an image
+    // uploaded in scanline order.
     GenContext blurContext = context;
     blurContext.getOptions().fileTextureVerticalFlip = false;
     return createShader(shaderName, blurContext, output);

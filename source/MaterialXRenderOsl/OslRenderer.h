@@ -136,8 +136,8 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
 
     /// Set the OSL shader output.
     /// This is used during render validation if "testshade" or "testrender" is executed.
-    /// For testrender this value is used to replace the %shader_output% token in the
-    /// input scene file.
+    /// For testrender this value is used to replace the %input_shader_output% token in
+    /// the scene template file.
     /// @param outputName Name of shader output
     /// @param outputType The MaterialX type of the output
     void setOslShaderOutput(const string& outputName, const string& outputType)
@@ -164,16 +164,31 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
 
     /// Set the XML scene file to use for testrender. This is a template file
     /// with the following tokens for replacement:
-    ///     - %shader% : which will be replaced with the name of the shader to use
-    ///     - %shader_output% : which will be replace with the name of the shader output to use
+    ///     - %input_shader_type% : replaced with the name of the shader to render
+    ///     - %input_shader_output% : replaced with the name of the shader output to use
+    ///     - %input_shader_parameter_overrides% : replaced with input shader parameter overrides
+    ///     - %output_shader_type% : replaced with the name of the output (remapping) shader
+    ///     - %output_shader_input% : replaced with the name of the output shader input
+    ///     - %environment_shader_parameter_overrides% : replaced with environment shader parameter overrides
+    ///     - %background_color% : replaced with the background color
+    ///     - %render_geometry% : replaced with the absolute path to the geometry to render
     /// @param templateFilePath Scene file name
     void setOslTestRenderSceneTemplateFile(const FilePath& templateFilePath)
     {
         _oslTestRenderSceneTemplateFile = templateFilePath;
     }
 
+    /// Set the geometry to be rendered with testrender, replacing the
+    /// %render_geometry% token in the scene template file.
+    /// @param geometryFilePath Absolute path to the geometry file
+    void setRenderGeometry(const FilePath& geometryFilePath)
+    {
+        _renderGeometry = geometryFilePath;
+    }
+
     /// Set the name of the shader to be used for the input XML scene file.
-    /// The value is used to replace the %shader% token in the file.
+    /// The value is used to replace the %input_shader_type% token in the
+    /// scene template file.
     /// @param shaderName Name of shader
     void setOslShaderName(const string& shaderName)
     {
@@ -265,6 +280,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     FilePath _oslTestShadeExecutable;
     FilePath _oslTestRenderExecutable;
     FilePath _oslTestRenderSceneTemplateFile;
+    FilePath _renderGeometry;
     string _oslShaderName;
     StringVec _oslShaderParameterOverrides;
     StringVec _envOslShaderParameterOverrides;

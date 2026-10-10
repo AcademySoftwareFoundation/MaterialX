@@ -11,7 +11,7 @@ void mx_image_vector3(textureresource file, string layer, vector default_value, 
     }
 
     color missingColor = default_value;
-    vector2 st = mx_transform_uv(texcoord);
+    vector2 st = mx_transform_uv(texcoord, file.filename);
     out = texture(file.filename, st.x, st.y,
                   "subimage", layer, "interp", filtertype,
                   "missingcolor", missingColor,
