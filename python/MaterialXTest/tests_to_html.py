@@ -4,6 +4,7 @@ import sys
 import os
 import datetime
 import argparse
+import re
 
 try:
     # Install pillow via pip to enable image differencing and statistics.
@@ -78,9 +79,17 @@ def main(args=None):
     parser.add_argument('-l2', '--lang2', dest='lang2', action='store', help='Second target language for comparison. Default is osl', default="osl")
     parser.add_argument('-l3', '--lang3', dest='lang3', action='store', help='Third target language for comparison. Default is empty', default="")
     parser.add_argument('-e', '--error', dest='error', action='store', help='Filter out results with RMS less than this. Negative means all results are kept.', default=-1, type=float)
+    parser.add_argument('-r', '--regex', dest='regex', action='store', help='Only include results whose relative path, without the language suffix, matches this case-insensitive regular expression. Paths use forward slashes on all platforms.', default=None)
     parser.add_argument('-of', '--order-from', dest='order_from', action='store', help='Path to a MaterialX _options.mtlx file. When provided, output sections are ordered to match its renderTestPaths input.', default="")
 
     args = parser.parse_args(args)
+
+    resultRegex = None
+    if args.regex is not None:
+        try:
+            resultRegex = re.compile(args.regex, re.IGNORECASE)
+        except re.error as e:
+            parser.error("invalid regular expression: " + str(e))
 
     fh = open(args.outputfile,"w+")
     fh.write("<html>\n")
@@ -134,12 +143,20 @@ def main(args=None):
     # Get all source files. Sort dirs for deterministic walk order across platforms.
     langFiles1 = []
     langPaths1 = []
+    postFix: str = f"_{args.lang1}.png"
     for subdir, dirs, files in os.walk(args.inputdir1):
         dirs.sort()
         for curFile in sorted(files):
-            if curFile.endswith(args.lang1 + ".png"):
-                langFiles1.append(curFile)
-                langPaths1.append(subdir)
+            if not curFile.endswith(postFix):
+                continue
+            if resultRegex is not None:
+                resultPath = os.path.relpath(
+                    os.path.join(subdir, curFile.removesuffix(postFix)),
+                    args.inputdir1).replace('\\', '/')
+                if not resultRegex.search(resultPath):
+                    continue
+            langFiles1.append(curFile)
+            langPaths1.append(subdir)
 
     if args.order_from:
         orderPaths = parseRenderTestPaths(args.order_from)
@@ -158,7 +175,6 @@ def main(args=None):
     langFiles3 = []
     langPaths3 = []
     preFixLen: int = len(args.inputdir1) + 1  # including the path separator
-    postFix: str = f"_{args.lang1}.png"
     for file1, path1 in zip(langFiles1, langPaths1):
         # Allow for just one language to be shown if source and dest are the same.
         # Otherwise add in equivalent name with dest language replacement if

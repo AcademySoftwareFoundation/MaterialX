@@ -19,6 +19,8 @@ jobs:
 
   build:
     name: Build
+    # Skip nightly (scheduled) builds on forks
+    if: github.event.repository.fork == false || github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     env:
       IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
@@ -443,6 +445,8 @@ jobs:
 
   javascript:
     name: JavaScript
+    # Skip nightly (scheduled) builds on forks
+    if: github.event.repository.fork == false || github.event_name != 'schedule'
     runs-on: ubuntu-latest
     permissions:
       contents: write

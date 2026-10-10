@@ -5425,5 +5425,12 @@ void Graph::saveDocument(mx::FilePath filePath)
 
     mx::XmlWriteOptions writeOptions;
     writeOptions.elementPredicate = getElementPredicate();
-    mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
+    try
+    {
+        mx::writeToXmlFile(writeDoc, filePath, &writeOptions);
+    }
+    catch (mx::Exception& e)
+    {
+        std::cerr << "Failed to write file: " << filePath.asString() << ": \"" << std::string(e.what()) << "\"" << std::endl;
+    }
 }
