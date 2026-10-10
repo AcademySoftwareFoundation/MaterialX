@@ -43,6 +43,11 @@ bool ColorManagementSystem::supportsTransform(const ColorSpaceTransform& transfo
     return getNodeDef(transform) != nullptr;
 }
 
+bool ColorManagementSystem::isReservedNoOpColorSpace(const string& colorSpace)
+{
+    return colorSpace == "none" || colorSpace == "data";
+}
+
 ShaderNodePtr ColorManagementSystem::createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                                                 GenContext& context) const
 {

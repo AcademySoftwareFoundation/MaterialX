@@ -24,8 +24,10 @@ void initContext(mx::GenContext& context, mx::FileSearchPath searchPath, mx::Doc
     // Register the search path for shader source code.
     context.registerSourceCodeSearchPath(searchPath);
 
-    // Set shader generation options.
-    context.getOptions().targetColorSpaceOverride = "lin_rec709";
+    // Set shader generation options, with file texture lookups left
+    // unflipped, since web clients are expected to flip images vertically
+    // on upload.
+    context.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     context.getOptions().fileTextureVerticalFlip = false;
     context.getOptions().hwMaxActiveLightSources = 1;
     context.getOptions().hwSpecularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;

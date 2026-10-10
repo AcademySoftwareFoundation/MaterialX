@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- 
+Test that a colorspace on an image and on a color4 value work.
+ -->
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <nodegraph name="ng1">
+    <image name="image_srgb" type="color3">
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_rec709_scene" />
+    </image>
+    <standard_surface name="image_srgb_standard_surface" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="image_srgb" />
+    </standard_surface>
+    <output name="image_srgb_out" type="surfaceshader" nodename="image_srgb_standard_surface" />
+
+    <image name="image_g22_ap1" type="color3">
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="g22_ap1_scene" />
+    </image>
+    <standard_surface name="image_g22_ap1_standard_surface5" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="image_g22_ap1" />
+    </standard_surface>
+    <output name="image_g22_ap1_out" type="surfaceshader" nodename="image_g22_ap1_standard_surface5" />
+
+    <constant name="color_srgb" type="color4">
+      <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="srgb_rec709_scene" />
+    </constant>
+    <convert name="color_srgb_color3" type="color3">
+      <input name="in" type="color4" nodename="color_srgb" />
+    </convert>
+    <standard_surface name="color_srgb_standard_surface" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="color_srgb_color3" />
+    </standard_surface>
+    <output name="color_srgb_out" type="surfaceshader" nodename="color_srgb_standard_surface" />
+
+    <constant name="color_g22_ap1" type="color4">
+      <input name="value" type="color4" value="0.5, 0.0, 0.0, 1.0" colorspace="g22_ap1_scene" />
+    </constant>
+    <convert name="color_g22_ap1_color3" type="color3">
+      <input name="in" type="color4" nodename="color_g22_ap1" />
+    </convert>
+    <standard_surface name="color_g22_ap1_standard_surface5" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="color_g22_ap1_color3" />
+    </standard_surface>
+    <output name="color_g22_ap1_out" type="surfaceshader" nodename="color_g22_ap1_standard_surface5" />
+  </nodegraph>
+</materialx>

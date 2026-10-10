@@ -38,6 +38,13 @@ class SlangShaderRenderTester : public RenderUtil::ShaderRenderTester
     void registerLights(mx::DocumentPtr document, const GenShaderUtil::TestSuiteOptions& options,
                         mx::GenContext& context) override;
 
+    void setTargetGenerationOptions(mx::GenOptions& options) override
+    {
+        // Flip file texture lookups vertically, compensating for the top-left
+        // image origin of textures uploaded to the GPU in scanline order.
+        options.fileTextureVerticalFlip = true;
+    }
+
     void createRenderer(std::ostream& log) override;
 
     RenderUtil::RenderProfileResult runRenderer(
@@ -198,9 +205,7 @@ RenderUtil::RenderProfileResult SlangShaderRenderTester::runRenderer(
                 transpTimer.endTimer();
 
                 mx::ScopedTimer generationTimer(&result.languageTimes.generationTime);
-                mx::GenOptions& contextOptions = context.getOptions();
-                contextOptions = options;
-                contextOptions.targetColorSpaceOverride = "lin_rec709";
+                context.getOptions() = options;
                 shader = shadergen.generate(shaderName, element, context);
                 generationTimer.endTimer();
             }
@@ -240,36 +245,8 @@ RenderUtil::RenderProfileResult SlangShaderRenderTester::runRenderer(
             try
             {
                 // Set geometry
-                mx::GeometryHandlerPtr geomHandler = _renderer->getGeometryHandler();
-                mx::FilePath geomPath;
-                if (!testOptions.renderGeometry.isEmpty())
-                {
-                    if (!testOptions.renderGeometry.isAbsolute())
-                    {
-                        geomPath = searchPath.find("resources/Geometry") / testOptions.renderGeometry;
-                    }
-                    else
-                    {
-                        geomPath = testOptions.renderGeometry;
-                    }
-                }
-                else
-                {
-                    geomPath = searchPath.find("resources/Geometry/sphere.obj");
-                }
-
-                if (!geomHandler->hasGeometry(geomPath))
-                {
-                    // For test sphere and plane geometry perform a V-flip of texture coordinates.
-                    const std::string baseName = geomPath.getBaseName();
-                    bool texcoordVerticalFlip = baseName == "sphere.obj" || baseName == "plane.obj";
-                    geomHandler->clearGeometry();
-                    geomHandler->loadGeometry(geomPath, texcoordVerticalFlip);
-                    for (mx::MeshPtr mesh : geomHandler->getMeshes())
-                    {
-                        addAdditionalTestStreams(mesh);
-                    }
-                }
+                mx::FilePath geomPath = RenderUtil::findRenderGeometry(testOptions.renderGeometry, searchPath);
+                loadRenderGeometry(_renderer->getGeometryHandler(), geomPath);
 
                 bool isShader = mx::elementRequiresShading(element);
                 _renderer->setLightHandler(isShader ? _lightHandler : nullptr);

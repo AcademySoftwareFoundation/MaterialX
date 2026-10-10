@@ -122,5 +122,69 @@ class TestGenShader(unittest.TestCase):
 
         print()
 
+    def test_ColorManagementSystem(self):
+        # DefaultColorManagementSystem requires no transform for the "none"/"data" no-op
+        # color spaces, and translates color interop forum IDs to user-facing display names.
+        cms = mx_gen_shader.DefaultColorManagementSystem.create("genglsl")
+        self.assertTrue(cms.isNoOpTransform("none", "lin_rec709_scene"))
+        self.assertTrue(cms.isNoOpTransform("lin_rec709_scene", "data"))
+        self.assertFalse(cms.isNoOpTransform("srgb_texture", "lin_rec709_scene"))
+        self.assertEqual(cms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
+        self.assertEqual(cms.getUserFacingName("bogus_colorspace"), "bogus_colorspace")
+
+        # A legacy color space name and its color interop equivalent refer to the same
+        # color space, so no transform is required between them.
+        self.assertTrue(cms.isNoOpTransform("lin_rec709", "lin_rec709_scene"))
+        self.assertTrue(cms.isNoOpTransform("srgb_rec709_scene", "srgb_texture"))
+        self.assertTrue(cms.isNoOpTransform("acescg", "acescg"))
+        self.assertFalse(cms.isNoOpTransform("lin_rec709", "acescg"))
+
+        # A bare ColorManagementSystem, i.e. the Python trampoline with no Python-side
+        # overrides, must still inherit the base C++ implementation of isNoOpTransform
+        # and getUserFacingName, so "none"/"data" are recognized without requiring every
+        # Python CMS subclass to reimplement that logic.
+        baseCms = mx_gen_shader.ColorManagementSystem()
+        self.assertTrue(baseCms.isNoOpTransform("none", "lin_rec709_scene"))
+        self.assertTrue(baseCms.isNoOpTransform("lin_rec709_scene", "data"))
+        self.assertTrue(baseCms.isNoOpTransform("lin_rec709_scene", "lin_rec709_scene"))
+        # The base ColorManagementSystem does not recognize the default names, so they
+        # are returned unmodified, and only identical names are equivalent.
+        self.assertEqual(baseCms.getUserFacingName("lin_rec709_scene"), "lin_rec709_scene")
+        self.assertFalse(baseCms.isNoOpTransform("lin_rec709", "lin_rec709_scene"))
+
+        # A Python subclass may override isNoOpTransform and getUserFacingName, and the
+        # C++ trampoline must dispatch to those Python overrides.
+        class CustomColorManagementSystem(mx_gen_shader.ColorManagementSystem):
+            def getName(self):
+                return "custom_cms"
+            def isNoOpTransform(self, sourceColorSpace, targetColorSpace):
+                return sourceColorSpace == "custom_noop" or targetColorSpace == "custom_noop"
+            def getUserFacingName(self, colorSpace):
+                return "Custom: " + colorSpace
+
+        customCms = CustomColorManagementSystem()
+        self.assertEqual(customCms.getName(), "custom_cms")
+        self.assertTrue(customCms.isNoOpTransform("custom_noop", "lin_rec709_scene"))
+        self.assertFalse(customCms.isNoOpTransform("none", "lin_rec709_scene"))
+        self.assertEqual(customCms.getUserFacingName("lin_rec709_scene"), "Custom: lin_rec709_scene")
+
+        # OcioColorManagementSystem is only present in the module when MaterialX is
+        # built with OCIO support.
+        if hasattr(mx_gen_shader, 'OcioColorManagementSystem'):
+            try:
+                ocioCms = mx_gen_shader.OcioColorManagementSystem.createFromBuiltinConfig(
+                    "ocio://cg-config-latest", "genglsl")
+            except Exception as e:
+                self.skipTest("Could not create OcioColorManagementSystem from builtin config: " + str(e))
+            self.assertTrue(ocioCms.isNoOpTransform("none", "lin_rec709_scene"))
+            self.assertTrue(ocioCms.isNoOpTransform("data", "lin_rec709_scene"))
+            self.assertTrue(ocioCms.isNoOpTransform("Raw", "lin_rec709_scene"))
+            self.assertTrue(ocioCms.isNoOpTransform("lin_rec709", "lin_rec709_scene"))
+            self.assertTrue(ocioCms.isNoOpTransform("ACES - ACES2065-1", "lin_ap0"))
+            self.assertFalse(ocioCms.isNoOpTransform("ACEScg", "lin_rec709_scene"))
+            self.assertEqual(ocioCms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
+            self.assertEqual(ocioCms.getUserFacingName("pq_p3d65_display"), "ST2084-P3-D65 - Display")
+            self.assertEqual(ocioCms.getUserFacingName("bogus_colorspace"), "bogus_colorspace")
+
 if __name__ == '__main__':
     unittest.main()

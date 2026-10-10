@@ -48,7 +48,7 @@ using VertexIndexMap = std::unordered_map<VertexVector, uint32_t, VertexVector::
 // TinyObjLoader methods
 //
 
-bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
+bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     tinyobj::attrib_t attrib;
     vector<tinyobj::shape_t> shapes;
@@ -116,10 +116,6 @@ bool TinyObjLoader::load(const FilePath& filePath, MeshList& meshList, bool texc
                 if (indexObj.texcoord_index >= 0 && k < MeshStream::STRIDE_2D)
                 {
                     texcoord[k] = attrib.texcoords[indexObj.texcoord_index * MeshStream::STRIDE_2D + k];
-                }
-                if (texcoordVerticalFlip && k == 1)
-                {
-                    texcoord[k] = 1.0f - texcoord[k];
                 }
             }
 

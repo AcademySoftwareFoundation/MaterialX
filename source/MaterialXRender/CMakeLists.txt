@@ -15,7 +15,7 @@ mx_add_library(MaterialXRender
     EXPORT_DEFINE
         MATERIALX_RENDER_EXPORTS)
 
-if(UNIX)
+if(NOT MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE -Wno-unused-function)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         target_compile_options(${TARGET_NAME} PRIVATE -Wno-stringop-overflow)

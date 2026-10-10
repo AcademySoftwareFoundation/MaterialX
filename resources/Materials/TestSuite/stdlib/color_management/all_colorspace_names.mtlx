@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!-- 
+    Test all color spaces that should be recognized by the Default Color Management System.
+    This includes the newer ASWF Color Interop Forum names as well as the earlier MaterialX names.
+    If the test succeeds, the mapping onto a sphere should produce a solid band of orange with
+    gray bands at top and bottom. If it is not a solid color, some color spaces are not being
+    implemented correctly. Assuming an sRGB transfer function is applied to the .png, the RGB
+    value should be [200,100,50].
+ -->
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <texcoord name="texcoord1" type="vector2" />
+  <extract name="ext_y" type="float">
+    <input name="in" type="vector2" nodename="texcoord1" />
+    <input name="index" type="integer" value="1" />
+  </extract>
+  <remap name="which_raw" type="float">
+    <input name="in" type="float" nodename="ext_y" />
+    <input name="inlow" type="float" value="0.3" />
+    <input name="inhigh" type="float" value="0.7" />
+    <input name="outlow" type="float" value="1" />
+    <input name="outhigh" type="float" value="33" />
+  </remap>
+  <clamp name="which_all" type="float">
+    <input name="in" type="float" nodename="which_raw" />
+    <input name="low" type="float" value="0" />
+    <input name="high" type="float" value="33.9999" />
+  </clamp>
+  <switch name="interop_band_0" type="color3">
+    <input name="which" type="float" nodename="which_all" />
+    <input name="in1" type="color3" value="0.18, 0.18, 0.18" />
+    <input name="in2" type="color3" value="0.737175, 0.318326, 0.147493" colorspace="g18_rec709" />
+    <input name="in3" type="color3" value="0.779199, 0.391974, 0.208883" colorspace="g22_rec709" />
+    <input name="in4" type="color3" value="0.795569, 0.423793, 0.238002" colorspace="rec709_display" />
+    <input name="in5" type="color3" value="0.398892, 0.157717, 0.0536138" colorspace="acescg" />
+    <input name="in6" type="color3" value="0.398892, 0.157717, 0.0536138" colorspace="lin_ap1" />
+    <input name="in7" type="color3" value="0.658523, 0.431917, 0.264484" colorspace="g22_ap1" />
+    <input name="in8" type="color3" value="0.784325, 0.392101, 0.196092" colorspace="srgb_texture" />
+    <input name="in9" type="color3" value="0.44935, 0.1274, 0.035831" colorspace="lin_adobergb" />
+    <input name="in10" type="color3" value="0.69507, 0.391844, 0.220096" colorspace="adobergb" />
+  </switch>
+  <subtract name="interop_offset_1" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="10" />
+  </subtract>
+  <switch name="interop_band_1" type="color3">
+    <input name="which" type="float" nodename="interop_offset_1" />
+    <input name="in1" type="color3" value="0.733821, 0.41325, 0.243044" colorspace="srgb_displayp3" />
+    <input name="in2" type="color3" value="0.497672, 0.142344, 0.048136" colorspace="lin_displayp3" />
+    <input name="in3" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="lin_rec709" />
+    <input name="in4" type="color3" value="0.737175, 0.318326, 0.147493" colorspace="gamma18" />
+    <input name="in5" type="color3" value="0.779199, 0.391974, 0.208883" colorspace="gamma22" />
+    <input name="in6" type="color3" value="0.795569, 0.423793, 0.238002" colorspace="gamma24" />
+    <input name="in7" type="color3" value="0.737175, 0.318326, 0.147493" colorspace="g18_rec709_scene" />
+    <input name="in8" type="color3" value="0.779199, 0.391974, 0.208883" colorspace="g22_rec709_scene" />
+    <input name="in9" type="color3" value="0.795569, 0.423793, 0.238002" colorspace="g24_rec709_scene" />
+    <input name="in10" type="color3" value="0.398892, 0.157717, 0.0536138" colorspace="lin_ap1_scene" />
+  </switch>
+  <subtract name="interop_offset_2" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="20" />
+  </subtract>
+  <switch name="interop_band_2" type="color3">
+    <input name="which" type="float" nodename="interop_offset_2" />
+    <input name="in1" type="color3" value="0.658523, 0.431917, 0.264484" colorspace="g22_ap1_scene" />
+    <input name="in2" type="color3" value="0.784325, 0.392101, 0.196092" colorspace="srgb_rec709_scene" />
+    <input name="in3" type="color3" value="0.44935, 0.1274, 0.035831" colorspace="lin_adobergb_scene" />
+    <input name="in4" type="color3" value="0.69507, 0.391844, 0.220096" colorspace="g22_adobergb_scene" />
+    <input name="in5" type="color3" value="0.733821, 0.41325, 0.243044" colorspace="srgb_p3d65_scene" />
+    <input name="in6" type="color3" value="0.497672, 0.142344, 0.048136" colorspace="lin_p3d65_scene" />
+    <input name="in7" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="lin_rec709_scene" />
+    <input name="in8" type="color3" value="0.308383, 0.158574, 0.0521249" colorspace="lin_ap0_scene" />
+    <input name="in9" type="color3" value="0.405721, 0.157422, 0.0492501" colorspace="lin_rec2020_scene" />
+    <input name="in10" type="color3" value="0.28951, 0.216236, 0.0566729" colorspace="lin_ciexyzd65_scene" />
+  </switch>
+  <subtract name="interop_offset_3" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="30" />
+  </subtract>
+  <switch name="interop_band_3" type="color3">
+    <input name="which" type="float" nodename="interop_offset_3" />
+    <input name="in1" type="color3" value="0.664353, 0.433694, 0.256736" colorspace="srgb_ap1_scene" />
+    <input name="in2" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="none" />
+    <input name="in3" type="color3" value="0.5776, 0.1274, 0.0319" colorspace="data" />
+    <input name="in4" type="color3" value="0.18, 0.18, 0.18" />
+  </switch>
+  <divide name="interop_outer_which" type="float">
+    <input name="in1" type="float" nodename="which_all" />
+    <input name="in2" type="float" value="10" />
+  </divide>
+  <switch name="interop_bands" type="color3">
+    <input name="which" type="float" nodename="interop_outer_which" />
+    <input name="in1" type="color3" nodename="interop_band_0" />
+    <input name="in2" type="color3" nodename="interop_band_1" />
+    <input name="in3" type="color3" nodename="interop_band_2" />
+    <input name="in4" type="color3" nodename="interop_band_3" />
+  </switch>
+  <surface_unlit name="color_interop_naming_shader" type="surfaceshader">
+    <input name="emission_color" type="color3" nodename="interop_bands" />
+    <input name="emission" type="float" value="1" />
+  </surface_unlit>
+  <surfacematerial name="color_interop_naming" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="color_interop_naming_shader" />
+  </surfacematerial>
+</materialx>

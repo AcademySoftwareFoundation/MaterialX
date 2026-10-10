@@ -13,6 +13,8 @@
 #define mx_radians radians
 #define mx_float_bits_to_int floatBitsToInt
 
+bool mx_isinf(float x) { return isinf(x); }
+
 vec2 mx_matrix_mul(vec2 v, mat2 m) { return v * m; }
 vec3 mx_matrix_mul(vec3 v, mat3 m) { return v * m; }
 vec4 mx_matrix_mul(vec4 v, mat4 m) { return v * m; }
