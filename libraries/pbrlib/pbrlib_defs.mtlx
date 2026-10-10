@@ -243,7 +243,7 @@
   <nodedef name="ND_surface" node="surface" nodegroup="pbr" doc="A constructor node for the surfaceshader type.">
     <input name="bsdf" type="BSDF" value="" doc="Distribution function for surface scattering." />
     <input name="edf" type="EDF" value="" doc="Distribution function for surface emission." />
-    <input name="opacity" type="float" value="1.0" doc="Surface cutout opacity" />
+    <input name="opacity" type="float" value="1.0" uimin="0.0" uimax="1.0" doc="Surface cutout opacity, clamped to the range [0, 1]." />
     <input name="thin_walled" type="boolean" value="false" uniform="true" doc="Option to make the surface thin-walled." />
     <output name="out" type="surfaceshader" />
   </nodedef>
