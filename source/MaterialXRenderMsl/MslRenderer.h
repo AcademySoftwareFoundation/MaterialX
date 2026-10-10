@@ -140,7 +140,6 @@ class MX_RENDERMSL_API MslRenderer : public ShaderRenderer
 
     id<MTLDevice> _device = nil;
     id<MTLCommandQueue> _cmdQueue = nil;
-    id<MTLCommandBuffer> _cmdBuffer = nil;
 
     MetalFramebufferPtr _framebuffer;
 
