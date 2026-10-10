@@ -813,6 +813,7 @@ bool ValueElement::validate(string* message) const
     if (hasInterfaceName())
     {
         validateRequire(isA<Input>() || isA<Token>(), res, message, "Only input and token elements support interface names");
+
         ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
         if (graph && graph == getParent())
         {
