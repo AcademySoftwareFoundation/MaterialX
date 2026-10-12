@@ -100,6 +100,103 @@ TEST_CASE("GenShader: GLSL Unique Names", "[genglsl]")
     GenShaderUtil::testUniqueNames(context, mx::Stage::PIXEL);
 }
 
+TEST_CASE("GenShader: GLSL XYZ to Working Space", "[genglsl]")
+{
+    // Verify the default CIE XYZ to lin_rec709 transform.
+    const mx::Matrix33 expectedDefault(
+        3.2406f, -0.9689f, 0.0557f,
+        -1.5372f, 1.8758f, -0.2040f,
+        -0.4986f, 0.0415f, 1.0570f);
+
+    const mx::GenOptions defaultOptions;
+    CHECK(defaultOptions.xyzToWorkingSpace == expectedDefault);
+
+    // Include both consumers of the transform in a single shader:
+    // blackbody emission and thin-film iridescence.
+    const std::string testDocumentString = R"(<?xml version="1.0"?>
+<materialx version="1.39">
+  <blackbody name="blackbody" type="color3">
+    <input name="temperature" type="float" value="5000.0" />
+  </blackbody>
+
+  <dielectric_bsdf name="thin_film" type="BSDF">
+    <input name="ior" type="float" value="2.5" />
+    <input name="roughness" type="vector2" value="0.0, 0.0" />
+    <input name="thinfilm_thickness" type="float" value="550.0" />
+    <input name="thinfilm_ior" type="float" value="1.5" />
+  </dielectric_bsdf>
+
+  <uniform_edf name="emission" type="EDF">
+    <input name="color" type="color3" nodename="blackbody" />
+  </uniform_edf>
+
+  <surface name="surface" type="surfaceshader">
+    <input name="bsdf" type="BSDF" nodename="thin_film" />
+    <input name="edf" type="EDF" nodename="emission" />
+  </surface>
+
+  <surfacematerial name="material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="surface" />
+  </surfacematerial>
+</materialx>)";
+
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+
+    mx::DocumentPtr libraries = mx::createDocument();
+    loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::DocumentPtr testDoc = mx::createDocument();
+    mx::readFromXmlString(testDoc, testDocumentString, searchPath);
+    testDoc->setDataLibrary(libraries);
+
+    mx::ElementPtr element = testDoc->getChild("material");
+    REQUIRE(element);
+
+    // Use a clearly distinct value to prove that the GenOptions override
+    // reaches the generated shader interface.
+    const mx::Matrix33 customTransform = mx::Matrix33::IDENTITY;
+
+    mx::GenContext context(mx::GlslShaderGenerator::create());
+    context.registerSourceCodeSearchPath(searchPath);
+    context.getOptions().xyzToWorkingSpace = customTransform;
+
+    mx::ShaderPtr shader =
+        context.getShaderGenerator().generate("xyz_to_working_space", element, context);
+    REQUIRE(shader);
+
+    const mx::ShaderStage& pixelStage = shader->getStage(mx::Stage::PIXEL);
+    const mx::VariableBlock& privateUniforms =
+        pixelStage.getUniformBlock(mx::HW::PRIVATE_UNIFORMS);
+
+    // The VariableBlock lookup key remains the original token, even though
+    // token substitution updates the port's emitted name.
+    const mx::ShaderPort* uniform =
+        privateUniforms.find(mx::HW::T_XYZ_TO_WORKING_SPACE);
+
+    REQUIRE(uniform);
+    CHECK(uniform->getType() == mx::Type::MATRIX33);
+    CHECK(uniform->getName() == mx::HW::XYZ_TO_WORKING_SPACE);
+    CHECK(uniform->getVariable() == mx::HW::XYZ_TO_WORKING_SPACE);
+
+    REQUIRE(uniform->getValue());
+    REQUIRE(uniform->getValue()->isA<mx::Matrix33>());
+    CHECK(uniform->getValue()->asA<mx::Matrix33>() == customTransform);
+
+    const std::string& source = pixelStage.getSourceCode();
+
+    // Verify that the private uniform was emitted and all tokens were replaced.
+    CHECK(source.find("uniform mat3 u_xyzToWorkingSpace") != std::string::npos);
+    CHECK(source.find("$xyzToWorkingSpace") == std::string::npos);
+
+    // Verify that both blackbody and thin-film calculations use the uniform.
+    CHECK(source.find("mx_matrix_mul(u_xyzToWorkingSpace, XYZ)") != std::string::npos);
+    CHECK(source.find("mx_matrix_mul(u_xyzToWorkingSpace, I)") != std::string::npos);
+
+    // Verify that neither old hardcoded matrix remains.
+    CHECK(source.find("XYZ_to_RGB") == std::string::npos);
+    CHECK(source.find("XYZ_TO_RGB") == std::string::npos);
+}
+
 TEST_CASE("GenShader: GLSL Light Shaders", "[genglsl]")
 {
     mx::DocumentPtr doc = mx::createDocument();
@@ -129,7 +226,7 @@ TEST_CASE("GenShader: GLSL Light Shaders", "[genglsl]")
 TEST_CASE("GenShader: GLSL Performance Test", "[genglsl]")
 {
     mx::GenContext context(mx::GlslShaderGenerator::create());
-    BENCHMARK("Load documents, validate and generate shader") 
+    BENCHMARK("Load documents, validate and generate shader")
     {
         return GenShaderUtil::shaderGenPerformanceTest(context);
     };
@@ -172,13 +269,12 @@ static void generateGlslCode(GlslType type)
         generator = mx::GlslShaderGenerator::create();
     }
 
-    const std::unordered_map<GlslType, std::string> TYPE_NAME_MAP =
-    {
+    const std::unordered_map<GlslType, std::string> TYPE_NAME_MAP = {
         { GlslType::Essl, "essl" },
         { GlslType::Glsl, "glsl" },
         { GlslType::GlslLayout, "glsl_layout" },
         { GlslType::GlslVulkan, "glsl_vulkan" },
-        { GlslType::GlslWgsl  , "glsl_wgsl" }
+        { GlslType::GlslWgsl, "glsl_wgsl" }
     };
     const mx::FilePath logPath("genglsl_" + TYPE_NAME_MAP.at(type) + "_generate_test.txt");
     GlslShaderGeneratorTester tester(generator, testRootPaths, searchPath, logPath, false);
