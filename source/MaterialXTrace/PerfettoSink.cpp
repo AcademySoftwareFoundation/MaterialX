@@ -109,11 +109,10 @@ PerfettoSink::PerfettoSink(std::string outputPath,
         perfetto::TrackEvent::Register();
     });
 
-    // Register async track descriptors from the caller-provided map.
-    // Explicitly parent to the process track to avoid hierarchy loops.
+    // Register async track descriptors from the caller-provided map
     for (const auto& [id, name] : asyncTracks)
     {
-        perfetto::Track perfTrack(id, perfetto::ProcessTrack::Current());
+        perfetto::Track perfTrack(id);
         auto desc = perfTrack.Serialize();
         desc.set_name(name);
         perfetto::TrackEvent::SetTrackDescriptor(perfTrack, desc);
