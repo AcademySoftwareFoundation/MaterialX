@@ -61,11 +61,26 @@ enum class Category
 /// Callers define their own IDs and pass an {id -> name} map when creating
 /// a sink. The sink uses the map to set up track descriptors; asyncEvent
 /// then routes events by ID without the sink needing to know the semantics.
-/// Note: ID 0 is reserved (Perfetto treats uuid 0 as "no track").
+///
+/// IDs should be derived with trackIdFromName() rather than chosen by hand.
+/// Perfetto computes a track's uuid as (id ^ parent uuid), and thread tracks
+/// share the same process parent keyed by thread ID, so an ID of 0 makes the
+/// track its own parent, and a small ID can alias a live thread's track.
 using AsyncTrackId = uint64_t;
 
+/// Derive an async track ID from a name at compile time (64-bit FNV-1a).
+constexpr AsyncTrackId trackIdFromName(const char* name)
+{
+    uint64_t hash = 14695981039346656037ull;
+    for (; *name; ++name)
+    {
+        hash = (hash ^ static_cast<uint8_t>(*name)) * 1099511628211ull;
+    }
+    return hash;
+}
+
 /// Well-known async track ID for GPU timing events.
-constexpr AsyncTrackId GPU_ASYNC_TRACK = 1;
+constexpr AsyncTrackId GPU_ASYNC_TRACK = trackIdFromName("GPU");
 
 /// Map of async track definitions: {id -> display name}.
 using AsyncTrackMap = std::unordered_map<AsyncTrackId, std::string>;
@@ -245,7 +260,7 @@ class Scope
 ///
 /// Usage:
 ///   Dispatcher::getInstance().setSink(
-///       createPerfettoSink("trace.perfetto-trace", {{0, "GPU"}}));
+///       createPerfettoSink("trace.perfetto-trace", {{GPU_ASYNC_TRACK, "GPU"}}));
 ///   Dispatcher::ShutdownGuard guard;
 ///   // ... traced work ...
 ///   // guard destructor writes the trace file
