@@ -25,7 +25,6 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -57,33 +56,44 @@ enum class Category
     Count
 };
 
-/// Numeric identifier for an async track (e.g., GPU, Compile, Transfer).
-/// Callers define their own IDs and pass an {id -> name} map when creating
-/// a sink. The sink uses the map to set up track descriptors; async events
-/// are then routed by ID without the sink needing to know the semantics.
+/// @struct AsyncTrack
+/// A named track for async events (e.g., GPU, Compile, Transfer).
 ///
-/// IDs should be derived with trackIdFromName() rather than chosen by hand.
-/// Perfetto computes a track's uuid as (id ^ parent uuid), and thread tracks
-/// share the same process parent keyed by thread ID, so an ID of 0 makes the
-/// track its own parent, and a small ID can alias a live thread's track.
-using AsyncTrackId = uint64_t;
-
-/// Derive an async track ID from a name at compile time (64-bit FNV-1a).
-constexpr AsyncTrackId trackIdFromName(const char* name)
+/// The ID is a hash of the name, computed at compile time when the track is
+/// declared constexpr, so sinks need no registration step. Perfetto computes
+/// a track's uuid as (id ^ parent uuid), and thread tracks share the same
+/// process parent keyed by thread ID, so hand-picked small IDs could alias a
+/// live thread's track, and an ID of 0 would make the track its own parent.
+///
+/// Usage:
+///   constexpr AsyncTrack MY_TRACK("My Track");
+struct AsyncTrack
 {
-    uint64_t hash = 14695981039346656037ull;
-    for (; *name; ++name)
+    /// @param trackName Display name of the track. Must have static lifetime.
+    constexpr explicit AsyncTrack(const char* trackName) :
+        id(hashName(trackName)),
+        name(trackName)
     {
-        hash = (hash ^ static_cast<uint8_t>(*name)) * 1099511628211ull;
     }
-    return hash;
-}
 
-/// Well-known async track ID for GPU timing events.
-constexpr AsyncTrackId GPU_ASYNC_TRACK = trackIdFromName("GPU");
+    uint64_t id;
+    const char* name;
 
-/// Map of async track definitions: {id -> display name}.
-using AsyncTrackMap = std::unordered_map<AsyncTrackId, std::string>;
+  private:
+    // 64-bit FNV-1a
+    static constexpr uint64_t hashName(const char* str)
+    {
+        uint64_t hash = 14695981039346656037ull;
+        for (; *str; ++str)
+        {
+            hash = (hash ^ static_cast<uint8_t>(*str)) * 1099511628211ull;
+        }
+        return hash;
+    }
+};
+
+/// Well-known async track for GPU timing events.
+constexpr AsyncTrack GPU_ASYNC_TRACK("GPU");
 
 /// @class Sink
 /// Abstract tracing sink interface.
@@ -105,13 +115,13 @@ class MX_TRACE_API Sink
     virtual void counter(Category category, const char* name, double value) = 0;
 
     /// Record a completed async event (e.g., GPU work whose timer query has
-    /// just been read back). The sink places the slice on the track identified
-    /// by @p track, ending at the current time in its own trace clock.
-    /// @param track The async track ID (must have been registered at sink creation)
+    /// just been read back). The sink places the slice on @p track, ending at
+    /// the current time in its own trace clock.
+    /// @param track The async track to record on
     /// @param category The trace category for filtering
     /// @param eventName Name of the event
     /// @param durationNs Duration in nanoseconds
-    virtual void asyncEventEndingNow(AsyncTrackId /*track*/, Category /*category*/,
+    virtual void asyncEventEndingNow(const AsyncTrack& /*track*/, Category /*category*/,
                                      const char* /*eventName*/, uint64_t /*durationNs*/) { }
 
     /// Set the current thread's name for trace visualization.
@@ -183,7 +193,7 @@ class MX_TRACE_API Dispatcher
     }
 
     /// Record a completed async event ending at the current time.
-    void asyncEventEndingNow(AsyncTrackId track, Category category,
+    void asyncEventEndingNow(const AsyncTrack& track, Category category,
                              const char* eventName, uint64_t durationNs)
     {
         if (_sink)
@@ -240,26 +250,16 @@ class Scope
 /// visualized at https://ui.perfetto.dev
 ///
 /// @param outputPath Path to write the trace file when the sink is destroyed
-/// @param asyncTracks Map of async track definitions {id -> display name}.
-///   Each entry creates a named track in the trace for async events.
 /// @param bufferSizeKb Size of the trace buffer in KB (default 32MB)
 /// @return A unique_ptr to the Perfetto sink
 ///
 /// Usage:
-///   Dispatcher::getInstance().setSink(
-///       createPerfettoSink("trace.perfetto-trace", {{GPU_ASYNC_TRACK, "GPU"}}));
+///   Dispatcher::getInstance().setSink(createPerfettoSink("trace.perfetto-trace"));
 ///   Dispatcher::ShutdownGuard guard;
 ///   // ... traced work ...
 ///   // guard destructor writes the trace file
 MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
-    const std::string& outputPath,
-    const AsyncTrackMap& asyncTracks,
-    size_t bufferSizeKb = 32768);
-
-/// Create a Perfetto-based tracing sink without async tracks.
-MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
-    const std::string& outputPath,
-    size_t bufferSizeKb = 32768);
+    const std::string& outputPath, size_t bufferSizeKb = 32768);
 
 #endif // MATERIALX_BUILD_PERFETTO_TRACING
 

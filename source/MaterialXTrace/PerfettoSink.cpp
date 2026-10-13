@@ -43,6 +43,36 @@ namespace Tracing
 namespace
 {
 
+// A Perfetto track that carries its display name, in the spirit of
+// perfetto::CounterTrack. Perfetto writes a track's descriptor on its first
+// use per trace sequence by calling Serialize() on the static track type, so
+// no up-front registration via SetTrackDescriptor is needed.
+class NamedTrack : public perfetto::Track
+{
+  public:
+    explicit NamedTrack(const AsyncTrack& track) :
+        perfetto::Track(track.id),
+        _name(track.name)
+    {
+    }
+
+    perfetto::protos::gen::TrackDescriptor Serialize() const
+    {
+        auto desc = perfetto::Track::Serialize();
+        desc.set_name(_name);
+        return desc;
+    }
+
+    void Serialize(perfetto::protos::pbzero::TrackDescriptor* desc) const
+    {
+        auto bytes = Serialize().SerializeAsString();
+        desc->AppendRawProtoBytes(bytes.data(), bytes.size());
+    }
+
+  private:
+    const char* _name;
+};
+
 #define MX_DEFINE_PERFETTO_OPS(Name, perfettoCategory)                           \
 struct Name                                                                      \
 {                                                                                \
@@ -59,13 +89,13 @@ struct Name                                                                     
     {                                                                            \
         TRACE_COUNTER(perfettoCategory, track, value);                           \
     }                                                                            \
-    static void asyncBegin(const perfetto::Track& track, uint64_t startNs,       \
+    static void asyncBegin(const NamedTrack& track, uint64_t startNs,            \
                            const char* name)                                     \
     {                                                                            \
         TRACE_EVENT_BEGIN(perfettoCategory, nullptr, track, startNs,             \
             [&](perfetto::EventContext ctx) { ctx.event()->set_name(name); });   \
     }                                                                            \
-    static void asyncEnd(const perfetto::Track& track, uint64_t endNs)           \
+    static void asyncEnd(const NamedTrack& track, uint64_t endNs)                \
     {                                                                            \
         TRACE_EVENT_END(perfettoCategory, track, endNs);                         \
     }                                                                            \
@@ -95,9 +125,7 @@ void withCategory(Category category, Fn&& fn)
 
 } // anonymous namespace
 
-PerfettoSink::PerfettoSink(std::string outputPath,
-                           const AsyncTrackMap& asyncTracks,
-                           size_t bufferSizeKb)
+PerfettoSink::PerfettoSink(std::string outputPath, size_t bufferSizeKb)
     : _outputPath(std::move(outputPath))
 {
     // One-time global Perfetto initialization
@@ -108,16 +136,6 @@ PerfettoSink::PerfettoSink(std::string outputPath,
         perfetto::Tracing::Initialize(args);
         perfetto::TrackEvent::Register();
     });
-
-    // Register async track descriptors from the caller-provided map
-    for (const auto& [id, name] : asyncTracks)
-    {
-        perfetto::Track perfTrack(id);
-        auto desc = perfTrack.Serialize();
-        desc.set_name(name);
-        perfetto::TrackEvent::SetTrackDescriptor(perfTrack, desc);
-        _asyncTracks.emplace(id, perfTrack);
-    }
 
     // Create and start a tracing session
     perfetto::TraceConfig cfg;
@@ -172,14 +190,10 @@ void PerfettoSink::counter(Category category, const char* name, double value)
     });
 }
 
-void PerfettoSink::asyncEventEndingNow(AsyncTrackId track, Category category,
+void PerfettoSink::asyncEventEndingNow(const AsyncTrack& track, Category category,
                                        const char* eventName, uint64_t durationNs)
 {
-    auto it = _asyncTracks.find(track);
-    if (it == _asyncTracks.end())
-        return;
-
-    const auto& perfTrack = it->second;
+    NamedTrack perfTrack(track);
     uint64_t endNs = perfetto::TrackEvent::GetTraceTimeNs();
     uint64_t startNs = endNs - durationNs;
 
@@ -199,17 +213,9 @@ void PerfettoSink::setThreadName(const char* name)
 }
 
 // Factory function - the exported entry point
-std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
-                                          const AsyncTrackMap& asyncTracks,
-                                          size_t bufferSizeKb)
+std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath, size_t bufferSizeKb)
 {
-    return std::make_unique<PerfettoSink>(outputPath, asyncTracks, bufferSizeKb);
-}
-
-std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
-                                          size_t bufferSizeKb)
-{
-    return std::make_unique<PerfettoSink>(outputPath, AsyncTrackMap{}, bufferSizeKb);
+    return std::make_unique<PerfettoSink>(outputPath, bufferSizeKb);
 }
 
 } // namespace Tracing
