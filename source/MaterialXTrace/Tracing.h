@@ -266,7 +266,12 @@ class Scope
 ///   // guard destructor writes the trace file
 MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
     const std::string& outputPath,
-    const AsyncTrackMap& asyncTracks = {},
+    const AsyncTrackMap& asyncTracks,
+    size_t bufferSizeKb = 32768);
+
+/// Create a Perfetto-based tracing sink without async tracks.
+MX_TRACE_API std::unique_ptr<Sink> createPerfettoSink(
+    const std::string& outputPath,
     size_t bufferSizeKb = 32768);
 
 #endif // MATERIALX_BUILD_PERFETTO_TRACING

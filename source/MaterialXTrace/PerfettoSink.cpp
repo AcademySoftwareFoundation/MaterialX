@@ -210,6 +210,12 @@ std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
     return std::make_unique<PerfettoSink>(outputPath, asyncTracks, bufferSizeKb);
 }
 
+std::unique_ptr<Sink> createPerfettoSink(const std::string& outputPath,
+                                          size_t bufferSizeKb)
+{
+    return std::make_unique<PerfettoSink>(outputPath, AsyncTrackMap{}, bufferSizeKb);
+}
+
 } // namespace Tracing
 
 MATERIALX_NAMESPACE_END
