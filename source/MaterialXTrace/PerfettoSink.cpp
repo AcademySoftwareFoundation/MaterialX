@@ -172,25 +172,21 @@ void PerfettoSink::counter(Category category, const char* name, double value)
     });
 }
 
-void PerfettoSink::asyncEvent(AsyncTrackId track, Category category,
-                              const char* eventName, uint64_t startNs, uint64_t durationNs)
+void PerfettoSink::asyncEventEndingNow(AsyncTrackId track, Category category,
+                                       const char* eventName, uint64_t durationNs)
 {
     auto it = _asyncTracks.find(track);
     if (it == _asyncTracks.end())
         return;
 
     const auto& perfTrack = it->second;
-    uint64_t endNs = startNs + durationNs;
+    uint64_t endNs = perfetto::TrackEvent::GetTraceTimeNs();
+    uint64_t startNs = endNs - durationNs;
 
     withCategory(category, [&](auto ops) {
         decltype(ops)::asyncBegin(perfTrack, startNs, eventName);
         decltype(ops)::asyncEnd(perfTrack, endNs);
     });
-}
-
-uint64_t PerfettoSink::getTraceTimeNs()
-{
-    return perfetto::TrackEvent::GetTraceTimeNs();
 }
 
 void PerfettoSink::setThreadName(const char* name)

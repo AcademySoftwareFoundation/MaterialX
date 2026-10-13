@@ -21,7 +21,7 @@ namespace
 {
 
 /// RAII wrapper around a GL_TIME_ELAPSED query. On destruction, reads the
-/// result (blocking until the GPU is done) and emits an MX_TRACE_ASYNC event.
+/// result (blocking until the GPU is done) and emits an async trace event.
 class GpuTimerScope
 {
   public:
@@ -41,13 +41,12 @@ class GpuTimerScope
 
         glEndQuery(GL_TIME_ELAPSED);
         // Reading GL_QUERY_RESULT blocks until the GPU work is done,
-        // so "now" in the trace clock is a safe end-of-slice marker.
+        // so the GPU slice can safely end "now".
         GLuint64 gpuDurationNs = 0;
         glGetQueryObjectui64v(_query, GL_QUERY_RESULT, &gpuDurationNs);
         glDeleteQueries(1, &_query);
-        uint64_t nowNs = Tracing::Dispatcher::getInstance().getTraceTimeNs();
-        MX_TRACE_ASYNC(Tracing::GPU_ASYNC_TRACK, Tracing::Category::Render, "GPU Frame",
-                       nowNs - gpuDurationNs, gpuDurationNs);
+        MX_TRACE_ASYNC_ENDING_NOW(Tracing::GPU_ASYNC_TRACK, Tracing::Category::Render,
+                                  "GPU Frame", gpuDurationNs);
     }
 
     GpuTimerScope(const GpuTimerScope&) = delete;
