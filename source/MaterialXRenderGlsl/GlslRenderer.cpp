@@ -27,7 +27,8 @@ class GpuTimerScope
   public:
     GpuTimerScope()
     {
-        if (Tracing::Dispatcher::getInstance().isEnabled())
+        // Timer queries require OpenGL 3.3, while macOS may fall back to a 3.2 core profile.
+        if (GLAD_GL_VERSION_3_3 && Tracing::Dispatcher::getInstance().isEnabled())
         {
             glGenQueries(1, &_query);
             glBeginQuery(GL_TIME_ELAPSED, _query);
