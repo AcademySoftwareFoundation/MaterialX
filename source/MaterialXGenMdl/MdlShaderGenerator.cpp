@@ -150,12 +150,13 @@ void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    // Reject invalid names to avoid generating invalid MDL code.
     string validName = name;
     _syntax->makeValidName(validName);
     if (validName != name)
     {
         throw ExceptionShaderGenError("Invalid MDL shader name '" + name +
-                                      "'. Call Syntax::makeValidName() before generating the shader.");
+                                      "'. MdlSyntax::makeValidName() can be used to generate a valid name.");
     }
 
     // For MDL we cannot cache node implementations between generation calls,
