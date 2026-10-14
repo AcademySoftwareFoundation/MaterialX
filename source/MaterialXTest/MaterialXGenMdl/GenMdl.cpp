@@ -129,19 +129,6 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
     mx::TypeSystemPtr ts = mx::TypeSystem::create();
     mx::SyntaxPtr syntax = mx::MdlSyntax::create(ts);
 
-    for (const char* invalidName : { "", "1shader", "_shader", "shader name", "material" })
-    {
-        std::string validName = invalidName;
-        syntax->makeValidName(validName);
-        REQUIRE(!validName.empty());
-        REQUIRE((validName[0] >= 'a' && validName[0] <= 'z'));
-        REQUIRE(validName != invalidName);
-    }
-
-    mx::GenContext context(mx::MdlShaderGenerator::create());
-    REQUIRE_THROWS_AS(context.getShaderGenerator().generate("1shader", nullptr, context),
-                      mx::ExceptionShaderGenError);
-
     REQUIRE(syntax->getTypeName(mx::Type::FLOAT) == "float");
     REQUIRE(syntax->getTypeName(mx::Type::COLOR3) == "color");
     REQUIRE(syntax->getTypeName(mx::Type::VECTOR3) == "float3");
@@ -199,6 +186,19 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
     mx::ValuePtr intArrayValue = mx::Value::createValue<std::vector<int>>(intArray);
     value = syntax->getValue(mx::Type::INTEGERARRAY, *intArrayValue);
     REQUIRE(value == "int[](1, 2, 3, 4, 5, 6, 7)");
+
+    for (const char* invalidName : { "", "1shader", "_shader", "shader name", "material" })
+    {
+        std::string validName = invalidName;
+        syntax->makeValidName(validName);
+        REQUIRE(!validName.empty());
+        REQUIRE((validName[0] >= 'a' && validName[0] <= 'z'));
+        REQUIRE(validName != invalidName);
+    }
+
+    mx::GenContext context(mx::MdlShaderGenerator::create());
+    REQUIRE_THROWS_AS(context.getShaderGenerator().generate("1shader", nullptr, context),
+                      mx::ExceptionShaderGenError);
 }
 
 
