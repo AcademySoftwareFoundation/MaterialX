@@ -24,7 +24,7 @@ struct SamplerTexture2D
         tex.GetDimensions(0, width, height, numberOfLevels);
         return numberOfLevels;
     }
-}
+};
 
 float4 textureLod(SamplerTexture2D tex, float2 uv, float lod)
 {
