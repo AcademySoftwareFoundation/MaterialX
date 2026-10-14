@@ -532,7 +532,7 @@ void GLRenderPipeline::bakeTextures()
 mx::ImagePtr GLRenderPipeline::getFrameImage()
 {
     glFlush();
-    
+
     const auto& size = _viewer->m_size;
     const auto& pixel_ratio = _viewer->m_pixel_ratio;
 
@@ -543,6 +543,15 @@ mx::ImagePtr GLRenderPipeline::getFrameImage()
 
     // Read pixels into the image buffer.
     glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image->getResourceBuffer());
+
+    // Downsample HiDPI framebuffers to the requested logical viewer size.
+    unsigned int downsampleFactor = (unsigned int) std::round(pixel_ratio);
+    if (downsampleFactor > 1 &&
+        image->getWidth() == (unsigned int) size.x() * downsampleFactor &&
+        image->getHeight() == (unsigned int) size.y() * downsampleFactor)
+    {
+        image = image->applyBoxDownsample(downsampleFactor);
+    }
 
     return image;
 }
