@@ -551,6 +551,10 @@ class MX_CORE_API Document : public GraphElement
     /// Implementation element or NodeGraph element.
     vector<InterfaceElementPtr> getMatchingImplementations(const string& nodeDef) const;
 
+    /// Return the Implementation, if any, whose nodegraph attribute matches
+    /// the given fully-qualified nodegraph name.
+    ImplementationPtr getImplementationForNodeGraph(const string& nodeGraphName) const;
+
     /// @}
     /// @name UnitDef Elements
     /// @{
