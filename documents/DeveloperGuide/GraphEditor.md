@@ -60,6 +60,7 @@ To adjust the relative sizes of the Node Property Editor and Render View windows
 - `Double Click on Node`: Dive into node's subgraph if it has one
 - `U`: Go up and out of a subgraph
 - `F`: Frame selected node(s)
+- `P`: Pin (lock/unlock) the current render node (current render node's path can be seen just below the viewport)
 - `Ctrl + F` to search for a node in the editor by name
 - `Ctrl/Cmd + C` for Copying Nodes
 - `Ctrl/Cmd+X` for Cutting Nodes
