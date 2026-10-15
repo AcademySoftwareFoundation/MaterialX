@@ -1,0 +1,183 @@
+//
+// Copyright Contributors to the MaterialX Project
+// SPDX-License-Identifier: Apache-2.0
+//
+
+#include <MaterialXRenderHlsl/HlslFramebuffer.h>
+
+#include <MaterialXRender/ShaderRenderer.h>
+
+#include <Windows.h>
+#include <d3d11.h>
+
+#include <cstring>
+
+MATERIALX_NAMESPACE_BEGIN
+
+namespace
+{
+
+void releaseAndNull(IUnknown** ptr)
+{
+    if (ptr && *ptr)
+    {
+        (*ptr)->Release();
+        *ptr = nullptr;
+    }
+}
+
+} // namespace
+
+HlslFramebuffer::HlslFramebuffer(HlslContextPtr context, unsigned int width, unsigned int height) :
+    _context(std::move(context)),
+    _width(width),
+    _height(height)
+{
+    if (!_context || !_context->getDevice())
+        throw ExceptionRenderError("HlslFramebuffer: null device.");
+    if (_width == 0 || _height == 0)
+        throw ExceptionRenderError("HlslFramebuffer: zero-sized framebuffer.");
+
+    ID3D11Device* device = _context->getDevice();
+
+    D3D11_TEXTURE2D_DESC td = {};
+    td.Width = _width;
+    td.Height = _height;
+    td.MipLevels = 1;
+    td.ArraySize = 1;
+    td.SampleDesc.Count = 1;
+    td.SampleDesc.Quality = 0;
+    td.Usage = D3D11_USAGE_DEFAULT;
+    td.CPUAccessFlags = 0;
+    td.MiscFlags = 0;
+
+    // Color target: render-target + shader-resource so a downstream pass
+    // can sample the result. The texture itself uses TYPELESS storage so
+    // we can attach an sRGB-encoding RTV (linear -> sRGB at write time)
+    // alongside an SRV that returns the raw bytes. This matches the
+    // GlslRenderer which calls glEnable(GL_FRAMEBUFFER_SRGB) - without
+    // gamma encoding the HLSL output is linear while GLSL is sRGB, and
+    // the two backends produce wildly different brightness even from
+    // the same emission color.
+    td.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+    td.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    if (FAILED(device->CreateTexture2D(&td, nullptr, &_colorTexture)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create color texture.");
+
+    // Two RTVs over the same TYPELESS texture: SRGB encodes writes
+    // (linear -> sRGB), UNORM passes them through. setEncodeSrgb
+    // chooses which one bind/clear use. The texture baker flips
+    // sRGB off for non-color outputs (roughness, metallic, normal)
+    // so they stay linear.
+    D3D11_RENDER_TARGET_VIEW_DESC rtvd = {};
+    rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtvSrgb)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create sRGB RTV.");
+    rtvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    if (FAILED(device->CreateRenderTargetView(_colorTexture, &rtvd, &_colorRtvLinear)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create linear RTV.");
+
+    // Shader-resource view: UNORM so callers reading the texture get
+    // the bytes as stored (already gamma-encoded by the SRGB write).
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
+    srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    srvd.Texture2D.MostDetailedMip = 0;
+    srvd.Texture2D.MipLevels = 1;
+    if (FAILED(device->CreateShaderResourceView(_colorTexture, &srvd, &_colorSrv)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create SRV.");
+
+    // Depth-stencil target.
+    D3D11_TEXTURE2D_DESC dd = td;
+    dd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    dd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    if (FAILED(device->CreateTexture2D(&dd, nullptr, &_depthTexture)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create depth texture.");
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvd = {};
+    dsvd.Format = dd.Format;
+    dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    if (FAILED(device->CreateDepthStencilView(_depthTexture, &dsvd, &_depthDsv)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create DSV.");
+
+    // Staging texture used by readColor() to copy GPU pixels back to CPU.
+    // Stays as plain UNORM (not TYPELESS) so Map() can read the bytes -
+    // the SRGB encoding has already been applied to the texture data
+    // by the RTV write, so the bytes here are sRGB-encoded already.
+    D3D11_TEXTURE2D_DESC sd = td;
+    sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    sd.Usage = D3D11_USAGE_STAGING;
+    sd.BindFlags = 0;
+    sd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    if (FAILED(device->CreateTexture2D(&sd, nullptr, &_stagingTexture)))
+        throw ExceptionRenderError("HlslFramebuffer: failed to create staging texture.");
+}
+
+HlslFramebuffer::~HlslFramebuffer()
+{
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorSrv));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_depthDsv));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorRtvLinear));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorRtvSrgb));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_stagingTexture));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_depthTexture));
+    releaseAndNull(reinterpret_cast<IUnknown**>(&_colorTexture));
+}
+
+void HlslFramebuffer::bind()
+{
+    ID3D11DeviceContext* ctx = _context->getDeviceContext();
+    ID3D11RenderTargetView* rtv = _encodeSrgb ? _colorRtvSrgb : _colorRtvLinear;
+    ctx->OMSetRenderTargets(1, &rtv, _depthDsv);
+
+    D3D11_VIEWPORT vp = {};
+    vp.TopLeftX = 0;
+    vp.TopLeftY = 0;
+    vp.Width  = static_cast<float>(_width);
+    vp.Height = static_cast<float>(_height);
+    vp.MinDepth = 0.0f;
+    vp.MaxDepth = 1.0f;
+    ctx->RSSetViewports(1, &vp);
+}
+
+void HlslFramebuffer::unbind()
+{
+    ID3D11DeviceContext* ctx = _context->getDeviceContext();
+    ID3D11RenderTargetView* nullRtv = nullptr;
+    ctx->OMSetRenderTargets(1, &nullRtv, nullptr);
+}
+
+void HlslFramebuffer::clear(const Color4& color)
+{
+    ID3D11DeviceContext* ctx = _context->getDeviceContext();
+    const float c[4] = { color[0], color[1], color[2], color[3] };
+    ID3D11RenderTargetView* rtv = _encodeSrgb ? _colorRtvSrgb : _colorRtvLinear;
+    ctx->ClearRenderTargetView(rtv, c);
+    ctx->ClearDepthStencilView(_depthDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+ImagePtr HlslFramebuffer::readColor()
+{
+    ID3D11DeviceContext* ctx = _context->getDeviceContext();
+    ctx->CopyResource(_stagingTexture, _colorTexture);
+
+    D3D11_MAPPED_SUBRESOURCE mapped = {};
+    if (FAILED(ctx->Map(_stagingTexture, 0, D3D11_MAP_READ, 0, &mapped)) || !mapped.pData)
+        throw ExceptionRenderError("HlslFramebuffer::readColor: failed to map staging texture.");
+
+    ImagePtr image = Image::create(_width, _height, 4, Image::BaseType::UINT8);
+    image->createResourceBuffer();
+
+    auto* dst = static_cast<uint8_t*>(image->getResourceBuffer());
+    const auto* src = static_cast<const uint8_t*>(mapped.pData);
+    const size_t rowBytes = static_cast<size_t>(_width) * 4;
+    for (unsigned int y = 0; y < _height; ++y)
+    {
+        std::memcpy(dst + y * rowBytes, src + y * mapped.RowPitch, rowBytes);
+    }
+    ctx->Unmap(_stagingTexture, 0);
+    return image;
+}
+
+MATERIALX_NAMESPACE_END
