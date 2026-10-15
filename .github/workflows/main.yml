@@ -29,7 +29,7 @@ jobs:
       matrix:
         include:
         - name: Linux_GCC_10_Python39
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           compiler: gcc
           compiler_version: "10"
           python: 3.9
@@ -58,10 +58,10 @@ jobs:
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
-        - name: Linux_Clang_13_Python39
-          os: ubuntu-22.04
+        - name: Linux_Clang_14_Python39
+          os: ubuntu-24.04
           compiler: clang
-          compiler_version: "13"
+          compiler_version: "14"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -72,10 +72,10 @@ jobs:
           python: 3.14
           clang_format: ON
 
-        - name: MacOS_Xcode_15_Python311
-          os: macos-14
+        - name: MacOS_Xcode_16_Python311
+          os: macos-15
           compiler: xcode
-          compiler_version: "15.4"
+          compiler_version: "16.0"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
           python: 3.11
 
@@ -447,7 +447,7 @@ jobs:
     name: JavaScript
     # Skip nightly (scheduled) builds on forks
     if: github.event.repository.fork == false || github.event_name != 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
@@ -507,7 +507,7 @@ jobs:
 
   sdist:
     name: Python SDist
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
