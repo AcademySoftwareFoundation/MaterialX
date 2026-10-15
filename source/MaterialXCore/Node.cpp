@@ -10,6 +10,8 @@
 
 #include <deque>
 
+#include <iostream>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
@@ -576,6 +578,188 @@ string GraphElement::asStringDot() const
     dot += "}\n";
 
     return dot;
+}
+
+void GraphElement::addExplicitTypeConversions(vector<NodePtr>& addedNodes, vector<TypedElementPtr>& invalidConnections) 
+{    
+
+    for(const NodePtr& node : getNodes()) {
+
+        for(const InputPtr& input : node->getInputs()) {
+
+            if (input->hasInterfaceName()) {
+                
+                ConstGraphElementPtr graph = getAncestorOfType<GraphElement>();
+                ConstInterfaceElementPtr decl = graph->getDeclaration();
+                ValueElementPtr valueElem  = decl->getActiveValueElement(input->getInterfaceName());
+
+                if  (input->getType() != valueElem->getType()) {
+                    std::string conversion_label = "ND_convert_" + valueElem->getType() + "_" + input->getType();
+                    NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+
+                    if (convert_def) {
+                        NodePtr convert_node = addNode(convert_def->getNodeString(), convert_def->getName(), convert_def->getType());
+                        InputPtr new_input = convert_node->addInput("in", valueElem->getType());
+
+                        input->setConnectedNode(convert_node);
+                        new_input->setInterfaceName(valueElem->getName());
+                        
+                        addedNodes.push_back(convert_node);
+
+                    }
+                }
+                
+                    else {
+                        invalidConnections.push_back(node);
+                        invalidConnections.push_back(valueElem);
+                    }
+            }
+        }
+    }
+
+    for(const OutputPtr& output : getOutputs()) {
+
+        NodePtr node = output->getConnectedNode();
+
+        if(!node) {
+            continue;
+        }
+
+        if  (node->getType() != output->getType()) {
+            std::string conversion_label = "ND_convert_" + node->getType() + "_" + output->getType();
+            NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+
+            if (convert_def) {
+                NodePtr convert_node = addNode(convert_def->getNodeString(), convert_def->getName(), convert_def->getType());
+                InputPtr new_input = convert_node->addInput("in", node->getType());
+
+                new_input->setConnectedNode(node);
+                output->setConnectedNode(convert_node);
+
+                addedNodes.push_back(convert_node);
+
+            }
+
+            else {
+                invalidConnections.push_back(node);
+                invalidConnections.push_back(output);
+            }
+        }
+    }
+
+    for(const InputPtr& input : getInputs()) {
+
+        NodePtr node = input->getConnectedNode();
+        
+        if(!node) {
+            continue;
+        }
+
+        if  (node->getType() != input->getType()) {
+            std::string conversion_label = "ND_convert_" + node->getType() + "_" + input->getType();
+            NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+
+            if (convert_def) {
+                NodePtr convert_node = getDocument()->addNode(convert_def->getNodeString(), "convert_node", convert_def->getType());
+                InputPtr new_input = convert_node->addInput("in", node->getType());
+
+                new_input->setConnectedNode(node);
+                input->setConnectedNode(convert_node);
+
+                addedNodes.push_back(convert_node);
+
+            }
+
+            else {
+                invalidConnections.push_back(node);
+                invalidConnections.push_back(input);
+            }
+        }
+    }
+
+    for(const NodePtr& node : getNodes()) {
+        
+        for(const InputPtr& input : node->getInputs()) {
+
+            NodePtr connectedNode = input->getConnectedNode();
+
+            NodeGraphPtr graph = resolveNameReference<NodeGraph>(input->getNodeGraphString());
+            OutputPtr output = graph->getOutput(input->getOutputString());
+
+            if(output) {
+
+                if(output->getType() == node->getType()) {
+                    continue;
+                }
+
+                std::string conversion_label = "ND_convert_" + output->getType() + "_" + node->getType();
+                NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+                
+                if(convert_def) {
+                    
+                    NodePtr convert_node = addNode(convert_def->getNodeString(), "convert_node_again", convert_def->getType());
+                    InputPtr new_input = convert_node->addInput("in", output->getType());
+
+                    new_input->setConnectedOutput(output);
+                    std::cout << new_input->hasNodeGraphString() << std::endl;
+                    std::cout << new_input->hasOutputString() << std::endl;
+                    std::cout << convert_node->getParent()->isA<Document>() << std::endl;
+                    std::cout << getDocument()->getNodeGraph(graph->getName()) << std::endl;
+                    // new_input->setNodeGraphString(graph->getName());
+                    // new_input->setOutputString(output->getName());
+                    // new_input->removeAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+                    // input->setConnectedNode(convert_node);
+                    // input->removeAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+                    // input->removeAttribute(PortElement::OUTPUT_ATTRIBUTE);
+
+                    // std::cout << convert_node->getParent()->getName() << std::endl;
+                    // std::cout << new_input->getOutputString() << std::endl;
+                    // std::cout << output->getType() << std::endl;
+                    // std::cout << new_input->getType() << std::endl;
+
+                    addedNodes.push_back(convert_node);
+                }
+
+                else {
+                    invalidConnections.push_back(node);
+                    invalidConnections.push_back(output);
+                }
+            }
+            
+            if(!connectedNode) {
+                continue;
+            }
+
+            if(node->getType() == connectedNode->getType()) {
+                continue;
+            }
+
+            std::string conversion_label = "ND_convert_" + connectedNode->getType() + "_" + input->getType();
+            NodeDefPtr convert_def = getDocument()->getNodeDef(conversion_label);
+            
+            if(convert_def) {
+
+                NodePtr convert_node = addNode(convert_def->getNodeString(), convert_def->getName(), convert_def->getType());
+                InputPtr new_input = convert_node->addInput("in", connectedNode->getType());
+                input->setConnectedNode(convert_node);
+                new_input->setConnectedNode(connectedNode);
+
+                addedNodes.push_back(convert_node);
+            }
+
+            else {
+                invalidConnections.push_back(node);
+                invalidConnections.push_back(connectedNode);
+            }
+        }
+    }
+
+    for(const GraphElementPtr& graph : getChildrenOfType<GraphElement>()) {
+        // Nesting recursion to get other graph elements within document
+        if(!graph->hasSourceUri()) {
+            graph->addExplicitTypeConversions(addedNodes, invalidConnections);
+        }
+    }
 }
 
 //
