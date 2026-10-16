@@ -893,6 +893,19 @@ const ShaderNode* ShaderGraph::getNode(const string& uniqueId) const
     return const_cast<ShaderGraph*>(this)->getNode(uniqueId);
 }
 
+bool ShaderGraph::hasGeometricNodes() const
+{
+    for (const ShaderNode* child : getNodes())
+    {
+        if (child->hasClassification(ShaderNode::Classification::GEOMETRIC))
+            return true;
+        const ShaderGraph* childGraph = child->getImplementation().getGraph();
+        if (childGraph && childGraph->hasGeometricNodes())
+            return true;
+    }
+    return false;
+}
+
 void ShaderGraph::finalize(GenContext& context)
 {
     // Allow node implementations to update the classification

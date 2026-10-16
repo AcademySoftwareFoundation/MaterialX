@@ -1,7 +1,7 @@
 # Shader Generation
 
 ## 1.1 Scope
-A shader generation framework is implemented as part of MaterialX. This can help applications to transform the agnostic MaterialX data description into executable shader code for a specific renderer. A library module named MaterialXGenShader contains the core shader generation features, and support for specific languages resides in separate libraries, e.g. [MaterialXGenGlsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenGlsl), [MaterialXGenOsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenOsl).
+A shader generation framework is implemented as part of MaterialX. This can help applications to transform the agnostic MaterialX data description into executable shader code for a specific renderer. A library module named MaterialXGenShader contains the core shader generation features, and support for specific languages resides in separate libraries, e.g. [MaterialXGenGlsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenGlsl), [MaterialXGenOsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenOsl), [MaterialXGenMsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenMsl), [MaterialXGenSlang](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenSlang), and [MaterialXGenWgsl](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXGenWgsl) (see [WGSL Shader Generation](WGSLShaderGeneration.md)).
 
 Note that this system has no runtime and the output produced is source code, not binary executable code. The source code produced needs to be compiled by a shading language compiler before being executed by the renderer. See Figure 1 for a high level overview of the system.
 
@@ -354,3 +354,8 @@ Uniform variables
 | u_\<unitType>UnitTarget[]           | integer  | An attribute indicating the target unit for a given unit type definition (\<unitType>). |
 
 **Figure 7:** Listing of predefined variables with their binding rules.
+
+## Related Documentation
+
+- [WGSL Shader Generation](WGSLShaderGeneration.md) — `genwgsl` target, transpiler tooling (`mxgenwgsl.py`, `mxvalidategenwgsl.py`), validation, and OCIO bake
+- [`source/MaterialXGenWgsl/README.md`](../../source/MaterialXGenWgsl/README.md) — WGSL back-end layout
