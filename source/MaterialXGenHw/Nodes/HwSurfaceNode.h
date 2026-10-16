@@ -33,6 +33,12 @@ class MX_GENHW_API HwSurfaceNode : public HwImplementation
 
     /// Return the name of the opacity input on the node.
     virtual const string& getOpacityInputName() const;
+
+    /// Emit shadow occlusion computation. Override for targets with different texture syntax.
+    virtual void emitShadowOcclusionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage, const string& vertexPrefix) const;
+
+    /// Emit ambient occlusion texture sample. Override for targets with different texture syntax.
+    virtual void emitAmbientOcclusionCall(GenContext& context, ShaderStage& stage, const string& ambOccUv) const;
 };
 
 MATERIALX_NAMESPACE_END
