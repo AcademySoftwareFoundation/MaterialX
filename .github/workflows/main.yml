@@ -3,10 +3,18 @@ name: main
 on:
   push:
   pull_request:
-  schedule:
-    # Nightly build
-    - cron: '30 10 * * *'
+  workflow_call:
+    inputs:
+      extended:
+        description: Run the extended build, with additional dependencies and tests
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      extended:
+        description: Run the extended build, with additional dependencies and tests
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -19,11 +27,9 @@ jobs:
 
   build:
     name: Build
-    # Skip nightly (scheduled) builds on forks
-    if: github.event.repository.fork == false || github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     env:
-      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      IS_EXTENDED_BUILD: ${{ inputs.extended == true }}
     strategy:
       fail-fast: false
       matrix:
@@ -445,8 +451,6 @@ jobs:
 
   javascript:
     name: JavaScript
-    # Skip nightly (scheduled) builds on forks
-    if: github.event.repository.fork == false || github.event_name != 'schedule'
     runs-on: ubuntu-26.04
     permissions:
       contents: write
