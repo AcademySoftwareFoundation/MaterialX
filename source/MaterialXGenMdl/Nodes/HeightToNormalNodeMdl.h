@@ -18,6 +18,9 @@ class MX_GENMDL_API HeightToNormalNodeMdl : public ConvolutionNode
   public:
     static ShaderNodeImplPtr create();
 
+    /// Height-to-normal uses a fixed Sobel kernel and needs no filter-weight variables.
+    void createVariables(const ShaderNode&, GenContext&, Shader&) const override;
+
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 
   protected:
