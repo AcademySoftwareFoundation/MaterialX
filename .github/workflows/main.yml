@@ -543,7 +543,13 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['9', '10', '11', '12', '13', '14']
-        os: ['ubuntu-24.04', 'windows-2022', 'macos-15']
+        os: ['ubuntu-24.04', 'windows-2022', 'windows-11-arm', 'macos-15']
+        exclude:
+          # Python 3.9 and 3.10 are not available for Windows ARM64 in actions/setup-python.
+          - os: 'windows-11-arm'
+            python-minor: '9'
+          - os: 'windows-11-arm'
+            python-minor: '10'
 
     steps:
     - name: Sync Repository
@@ -591,5 +597,5 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
-        name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
+        name: MaterialX_Python_Wheel_${{ matrix.os == 'windows-11-arm' && 'Windows_ARM64' || runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl
