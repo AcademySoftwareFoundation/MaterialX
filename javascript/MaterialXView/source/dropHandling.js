@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as fflate from 'fflate';
 
-const debugFileHandling = false;
+const debugFileHandling = true;
 let loadingCallback = null;
 let sceneLoadingCallback = null;
 
@@ -94,6 +94,17 @@ export function dragOverHandler(ev)
     ev.preventDefault();
 }
 
+// updates the file entry object so fullpath is basename, discarding any folder structure
+function flattenFileEntry(entry)
+{
+    return {
+        fullPath: "/" + entry.name,
+        name: entry.name,
+        isFile: true,
+        file: (callback, onError) => entry.file(callback, onError),
+    };
+}
+
 async function getBufferFromFile(fileEntry)
 {
 
@@ -168,7 +179,13 @@ async function handleFilesystemEntries(entries)
             {
                 continue;
             }
-            allFiles.push(entry);
+            const flattenedFile = flattenFileEntry(entry)
+            if (allFiles.some(f => f.name === flattenedFile.name))
+            {
+                console.warn("Duplicate file detected:", flattenedFile);
+                continue;
+            }
+            allFiles.push(flattenedFile);
 
             if (entry.name.endsWith('glb'))
             {
@@ -190,7 +207,13 @@ async function handleFilesystemEntries(entries)
                 {
                     continue;
                 }
-                allFiles.push(file);
+                const flattenedFile = flattenFileEntry(file);
+                if (allFiles.some(f => f.name === flattenedFile.name))
+                {
+                    console.warn("Duplicate file detected:", flattenedFile);
+                    continue;
+                }
+                allFiles.push(flattenedFile);
             }
         }
     }
@@ -216,9 +239,10 @@ async function handleFilesystemEntries(entries)
 
                         // mock FileEntry for easier usage downstream
                         const blob = new Blob([buffer]);
+                        const fileName = filePath.split('/').pop();
                         const newFileEntry = {
-                            fullPath: "/" + filePath,
-                            name: filePath.split('/').pop(),
+                            fullPath: "/" + fileName,
+                            name: fileName,
                             file: (callback) =>
                             {
                                 callback(blob);
@@ -253,7 +277,8 @@ async function handleFilesystemEntries(entries)
         console.log("Load GLB file", allFiles[0]);
 
         const rootFile = allFiles[0];
-        THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
+        // GLTFLoader's internal FileLoader looks up the cache with a 'file:' prefixed key
+        THREE.Cache.add(`file:${rootFile.fullPath}`, await getBufferFromFile(rootFile));
 
         if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
 
@@ -289,8 +314,9 @@ async function handleFilesystemEntries(entries)
 
         const buffer = await getBufferFromFile(fileEntry);
         const img = await imageLoader.loadAsync(URL.createObjectURL(new Blob([buffer])));
-        if (debugFileHandling) console.log("caching file", fileEntry.fullPath, img);
-        THREE.Cache.add(fileEntry.fullPath, img);
+        if (debugFileHandling) console.log("caching file", `image:${fileEntry.fullPath}`, img);
+        // key must match texturePath (searchPath + "/" + value) built in helper.js - no 'file:' prefix here
+        THREE.Cache.add(`image:${fileEntry.fullPath}`, img);
     }
 
     // TODO we could also allow dropping of multiple MaterialX files (or folders with them inside) 
@@ -299,7 +325,8 @@ async function handleFilesystemEntries(entries)
     if (allFiles.length > 0)
     {
         const rootFile = allFiles[0];
-        THREE.Cache.add(rootFile.fullPath, await getBufferFromFile(rootFile));
+        // FileLoader looks up the cache with a 'file:' prefixed key
+        THREE.Cache.add(`file:${rootFile.fullPath}`, await getBufferFromFile(rootFile));
 
         if (debugFileHandling) console.log("CACHE", THREE.Cache.files);
 
