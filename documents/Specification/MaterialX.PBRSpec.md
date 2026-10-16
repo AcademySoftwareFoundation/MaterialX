@@ -1541,7 +1541,7 @@ surfaceshader standard_surface(
     vector3 main_rotated = normalize(rotate3d(tangent, specular_rotation * 360.0, normal));
     vector3 main_tangent = if (specular_anisotropy > 0.0) { main_rotated } else { tangent };
 
-    // Specular transmission (refraction), blended in by 'transmission'.
+    // Specular transmission (refraction), blended in by 'transmission', with optional thin-film.
     BSDF transmission_lobe = dielectric_bsdf(
         tint = transmission_color,
         ior = specular_IOR,
