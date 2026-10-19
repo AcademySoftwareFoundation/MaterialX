@@ -30,14 +30,14 @@ const string NAME_PATH_SEPARATOR = "/";
 const string ARRAY_VALID_SEPARATORS = ", ";
 const string ARRAY_PREFERRED_SEPARATOR = ", ";
 
-const Matrix33 Matrix33::IDENTITY(1, 0, 0,
-                                  0, 1, 0,
-                                  0, 0, 1);
+constexpr Matrix33 Matrix33::IDENTITY = Matrix33(1.0f, 0.0f, 0.0f,
+                                                 0.0f, 1.0f, 0.0f,
+                                                 0.0f, 0.0f, 1.0f);
 
-const Matrix44 Matrix44::IDENTITY(1, 0, 0, 0,
-                                  0, 1, 0, 0,
-                                  0, 0, 1, 0,
-                                  0, 0, 0, 1);
+constexpr Matrix44 Matrix44::IDENTITY = Matrix44(1.0f, 0.0f, 0.0f, 0.0f,
+                                                 0.0f, 1.0f, 0.0f, 0.0f,
+                                                 0.0f, 0.0f, 1.0f, 0.0f,
+                                                 0.0f, 0.0f, 0.0f, 1.0f);
 
 //
 // Color3 methods
