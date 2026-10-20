@@ -17,11 +17,20 @@ MATERIALX_NAMESPACE_BEGIN
 class MX_GENMDL_API ConvolutionNode : public ShaderNodeImpl
 {
   public:
+    /// Return whether this connection uses separately emitted samples and does
+    /// not require the upstream node's ordinary output.
+    /// Derived implementations must opt in to omitting the ordinary upstream output.
+    virtual bool isInputSampled(const ShaderInput& input) const;
+
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
 
   protected:
     /// Constructor
     ConvolutionNode();
+
+    /// Return the upstream coordinate input used for UV resampling, or nullptr
+    /// when this connection reuses its ordinary value instead.
+    const ShaderInput* getInputSamplingCoordinates(const ShaderInput& input, unsigned int sampleCount) const;
 
     /// Derived classes are responsible for returning if a given type is an acceptable input.
     virtual bool acceptsInputType(TypeDesc type) const = 0;

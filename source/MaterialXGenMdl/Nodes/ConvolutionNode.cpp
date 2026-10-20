@@ -26,6 +26,32 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
+bool ConvolutionNode::isInputSampled(const ShaderInput&) const
+{
+    return false;
+}
+
+const ShaderInput* ConvolutionNode::getInputSamplingCoordinates(const ShaderInput& input,
+                                                               unsigned int sampleCount) const
+{
+    const ShaderOutput* connection = input.getConnection();
+    if (input.getName() != "in" || sampleCount <= 1 ||
+        !connection || !acceptsInputType(connection->getType()))
+    {
+        return nullptr;
+    }
+
+    const ShaderNode* upstreamNode = connection->getNode();
+    if (!upstreamNode || !upstreamNode->hasClassification(ShaderNode::Classification::SAMPLE2D) ||
+        !upstreamNode->getOutput())
+    {
+        return nullptr;
+    }
+
+    const ShaderInput* samplingInput = getSamplingInput(*upstreamNode);
+    return samplingInput && samplingInput->getType() == Type::VECTOR2 ? samplingInput : nullptr;
+}
+
 void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
 {
     ShaderStage& stage = shader.getStage(Stage::PIXEL);
@@ -122,13 +148,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
             {
                 // Find out which input needs to be sampled multiple times
                 // If the sample count is 1 then the sample code has already been emitted
-                const ShaderInput* samplingInput = (sampleCount > 1) ? getSamplingInput(*upstreamNode) : nullptr;
-
-                // TODO: For now we only support uv space sampling
-                if (samplingInput && samplingInput->getType() != Type::VECTOR2)
-                {
-                    samplingInput = nullptr;
-                }
+                const ShaderInput* samplingInput = getInputSamplingCoordinates(*inInput, sampleCount);
 
                 if (samplingInput)
                 {

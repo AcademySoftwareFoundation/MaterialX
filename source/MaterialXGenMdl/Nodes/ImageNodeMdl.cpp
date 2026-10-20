@@ -4,7 +4,7 @@
 //
 
 #include <MaterialXGenMdl/Nodes/ImageNodeMdl.h>
-#include <MaterialXGenMdl/Nodes/HeightToNormalNodeMdl.h>
+#include <MaterialXGenMdl/Nodes/ConvolutionNode.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/GenContext.h>
@@ -48,8 +48,13 @@ void ImageNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context
             for (const ShaderInput* connection : output->getConnections())
             {
                 const ShaderNode* downstreamNode = connection->getNode();
-                if (connection->getName() != "in" || downstreamNode->isAGraph() ||
-                    !dynamic_cast<const HeightToNormalNodeMdl*>(&downstreamNode->getImplementation()))
+                if (!downstreamNode || downstreamNode->isAGraph())
+                {
+                    sampledOnly = false;
+                    break;
+                }
+                const ConvolutionNode* impl = dynamic_cast<const ConvolutionNode*>(&downstreamNode->getImplementation());
+                if (!impl || !impl->isInputSampled(*connection))
                 {
                     sampledOnly = false;
                     break;
