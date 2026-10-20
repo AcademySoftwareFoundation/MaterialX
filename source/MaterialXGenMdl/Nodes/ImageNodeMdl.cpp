@@ -48,7 +48,7 @@ void ImageNodeMdl::emitFunctionCall(const ShaderNode& _node, GenContext& context
             for (const ShaderInput* connection : output->getConnections())
             {
                 const ShaderNode* downstreamNode = connection->getNode();
-                if (downstreamNode->isAGraph() ||
+                if (connection->getName() != "in" || downstreamNode->isAGraph() ||
                     !dynamic_cast<const HeightToNormalNodeMdl*>(&downstreamNode->getImplementation()))
                 {
                     sampledOnly = false;
