@@ -9,8 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -50,58 +48,6 @@ const ShaderInput* ConvolutionNode::getInputSamplingCoordinates(const ShaderInpu
 
     const ShaderInput* samplingInput = getSamplingInput(*upstreamNode);
     return samplingInput && samplingInput->getType() == Type::VECTOR2 ? samplingInput : nullptr;
-}
-
-void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
-{
-    ShaderStage& stage = shader.getStage(Stage::PIXEL);
-    VariableBlock& constants = stage.getConstantBlock();
-
-    // Create constant for box weights
-    const float boxWeight3x3 = 1.0f / 9.0f;
-    const float boxWeight5x5 = 1.0f / 25.0f;
-    const float boxWeight7x7 = 1.0f / 49.0f;
-    vector<float> boxWeightArray;
-    boxWeightArray.push_back(1.0f);
-    for (unsigned int i = 0; i < 9; i++)
-    {
-        boxWeightArray.push_back(boxWeight3x3);
-    }
-    for (unsigned int i = 0; i < 25; i++)
-    {
-        boxWeightArray.push_back(boxWeight5x5);
-    }
-    for (unsigned int i = 0; i < 49; i++)
-    {
-        boxWeightArray.push_back(boxWeight7x7);
-    }
-    constants.add(Type::FLOATARRAY, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
-
-    // Create constant for Gaussian weights
-    vector<float> gaussianWeightArray;
-    gaussianWeightArray.push_back(1.0f);
-    for (unsigned int y = 0; y < 3; y++)
-    {
-        for (unsigned int x = 0; x < 3; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_3[y] * GAUSSIAN_KERNEL_3[x]);
-        }
-    }
-    for (unsigned int y = 0; y < 5; y++)
-    {
-        for (unsigned int x = 0; x < 5; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_5[y] * GAUSSIAN_KERNEL_5[x]);
-        }
-    }
-    for (unsigned int y = 0; y < 7; y++)
-    {
-        for (unsigned int x = 0; x < 7; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_7[y] * GAUSSIAN_KERNEL_7[x]);
-        }
-    }
-    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(gaussianWeightArray));
 }
 
 /// Get input which is used for sampling. If there is none

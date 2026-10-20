@@ -22,8 +22,6 @@ class MX_GENMDL_API ConvolutionNode : public ShaderNodeImpl
     /// Derived implementations must opt in to omitting the ordinary upstream output.
     virtual bool isInputSampled(const ShaderInput& input) const;
 
-    void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
-
   protected:
     /// Constructor
     ConvolutionNode();
