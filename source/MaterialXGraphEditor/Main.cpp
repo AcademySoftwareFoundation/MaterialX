@@ -43,6 +43,7 @@ const std::string options =
     "    --adaptiveThreshold [VALUE]    Adaptive sampling noise threshold, lower is stricter (default 0.01)\n"
     "    --adaptiveMinSamples [N]       Minimum samples for adaptive sampling (default 0, automatic)\n"
     "    --samples [N]                  Maximum number of samples to render (default 4096)\n"
+    "    --lightIntensity [FACTOR]      Cycles direct lighting (light rig) intensity multiplier (default 0.75)\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
     "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
     "    --pinShape [circle|flow]       Specify the shape of node pins (circle, flow).  Default is circle.\n"
@@ -94,6 +95,7 @@ int main(int argc, char* const argv[])
     float adaptiveThreshold = 0.01f;
     int adaptiveMinSamples = 0;
     int maxSamples = 4096;
+    float lightIntensity = 0.75f;
     bool pinsOnBorder = true;
     std::string pinShape = "circle";
 
@@ -177,6 +179,10 @@ int main(int argc, char* const argv[])
         else if (token == "--samples")
         {
             parseToken(nextToken, "integer", maxSamples);
+        }
+        else if (token == "--lightIntensity")
+        {
+            parseToken(nextToken, "float", lightIntensity);
         }
         else if (token == "--pinsOnBorder")
         {
@@ -316,6 +322,7 @@ int main(int argc, char* const argv[])
     graph->setAdaptiveThreshold(adaptiveThreshold);
     graph->setAdaptiveMinSamples(adaptiveMinSamples);
     graph->setMaxSamples(maxSamples);
+    graph->setLightIntensity(lightIntensity);
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);

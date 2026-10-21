@@ -31,6 +31,8 @@ namespace ccl {
 class Session;
 class Scene;
 class Object;
+class SunLight;
+class BackgroundNode;
 class SessionParams;
 class SceneParams;
 } // namespace ccl
@@ -153,6 +155,12 @@ class CyclesRenderView : public RenderViewBase
     // Set the maximum number of samples rendered.
     void setMaxSamples(int samples) override;
 
+    // Set a multiplier for the direct lighting (light rig) intensity.
+    void setLightIntensity(float intensity) override;
+
+    // Pause/resume the Cycles session when this backend is deactivated/activated.
+    void setActive(bool active) override;
+
   private:
     void initContext(mx::GenContext& context);
     void generateOsl(mx::TypedElementPtr typedElem);
@@ -163,6 +171,7 @@ class CyclesRenderView : public RenderViewBase
     void buildFallbackSphere(ccl::Scene* scene);
     void applyDisplayPass(ccl::Scene* scene);
     void applyRenderSettings(ccl::Scene* scene);
+    void applyLightIntensity();
     bool isDenoiseActive() const;
     void updateCamera();
     void restartRender();
@@ -208,6 +217,20 @@ class CyclesRenderView : public RenderViewBase
     int _adaptiveMinSamples = 0;
     int _maxSamples = 4096;
 
+    // Direct lighting (sun light rig) intensity multiplier, and the sun lights
+    // created from the rig so the multiplier can be applied live.
+    float _lightIntensity = 0.75f;
+    std::vector<ccl::SunLight*> _sunLights;
+    std::vector<float> _sunBaseIntensities;
+
+    // Environment background nodes, split by ray type: the sharp radiance map for
+    // specular/transmission rays and the blurred irradiance map for diffuse
+    // rays. Both are scaled live by the light-intensity multiplier.
+    ccl::BackgroundNode* _environmentBackground = nullptr;
+    float _baseEnvironmentStrength = 1.0f;
+    ccl::BackgroundNode* _irradianceBackground = nullptr;
+    float _baseIrradianceStrength = 1.0f;
+
     // Resource handlers.
     mx::ImageHandlerPtr _imageHandler;
     mx::ImagePtr _image;
@@ -238,6 +261,10 @@ class CyclesRenderView : public RenderViewBase
     // Size of the render buffer the session was last configured with.
     int _sessionWidth = 0;
     int _sessionHeight = 0;
+
+    // Whether this backend is the one currently being displayed. Inactive
+    // sessions are paused so they do not consume CPU in the background.
+    bool _active = false;
 };
 
 #endif // MATERIALX_BUILD_RENDER_CYCLES

@@ -18,6 +18,7 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXFormat/Util.h>
+#include <MaterialXFormat/XmlIo.h>
 
 #include <imgui.h>
 
@@ -26,6 +27,7 @@
 #include "scene/background.h"
 #include "scene/camera.h"
 #include "scene/integrator.h"
+#include "scene/light.h"
 #include "scene/mesh.h"
 #include "scene/object.h"
 #include "scene/osl.h"
@@ -36,6 +38,7 @@
 #include "scene/shader_nodes.h"
 #include "session/buffers.h"
 #include "session/session.h"
+#include "util/array.h"
 #include "util/math.h"
 #include "util/string.h"
 #include "util/transform.h"
@@ -191,6 +194,26 @@ const char* CYCLES_ADDRESS_MODE_HELPER =
     "    wrapped.x = (wrapped.x <= 0.0) ? edge_epsilon : ((wrapped.x >= 1.0) ? (1.0 - edge_epsilon) : wrapped.x);\n"
     "    wrapped.y = (wrapped.y <= 0.0) ? edge_epsilon : ((wrapped.y >= 1.0) ? (1.0 - edge_epsilon) : wrapped.y);\n"
     "    return wrapped;\n"
+    "}\n"
+    "\n"
+    "// Cycles' OSL runtime does not bind the OSL dPdu/dPdv globals, so the\n"
+    "// MaterialX-generated tangent ('normalize(transform(space, dPdu))') is\n"
+    "// invalid. Anisotropic specular/coat lobes then produce invalid shading\n"
+    "// (visible as colored speckles). Use the Cycles UV tangent attribute\n"
+    "// ('geom:tangent') when available, falling back to a stable tangent derived\n"
+    "// from the shading normal.\n"
+    "vector mx_cycles_tangent(string space)\n"
+    "{\n"
+    "    vector tangent = vector(0.0, 0.0, 0.0);\n"
+    "    getattribute(\"geom:tangent\", tangent);\n"
+    "    tangent = transform(space, tangent);\n"
+    "    vector n = normalize(transform(space, N));\n"
+    "    if (length(tangent) < 1.0e-6)\n"
+    "    {\n"
+    "        vector up = (abs(n.y) < 0.99) ? vector(0.0, 1.0, 0.0) : vector(1.0, 0.0, 0.0);\n"
+    "        tangent = cross(up, n);\n"
+    "    }\n"
+    "    return normalize(tangent);\n"
     "}\n";
 
 std::string remapUvForCycles(const std::string& source)
@@ -236,12 +259,21 @@ std::string remapUvForCycles(const std::string& source)
     replaceAll(result, "mx_transform_uv(texcoord)",
                "mx_cycles_wrap_uv(mx_transform_uv(texcoord), uaddressmode, vaddressmode)");
 
+    // Replace the MaterialX tangent (which relies on the unbound OSL dPdu).
+    replaceAll(result, "normalize(transform(geomprop_Tworld_space, dPdu))",
+               "mx_cycles_tangent(geomprop_Tworld_space)");
+
     return result;
 }
 
 ccl::float3 toFloat3(const mx::Vector3& v)
 {
     return ccl::make_float3(v[0], v[1], v[2]);
+}
+
+ccl::float3 toFloat3(const mx::Color3& c)
+{
+    return ccl::make_float3(c[0], c[1], c[2]);
 }
 
 ccl::PassType passTypeFromName(const std::string& name)
@@ -251,6 +283,124 @@ ccl::PassType passTypeFromName(const std::string& name)
         return ccl::PASS_DIFFUSE_COLOR;
     }
     return ccl::PASS_COMBINED;
+}
+
+// A directional light read from a MaterialX light rig, matching the setup used
+// by the GLSL render view.
+struct DirectionalLightRig
+{
+    ccl::float3 direction;
+    ccl::float3 color;
+    float intensity;
+};
+
+// Read the light rig associated with the environment map (e.g.
+// san_giuseppe_bridge_split.mtlx), returning its directional lights. The GLSL
+// render view loads the same file in GlslRenderView::loadEnvironmentLight.
+std::vector<DirectionalLightRig> loadLightRig(const mx::FileSearchPath& searchPath,
+                                              const mx::FilePath& envRadianceFilename)
+{
+    std::vector<DirectionalLightRig> lights;
+    if (envRadianceFilename.isEmpty())
+    {
+        return lights;
+    }
+
+    mx::FilePath rigFilename = envRadianceFilename;
+    rigFilename.removeExtension();
+    rigFilename.addExtension(mx::MTLX_EXTENSION);
+    rigFilename = searchPath.find(rigFilename);
+    if (rigFilename.isEmpty() || !rigFilename.exists())
+    {
+        return lights;
+    }
+
+    try
+    {
+        mx::DocumentPtr rig = mx::createDocument();
+        mx::readFromXmlFile(rig, rigFilename, searchPath);
+        for (mx::NodePtr node : rig->getNodes())
+        {
+            if (node->getCategory() != "directional_light")
+            {
+                continue;
+            }
+
+            DirectionalLightRig rigLight = { ccl::make_float3(0.0f, -1.0f, 0.0f),
+                                             ccl::make_float3(1.0f, 1.0f, 1.0f), 1.0f };
+            if (mx::InputPtr input = node->getInput("direction"))
+            {
+                if (input->getValue())
+                {
+                    rigLight.direction = toFloat3(input->getValue()->asA<mx::Vector3>());
+                }
+            }
+            if (mx::InputPtr input = node->getInput("color"))
+            {
+                if (input->getValue())
+                {
+                    rigLight.color = toFloat3(input->getValue()->asA<mx::Color3>());
+                }
+            }
+            if (mx::InputPtr input = node->getInput("intensity"))
+            {
+                if (input->getValue())
+                {
+                    rigLight.intensity = input->getValue()->asA<float>();
+                }
+            }
+            lights.push_back(rigLight);
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Cycles: failed to read light rig: " << e.what() << std::endl;
+    }
+
+    return lights;
+}
+
+// Add a MaterialX directional light as a Cycles sun light. The sun travels
+// along the object's local +Z axis, so the light direction is placed in the
+// third column of the transform.
+ccl::SunLight* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig& rig, float intensityScale)
+{
+    ccl::float3 forward = ccl::normalize(-rig.direction);
+    ccl::float3 upHint = ccl::make_float3(0.0f, 1.0f, 0.0f);
+    if (std::fabs(ccl::dot(forward, upHint)) > 0.999f)
+    {
+        upHint = ccl::make_float3(0.0f, 0.0f, 1.0f);
+    }
+    const ccl::float3 right = ccl::normalize(ccl::cross(forward, upHint));
+    const ccl::float3 up = ccl::cross(right, forward);
+
+    ccl::SunLight* sun = scene->create_node<ccl::SunLight>();
+    sun->set_angle(0.00918f);
+    const float intensity = rig.intensity * intensityScale;
+    sun->set_strength(ccl::make_float3(intensity, intensity, intensity));
+
+    auto lightGraph = std::make_unique<ccl::ShaderGraph>();
+    ccl::EmissionNode* emission = lightGraph->create_node<ccl::EmissionNode>();
+    emission->set_color(rig.color);
+    emission->set_strength(1.0f);
+    lightGraph->connect(emission->output("Emission"), lightGraph->output()->input("Surface"));
+    ccl::Shader* shader = scene->create_node<ccl::Shader>();
+    shader->set_graph(std::move(lightGraph));
+    ccl::array<ccl::Node*> usedShaders;
+    usedShaders.push_back_slow(shader);
+    sun->set_used_shaders(usedShaders);
+
+    ccl::Transform tfm = ccl::transform_identity();
+    tfm.x = ccl::make_float4(right.x, up.x, forward.x, 0.0f);
+    tfm.y = ccl::make_float4(right.y, up.y, forward.y, 0.0f);
+    tfm.z = ccl::make_float4(right.z, up.z, forward.z, 0.0f);
+
+    ccl::Object* lightObject = scene->create_node<ccl::Object>();
+    lightObject->set_tfm(tfm);
+    lightObject->set_visibility(ccl::PATH_RAY_VISIBILITY_ALL & ~ccl::PATH_RAY_VISIBILITY_CAMERA);
+    lightObject->set_geometry(sun);
+
+    return sun;
 }
 
 } // anonymous namespace
@@ -419,6 +569,7 @@ void CyclesRenderView::buildScene()
     _materialImmediate = false;
 
     _session->start();
+    _active = true;
 }
 
 bool CyclesRenderView::buildMesh(ccl::Scene* scene)
@@ -639,47 +790,142 @@ void CyclesRenderView::buildFallbackSphere(ccl::Scene* scene)
 bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
 {
     // The GLSL render view clears the viewport to a constant screen color and
-    // uses the radiance environment only for lighting. Replicate that: the
-    // background visible to camera rays is the screen color, while shadow and
-    // indirect rays see the environment.
+    // uses the environment only for lighting. Replicate that: the background
+    // visible to camera rays is the screen color, while shadow and indirect
+    // rays see the environment.
     const ccl::float3 screenColor = ccl::make_float3(0.3f, 0.3f, 0.32f);
 
-    auto graph = std::make_unique<ccl::ShaderGraph>();
+    _environmentBackground = nullptr;
+    _irradianceBackground = nullptr;
 
+    // MaterialX lat-long environments are Y-up, while Cycles' equirectangular
+    // projection is Z-up. Rotate the environment lookup so that the scene's +Y
+    // up axis maps to the environment zenith, matching the GLSL render view.
+    const ccl::float3 environmentRotation = ccl::make_float3(-(float) PI / 2.0f, 0.0f, 0.0f);
+
+    auto graph = std::make_unique<ccl::ShaderGraph>();
     ccl::LightPathNode* lightPath = graph->create_node<ccl::LightPathNode>();
-    ccl::MixClosureNode* mix = graph->create_node<ccl::MixClosureNode>();
-    graph->connect(lightPath->output("Is Camera Ray"), mix->input("Fac"));
+
+    // Camera rays see the screen color; indirect rays see the environment.
+    ccl::MixClosureNode* cameraMix = graph->create_node<ccl::MixClosureNode>();
+    graph->connect(lightPath->output("Is Camera Ray"), cameraMix->input("Fac"));
 
     ccl::BackgroundNode* screen = graph->create_node<ccl::BackgroundNode>();
     screen->set_color(screenColor);
     screen->set_strength(1.0f);
-    graph->connect(screen->output("Background"), mix->input("Closure2"));
+    graph->connect(screen->output("Background"), cameraMix->input("Closure2"));
 
-    bool hasEnvironment = false;
-    if (!_envRadianceFilename.isEmpty() && _envRadianceFilename.exists())
+    bool hasEnvironment = !_envRadianceFilename.isEmpty() && _envRadianceFilename.exists();
+    if (hasEnvironment)
     {
-        ccl::EnvironmentTextureNode* environment = graph->create_node<ccl::EnvironmentTextureNode>();
-        environment->set_filename(ccl::ustring(_envRadianceFilename.asString()));
+        // Radiance map: sharp, used for specular/transmission rays so that
+        // reflective materials show the HDRI, matching the GLSL backend which
+        // reflects the radiance map for specular.
+        ccl::EnvironmentTextureNode* radiance = graph->create_node<ccl::EnvironmentTextureNode>();
+        radiance->set_filename(ccl::ustring(_envRadianceFilename.asString()));
+        radiance->set_tex_mapping_rotation(environmentRotation);
+        ccl::BackgroundNode* radianceBackground = graph->create_node<ccl::BackgroundNode>();
+        _environmentBackground = radianceBackground;
+        _baseEnvironmentStrength = 3.0f;
+        radianceBackground->set_strength(_baseEnvironmentStrength * _lightIntensity);
+        graph->connect(radiance->output("Color"), radianceBackground->input("Color"));
 
-        ccl::BackgroundNode* environmentBackground = graph->create_node<ccl::BackgroundNode>();
-        environmentBackground->set_strength(3.0f);
-        graph->connect(environment->output("Color"), environmentBackground->input("Color"));
-        graph->connect(environmentBackground->output("Background"), mix->input("Closure1"));
-        hasEnvironment = true;
+        // Irradiance map: a cosine-weighted average, used for diffuse rays as
+        // the GLSL backend does for ambient diffuse. Its strength is boosted
+        // empirically because a prefiltered irradiance map under-lights when
+        // re-integrated over the hemisphere.
+        mx::FilePath irradianceFilename = _envRadianceFilename.getParentPath() /
+                                          "irradiance" / _envRadianceFilename.getBaseName();
+        if (irradianceFilename.exists())
+        {
+            ccl::EnvironmentTextureNode* irradiance = graph->create_node<ccl::EnvironmentTextureNode>();
+            irradiance->set_filename(ccl::ustring(irradianceFilename.asString()));
+            irradiance->set_tex_mapping_rotation(environmentRotation);
+            ccl::BackgroundNode* irradianceBackground = graph->create_node<ccl::BackgroundNode>();
+            _irradianceBackground = irradianceBackground;
+            _baseIrradianceStrength = 6.0f;
+            irradianceBackground->set_strength(_baseIrradianceStrength * _lightIntensity);
+            graph->connect(irradiance->output("Color"), irradianceBackground->input("Color"));
+
+            // Diffuse rays see the irradiance map; all other indirect rays
+            // (glossy, reflection, transmission) see the sharp radiance map.
+            ccl::MixClosureNode* environmentMix = graph->create_node<ccl::MixClosureNode>();
+            graph->connect(lightPath->output("Is Diffuse Ray"), environmentMix->input("Fac"));
+            graph->connect(radianceBackground->output("Background"), environmentMix->input("Closure1"));
+            graph->connect(irradianceBackground->output("Background"), environmentMix->input("Closure2"));
+            graph->connect(environmentMix->output("Closure"), cameraMix->input("Closure1"));
+        }
+        else
+        {
+            graph->connect(radianceBackground->output("Background"), cameraMix->input("Closure1"));
+        }
     }
     else
     {
         ccl::BackgroundNode* ambient = graph->create_node<ccl::BackgroundNode>();
         ambient->set_color(ccl::make_float3(0.5f, 0.5f, 0.5f));
         ambient->set_strength(1.0f);
-        graph->connect(ambient->output("Background"), mix->input("Closure1"));
+        _environmentBackground = ambient;
+        _baseEnvironmentStrength = 1.0f;
+        ambient->set_strength(_baseEnvironmentStrength * _lightIntensity);
+        graph->connect(ambient->output("Background"), cameraMix->input("Closure1"));
     }
 
-    graph->connect(mix->output("Closure"), graph->output()->input("Surface"));
+    graph->connect(cameraMix->output("Closure"), graph->output()->input("Surface"));
     scene->default_background->set_graph(std::move(graph));
     scene->default_background->tag_update(scene);
 
+    // Add the directional key light(s) from the MaterialX light rig, matching
+    // GlslRenderView::applyDirectLights.
+    _sunLights.clear();
+    _sunBaseIntensities.clear();
+    for (const DirectionalLightRig& rig : loadLightRig(_searchPath, _envRadianceFilename))
+    {
+        if (ccl::SunLight* sun = addDirectionalLight(scene, rig, _lightIntensity))
+        {
+            _sunLights.push_back(sun);
+            _sunBaseIntensities.push_back(rig.intensity);
+        }
+    }
+
     return hasEnvironment;
+}
+
+void CyclesRenderView::applyLightIntensity()
+{
+    if (!_session)
+    {
+        return;
+    }
+
+    ccl::Scene* scene = _session->scene.get();
+    if (_environmentBackground)
+    {
+        _environmentBackground->set_strength(_baseEnvironmentStrength * _lightIntensity);
+        scene->default_background->tag_update(scene);
+    }
+    if (_irradianceBackground)
+    {
+        _irradianceBackground->set_strength(_baseIrradianceStrength * _lightIntensity);
+        scene->default_background->tag_update(scene);
+    }
+    for (size_t i = 0; i < _sunLights.size(); i++)
+    {
+        const float intensity = _sunBaseIntensities[i] * _lightIntensity;
+        _sunLights[i]->set_strength(ccl::make_float3(intensity, intensity, intensity));
+        _sunLights[i]->tag_update(scene);
+    }
+    restartRender();
+}
+
+void CyclesRenderView::setLightIntensity(float intensity)
+{
+    if (intensity == _lightIntensity)
+    {
+        return;
+    }
+    _lightIntensity = intensity;
+    applyLightIntensity();
 }
 
 void CyclesRenderView::applyDisplayPass(ccl::Scene* scene)
@@ -707,6 +953,13 @@ void CyclesRenderView::applyRenderSettings(ccl::Scene* scene)
     integrator->set_use_adaptive_sampling(_adaptiveSampling);
     integrator->set_adaptive_threshold(_adaptiveThreshold);
     integrator->set_adaptive_min_samples(_adaptiveMinSamples);
+
+    // Clamp direct-light samples to suppress fireflies from the sharp sun on
+    // glossy/anisotropic OSL materials (the GLSL backend is not path traced and
+    // has no equivalent noise).
+    integrator->set_sample_clamp_direct(10.0f);
+    integrator->set_filter_glossy(4.0f);
+    integrator->set_sample_clamp_indirect(10.0f);
 
     integrator->tag_update(scene, ccl::Integrator::UPDATE_ALL);
 }
@@ -817,6 +1070,31 @@ void CyclesRenderView::setRenderPass(const std::string& name)
     }
 }
 
+void CyclesRenderView::setActive(bool active)
+{
+    if (active == _active)
+    {
+        return;
+    }
+    _active = active;
+
+    if (!_session)
+    {
+        return;
+    }
+
+    // Pause the render thread while this backend is not displayed so it does
+    // not consume CPU in the background behind another backend.
+    _session->set_pause(!active);
+
+    if (active)
+    {
+        // Restart so the first displayed frame reflects the current document
+        // and settings rather than samples accumulated before the switch.
+        restartRender();
+    }
+}
+
 void CyclesRenderView::updateCamera()
 {
     if (!_session)
@@ -903,10 +1181,20 @@ void CyclesRenderView::uploadFrame(const std::vector<ccl::half4>& pixels, int wi
     for (size_t i = 0; i < count; i++)
     {
         const ccl::half4& pixel = pixels[i];
-        destination[i * 4 + 0] = ccl::half_to_float(pixel.x);
-        destination[i * 4 + 1] = ccl::half_to_float(pixel.y);
-        destination[i * 4 + 2] = ccl::half_to_float(pixel.z);
-        destination[i * 4 + 3] = ccl::half_to_float(pixel.w);
+        float rgba[4] = { ccl::half_to_float(pixel.x),
+                          ccl::half_to_float(pixel.y),
+                          ccl::half_to_float(pixel.z),
+                          ccl::half_to_float(pixel.w) };
+        for (int c = 0; c < 4; c++)
+        {
+            // OSL closures can occasionally produce non-finite values;
+            // sanitize them so they do not become colored speckles.
+            if (!std::isfinite(rgba[c]))
+            {
+                rgba[c] = 0.0f;
+            }
+            destination[i * 4 + c] = rgba[c];
+        }
     }
 
     if (_imageHandler->createRenderResources(_image, false))
@@ -1001,7 +1289,27 @@ void CyclesRenderView::drawContents()
             mx::ImagePtr saveImage = _image;
             if (_image->getBaseType() != mx::Image::BaseType::UINT8)
             {
-                saveImage = _image->copy(4, mx::Image::BaseType::UINT8);
+                // Convert the HDR float buffer to 8-bit for saving, clamping to
+                // [0, 1]. Image::setTexelColor does not clamp and casting an
+                // out-of-range float to uint8 wraps around, which turned bright
+                // highlights into colored (green) splotches in the saved PNG.
+                // The interactive preview samples the float texture directly and
+                // is clamped by the GPU, so it did not show the artifact.
+                saveImage = mx::Image::create(_image->getWidth(), _image->getHeight(), 4,
+                                              mx::Image::BaseType::UINT8);
+                saveImage->createResourceBuffer();
+                for (unsigned int y = 0; y < _image->getHeight(); y++)
+                {
+                    for (unsigned int x = 0; x < _image->getWidth(); x++)
+                    {
+                        mx::Color4 color = _image->getTexelColor(x, y);
+                        for (int c = 0; c < 4; c++)
+                        {
+                            color[c] = std::isfinite(color[c]) ? std::clamp(color[c], 0.0f, 1.0f) : 0.0f;
+                        }
+                        saveImage->setTexelColor(x, y, color);
+                    }
+                }
             }
             if (_imageHandler->saveImage(_captureFilename, saveImage, true))
             {

@@ -156,6 +156,14 @@ class RenderViewBase
     /// Set the maximum number of samples rendered.
     virtual void setMaxSamples(int /*samples*/) { }
 
+    /// Set a multiplier for the direct lighting (light rig) intensity.
+    virtual void setLightIntensity(float /*intensity*/) { }
+
+    /// Notify the view that it has become the active backend (true) or has been
+    /// switched away from (false). Asynchronous backends can use this to pause
+    /// rendering while they are not being displayed.
+    virtual void setActive(bool /*active*/) { }
+
     /// Return true if a material compilation is in progress.
     bool getMaterialCompilation() const
     {
