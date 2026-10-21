@@ -128,6 +128,19 @@ class Graph
     // Set the active render backend, re-creating the render view as needed.
     void setRenderBackend(const std::string& backendName);
 
+    // Set the render pass displayed by the active backend (e.g. "combined",
+    // "albedo"). Backends that do not support passes ignore this.
+    void setRenderPass(const std::string& passName);
+
+    // Configure denoising and adaptive sampling on the active backend.
+    // Backends without a denoiser ignore these.
+    void setDenoise(bool enabled);
+    void setDenoiseStartSample(int samples);
+    void setAdaptiveSampling(bool enabled);
+    void setAdaptiveThreshold(float threshold);
+    void setAdaptiveMinSamples(int samples);
+    void setMaxSamples(int samples);
+
   private:
     mx::ElementPredicate getElementPredicate() const;
     void loadStandardLibraries();
@@ -361,6 +374,15 @@ class Graph
     mx::FilePath _envRadianceFilename;
     int _viewWidth = 0;
     int _viewHeight = 0;
+    std::string _renderPass = "combined";
+
+    // Denoising and sampling settings applied to the active render backend.
+    bool _denoise = true;
+    int _denoiseStartSample = 16;
+    bool _adaptiveSampling = false;
+    float _adaptiveThreshold = 0.01f;
+    int _adaptiveMinSamples = 0;
+    int _maxSamples = 4096;
 
 
     mx::FileSearchPath _searchPath;

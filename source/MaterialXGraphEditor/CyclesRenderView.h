@@ -50,7 +50,8 @@ class CyclesRenderView : public RenderViewBase
                      const std::string& envRadianceFilename,
                      const mx::FileSearchPath& searchPath,
                      int viewWidth,
-                     int viewHeight);
+                     int viewHeight,
+                     const std::string& renderPass = "combined");
     ~CyclesRenderView() override;
 
     // Return the name of this render backend.
@@ -95,6 +96,12 @@ class CyclesRenderView : public RenderViewBase
     // Request a capture of the current frame, writing it to the given filename.
     void requestFrameCapture(const mx::FilePath& filename) override;
 
+    // Return true once the requested frame capture has been written.
+    bool isFrameCaptureComplete() const override
+    {
+        return !_captureRequested;
+    }
+
     // Request that the viewer be closed after the next frame is rendered.
     void requestExit() override
     {
@@ -119,6 +126,33 @@ class CyclesRenderView : public RenderViewBase
     // Update a uniform in the currently selected material.
     void modifyUniform(const std::string& name, mx::ValuePtr value) override;
 
+    // Set the render pass to display (e.g. "combined", "albedo").
+    void setRenderPass(const std::string& name) override;
+
+    // Return the render pass currently being displayed.
+    std::string getRenderPass() const override
+    {
+        return _renderPass;
+    }
+
+    // Enable or disable the OpenImageDenoise (CPU) denoiser.
+    void setDenoise(bool enabled) override;
+
+    // Set the number of samples to render before denoising begins.
+    void setDenoiseStartSample(int samples) override;
+
+    // Enable or disable adaptive (noise-threshold) sampling.
+    void setAdaptiveSampling(bool enabled) override;
+
+    // Set the adaptive sampling noise threshold (lower is stricter).
+    void setAdaptiveThreshold(float threshold) override;
+
+    // Set the minimum number of samples rendered with adaptive sampling.
+    void setAdaptiveMinSamples(int samples) override;
+
+    // Set the maximum number of samples rendered.
+    void setMaxSamples(int samples) override;
+
   private:
     void initContext(mx::GenContext& context);
     void generateOsl(mx::TypedElementPtr typedElem);
@@ -127,6 +161,9 @@ class CyclesRenderView : public RenderViewBase
     bool buildMesh(ccl::Scene* scene);
     bool buildEnvironment(ccl::Scene* scene);
     void buildFallbackSphere(ccl::Scene* scene);
+    void applyDisplayPass(ccl::Scene* scene);
+    void applyRenderSettings(ccl::Scene* scene);
+    bool isDenoiseActive() const;
     void updateCamera();
     void restartRender();
     void uploadFrame(const std::vector<ccl::half4>& pixels, int width, int height);
@@ -158,6 +195,18 @@ class CyclesRenderView : public RenderViewBase
     std::unique_ptr<ccl::Session> _session;
     CyclesCaptureDisplayDriver* _displayDriver = nullptr;
     ccl::Object* _object = nullptr;
+    std::string _renderPass = "combined";
+
+    // Denoising and sampling settings. The OpenImageDenoise CPU denoiser is
+    // used when available; adaptive sampling stops early once the noise
+    // threshold is met, after which Cycles always performs a final denoise.
+    bool _denoise = true;
+    bool _denoiseSupported = true;
+    int _denoiseStartSample = 16;
+    bool _adaptiveSampling = false;
+    float _adaptiveThreshold = 0.01f;
+    int _adaptiveMinSamples = 0;
+    int _maxSamples = 4096;
 
     // Resource handlers.
     mx::ImageHandlerPtr _imageHandler;

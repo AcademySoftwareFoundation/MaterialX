@@ -104,6 +104,14 @@ class RenderViewBase
     /// Request a capture of the current frame, writing it to the given filename.
     virtual void requestFrameCapture(const mx::FilePath& filename) = 0;
 
+    /// Return true once a requested frame capture has been written, or if no
+    /// capture is pending. Allows asynchronous backends to hold the main loop
+    /// until the capture is complete.
+    virtual bool isFrameCaptureComplete() const
+    {
+        return true;
+    }
+
     /// Request that the viewer be closed after the next frame is rendered.
     virtual void requestExit() = 0;
 
@@ -118,6 +126,35 @@ class RenderViewBase
 
     /// Update a uniform in the currently selected material.
     virtual void modifyUniform(const std::string& name, mx::ValuePtr value) = 0;
+
+    /// Set the render pass to display (e.g. "combined", "albedo"). Backends
+    /// that do not support multiple passes may ignore this.
+    virtual void setRenderPass(const std::string& /*name*/) { }
+
+    /// Return the name of the render pass currently being displayed.
+    virtual std::string getRenderPass() const
+    {
+        return "combined";
+    }
+
+    /// Enable or disable a final denoising step. Backends without a denoiser
+    /// may ignore this.
+    virtual void setDenoise(bool /*enabled*/) { }
+
+    /// Set the number of samples to render before denoising begins.
+    virtual void setDenoiseStartSample(int /*samples*/) { }
+
+    /// Enable or disable adaptive (noise-threshold) sampling.
+    virtual void setAdaptiveSampling(bool /*enabled*/) { }
+
+    /// Set the adaptive sampling noise threshold (lower is stricter).
+    virtual void setAdaptiveThreshold(float /*threshold*/) { }
+
+    /// Set the minimum number of samples rendered when adaptive sampling is used.
+    virtual void setAdaptiveMinSamples(int /*samples*/) { }
+
+    /// Set the maximum number of samples rendered.
+    virtual void setMaxSamples(int /*samples*/) { }
 
     /// Return true if a material compilation is in progress.
     bool getMaterialCompilation() const

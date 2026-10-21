@@ -25,9 +25,11 @@
 #include "scene/attribute.h"
 #include "scene/background.h"
 #include "scene/camera.h"
+#include "scene/integrator.h"
 #include "scene/mesh.h"
 #include "scene/object.h"
 #include "scene/osl.h"
+#include "scene/pass.h"
 #include "scene/scene.h"
 #include "scene/shader.h"
 #include "scene/shader_graph.h"
@@ -129,9 +131,126 @@ double currentTimeSeconds()
         .count();
 }
 
+// Cycles binds the OSL globals u,v to the barycentric triangle coordinates, so
+// the MaterialX OSL texcoord implementation ("vector2(u,v)") must be remapped
+// to the mesh UV attribute for Cycles.
+const char* CYCLES_UV_HELPER =
+    "vector2 mx_cycles_uv()\n"
+    "{\n"
+    "    point uv = point(0.0, 0.0, 0.0);\n"
+    "    getattribute(\"geom:uv\", uv);\n"
+    "    return vector2(uv.x, uv.y);\n"
+    "}\n";
+
+// The MaterialX OSL image implementations pass their address modes to
+// texture() through the "swrap"/"twrap" options (see libraries/stdlib/genosl/
+// mx_image_*.osl). Cycles' OSL texture service ignores those options and
+// samples the image using its extension type, which for textures registered
+// through OSL defaults to EXTENSION_CLIP (see the Cycles sources
+// kernel/osl/services_shared.h and scene/image.h). Coordinates outside [0, 1]
+// therefore return the missing/black color, so any texture that tiles or
+// offsets its coordinates (e.g. a tiledimage with uvtiling, or place2d)
+// renders as black over most of a surface. OSL's own texture system honors the address modes, so this behavior only
+// affects the
+// Cycles backend. Work around it by applying the address mode in the generated
+// OSL before sampling, keeping the coordinates passed to texture() within
+// [0, 1]. This is worth reporting upstream to the MaterialX and OpenShadingLanguage
+// projects: either Cycles should honor swrap/twrap, or the MaterialX OSL
+// images should not rely on texture() to perform wrapping.
+const char* CYCLES_ADDRESS_MODE_HELPER =
+    "float mx_cycles_address_component(float value, string addressmode)\n"
+    "{\n"
+    "    if (addressmode == \"periodic\")\n"
+    "    {\n"
+    "        return value - floor(value);\n"
+    "    }\n"
+    "    if (addressmode == \"mirror\")\n"
+    "    {\n"
+    "        float folded = fmod(abs(value), 2.0);\n"
+    "        return (folded > 1.0) ? (2.0 - folded) : folded;\n"
+    "    }\n"
+    "    if (addressmode == \"clamp\")\n"
+    "    {\n"
+    "        return clamp(value, 0.0, 1.0);\n"
+    "    }\n"
+    "    // \"constant\" (and unknown modes) are left unchanged; the generated\n"
+    "    // image functions already return their default color when a constant\n"
+    "    // coordinate lies outside [0, 1].\n"
+    "    return value;\n"
+    "}\n"
+    "\n"
+    "vector2 mx_cycles_wrap_uv(vector2 st, string uaddressmode, string vaddressmode)\n"
+    "{\n"
+    "    vector2 wrapped = vector2(mx_cycles_address_component(st.x, uaddressmode),\n"
+    "                              mx_cycles_address_component(st.y, vaddressmode));\n"
+    "    // Cycles returns the missing color when a filtered sample falls just\n"
+    "    // outside [0, 1], so a coordinate of exactly 0 or 1 (produced by clamping\n"
+    "    // or wrapping) still samples black. Nudge exact boundaries inward to stay\n"
+    "    // within the filterable region.\n"
+    "    float edge_epsilon = 0.001;\n"
+    "    wrapped.x = (wrapped.x <= 0.0) ? edge_epsilon : ((wrapped.x >= 1.0) ? (1.0 - edge_epsilon) : wrapped.x);\n"
+    "    wrapped.y = (wrapped.y <= 0.0) ? edge_epsilon : ((wrapped.y >= 1.0) ? (1.0 - edge_epsilon) : wrapped.y);\n"
+    "    return wrapped;\n"
+    "}\n";
+
+std::string remapUvForCycles(const std::string& source)
+{
+    std::string result = source;
+
+    size_t insertPos = 0;
+    size_t searchFrom = 0;
+    size_t includePos = 0;
+    while ((includePos = result.find("#include", searchFrom)) != std::string::npos)
+    {
+        size_t eol = result.find('\n', includePos);
+        if (eol == std::string::npos)
+        {
+            insertPos = result.size();
+            break;
+        }
+        insertPos = eol + 1;
+        searchFrom = eol + 1;
+    }
+    result.insert(insertPos, std::string("\n") + CYCLES_UV_HELPER + "\n" +
+                                  CYCLES_ADDRESS_MODE_HELPER + "\n");
+
+    auto replaceAll = [](std::string& text, const std::string& from, const std::string& to)
+    {
+        size_t pos = 0;
+        while ((pos = text.find(from, pos)) != std::string::npos)
+        {
+            text.replace(pos, from.size(), to);
+            pos += to.size();
+        }
+    };
+
+    replaceAll(result, "vector2(u,v)", "mx_cycles_uv()");
+    replaceAll(result, "vector(u,v,0)", "vector(mx_cycles_uv(), 0)");
+
+    // The image functions compute their sample coordinate through
+    // mx_transform_uv(texcoord) and then pass it to texture(); wrap it first.
+    // The hextiled image functions hardcode periodic addressing after scaling
+    // the coordinate by the tiling factor.
+    replaceAll(result, "mx_transform_uv(texcoord * tiling)",
+               "mx_cycles_wrap_uv(mx_transform_uv(texcoord * tiling), \"periodic\", \"periodic\")");
+    replaceAll(result, "mx_transform_uv(texcoord)",
+               "mx_cycles_wrap_uv(mx_transform_uv(texcoord), uaddressmode, vaddressmode)");
+
+    return result;
+}
+
 ccl::float3 toFloat3(const mx::Vector3& v)
 {
     return ccl::make_float3(v[0], v[1], v[2]);
+}
+
+ccl::PassType passTypeFromName(const std::string& name)
+{
+    if (name == "albedo" || name == "diffuse_color")
+    {
+        return ccl::PASS_DIFFUSE_COLOR;
+    }
+    return ccl::PASS_COMBINED;
 }
 
 } // anonymous namespace
@@ -146,13 +265,15 @@ CyclesRenderView::CyclesRenderView(mx::DocumentPtr doc,
                                    const std::string& envRadianceFilename,
                                    const mx::FileSearchPath& searchPath,
                                    int viewWidth,
-                                   int viewHeight) :
+                                   int viewHeight,
+                                   const std::string& renderPass) :
     _document(doc),
     _stdLib(stdLib),
     _searchPath(searchPath),
     _meshFilename(meshFilename),
     _envRadianceFilename(envRadianceFilename),
     _genContext(std::make_unique<mx::GenContext>(mx::OslShaderGenerator::create())),
+    _renderPass(renderPass),
     _cameraPosition(0.0f, 0.0f, 5.0f),
     _cameraTarget(0.0f, 0.0f, 0.0f),
     _cameraUp(0.0f, 1.0f, 0.0f),
@@ -214,11 +335,15 @@ void CyclesRenderView::buildScene()
         return;
     }
 
+    // The CPU denoiser is OpenImageDenoise. Disable denoising when this Cycles
+    // build was compiled without it.
+    _denoiseSupported = (devices.front().denoisers & ccl::DENOISER_OPENIMAGEDENOISE) != 0;
+
     ccl::SessionParams sessionParams;
     sessionParams.device = devices.front();
     sessionParams.background = false;
     sessionParams.headless = false;
-    sessionParams.samples = 4096;
+    sessionParams.samples = _maxSamples;
     sessionParams.use_auto_tile = false;
     sessionParams.use_resolution_divider = false;
     sessionParams.shadingsystem = ccl::SHADINGSYSTEM_OSL;
@@ -229,6 +354,17 @@ void CyclesRenderView::buildScene()
     _session = std::make_unique<ccl::Session>(sessionParams, sceneParams);
 
     ccl::Scene* scene = _session->scene.get();
+
+    // Custom OSL shaders access the mesh UVs through getattribute("geom:uv").
+    // Adding a UV pass marks the UV attribute as globally required so that it
+    // is exported for the geometry.
+    scene->create_node<ccl::Pass>()->set_type(ccl::PASS_UV);
+
+    // Select the pass shown in the viewport (and written to captures).
+    applyDisplayPass(scene);
+
+    // Configure denoising and adaptive sampling before any samples are rendered.
+    applyRenderSettings(scene);
 
     // Build the mesh used by the GLSL render view when available, otherwise
     // fall back to a simple sphere so that there is always something to render.
@@ -272,6 +408,16 @@ void CyclesRenderView::buildScene()
     _session->reset(sessionParams, bufferParams);
     _sessionWidth = _viewWidth;
     _sessionHeight = _viewHeight;
+
+    // Compile and apply the initial material before the session starts
+    // rendering. Otherwise the placeholder surface above (used only to keep the
+    // scene non-empty) would be displayed for the first frames, which the user
+    // sees as a flash of a gold sphere when first switching to this backend.
+    generateOsl(_currentElement);
+    rebuildMaterial();
+    _materialDirty = false;
+    _materialImmediate = false;
+
     _session->start();
 }
 
@@ -536,6 +682,141 @@ bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
     return hasEnvironment;
 }
 
+void CyclesRenderView::applyDisplayPass(ccl::Scene* scene)
+{
+    // The UV pass is always present so that custom OSL shaders can read
+    // getattribute("geom:uv"); the display pass selects which result is shown.
+    scene->film->set_display_pass(passTypeFromName(_renderPass));
+    scene->film->tag_modified();
+}
+
+void CyclesRenderView::applyRenderSettings(ccl::Scene* scene)
+{
+    ccl::Integrator* integrator = scene->integrator;
+
+    // Denoising only applies to the combined (beauty) image. Applying it while
+    // a data pass such as albedo is displayed produces an empty buffer, so
+    // scope it to the combined pass.
+    integrator->set_use_denoise(isDenoiseActive());
+    // Use OpenImageDenoise on the CPU so that denoising works on any machine,
+    // independent of GPU vendor support.
+    integrator->set_denoiser_type(ccl::DENOISER_OPENIMAGEDENOISE);
+    integrator->set_denoise_use_gpu(false);
+    integrator->set_denoise_start_sample(_denoiseStartSample);
+
+    integrator->set_use_adaptive_sampling(_adaptiveSampling);
+    integrator->set_adaptive_threshold(_adaptiveThreshold);
+    integrator->set_adaptive_min_samples(_adaptiveMinSamples);
+
+    integrator->tag_update(scene, ccl::Integrator::UPDATE_ALL);
+}
+
+bool CyclesRenderView::isDenoiseActive() const
+{
+    return _denoise && _denoiseSupported && _renderPass == "combined";
+}
+
+void CyclesRenderView::setDenoise(bool enabled)
+{
+    if (enabled == _denoise)
+    {
+        return;
+    }
+    _denoise = enabled;
+    if (_session)
+    {
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setDenoiseStartSample(int samples)
+{
+    if (samples == _denoiseStartSample)
+    {
+        return;
+    }
+    _denoiseStartSample = samples;
+    if (_session)
+    {
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setAdaptiveSampling(bool enabled)
+{
+    if (enabled == _adaptiveSampling)
+    {
+        return;
+    }
+    _adaptiveSampling = enabled;
+    if (_session)
+    {
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setAdaptiveThreshold(float threshold)
+{
+    if (threshold == _adaptiveThreshold)
+    {
+        return;
+    }
+    _adaptiveThreshold = threshold;
+    if (_session)
+    {
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setAdaptiveMinSamples(int samples)
+{
+    if (samples == _adaptiveMinSamples)
+    {
+        return;
+    }
+    _adaptiveMinSamples = samples;
+    if (_session)
+    {
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setMaxSamples(int samples)
+{
+    if (samples == _maxSamples)
+    {
+        return;
+    }
+    _maxSamples = samples;
+    if (_session)
+    {
+        _session->set_samples(samples);
+        restartRender();
+    }
+}
+
+void CyclesRenderView::setRenderPass(const std::string& name)
+{
+    if (name == _renderPass)
+    {
+        return;
+    }
+    _renderPass = name;
+
+    if (_session)
+    {
+        applyDisplayPass(_session->scene.get());
+        // Denoising is scoped to the combined pass, so re-apply the settings.
+        applyRenderSettings(_session->scene.get());
+        restartRender();
+    }
+}
+
 void CyclesRenderView::updateCamera()
 {
     if (!_session)
@@ -699,11 +980,23 @@ void CyclesRenderView::drawContents()
     if (_captureRequested && _image)
     {
         // Cycles renders asynchronously: wait until the progressive render has
-        // accumulated samples before writing the captured frame.
+        // accumulated samples before writing the captured frame. When denoising
+        // is enabled, also wait for a denoised result so that captures are not
+        // written from a noisy frame. `get_current_sample()` reports the samples
+        // rendered in the single render tile, while `get_denoised_tiles()`
+        // becoming non-zero covers adaptive sampling that converges and
+        // denoises before the configured start sample is reached.
+        bool denoiseReady = true;
+        if (isDenoiseActive() && _session)
+        {
+            denoiseReady = _session->progress.get_current_sample() >= _denoiseStartSample ||
+                           _session->progress.get_denoised_tiles() > 0;
+        }
+
         const double now = std::chrono::duration<double>(
                                std::chrono::steady_clock::now().time_since_epoch())
                                .count();
-        if (now - _captureRequestTime >= 2.0)
+        if (denoiseReady && now - _captureRequestTime >= 2.0)
         {
             mx::ImagePtr saveImage = _image;
             if (_image->getBaseType() != mx::Image::BaseType::UINT8)
@@ -835,17 +1128,29 @@ void CyclesRenderView::generateOsl(mx::TypedElementPtr typedElem)
             return;
         }
 
+        mx::DocumentPtr genDoc = _document->copy();
+        mx::FileSearchPath sourceSearchPath = _searchPath;
+        sourceSearchPath.append(mx::getSourceSearchPath(_document));
+        mx::flattenFilenames(genDoc, sourceSearchPath);
+        mx::ElementPtr resolvedElem = genDoc->getDescendant(typedElem->getNamePath());
+        mx::TypedElementPtr genElem = resolvedElem ? resolvedElem->asA<mx::TypedElement>() : nullptr;
+        if (!genElem)
+        {
+            genDoc = _document;
+            genElem = typedElem;
+        }
+
         _genContext->clearUserData();
-        const std::string shaderName = typedElem->getNamePath();
+        const std::string shaderName = genElem->getNamePath();
         mx::ShaderPtr shader = _genContext->getShaderGenerator().generate(
-            shaderName, typedElem, *_genContext);
+            shaderName, genElem, *_genContext);
 
         const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
         const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
         if (!outputs.empty())
         {
             _oslOutputName = outputs[0]->getVariable();
-            _oslSource = shader->getSourceCode(mx::Stage::PIXEL);
+            _oslSource = remapUvForCycles(shader->getSourceCode(mx::Stage::PIXEL));
         }
     }
     catch (mx::Exception& e)
