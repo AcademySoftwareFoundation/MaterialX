@@ -156,7 +156,7 @@ class RenderViewBase
     /// Set the maximum number of samples rendered.
     virtual void setMaxSamples(int /*samples*/) { }
 
-    /// Set a multiplier for the direct lighting (light rig) intensity.
+    /// Set a multiplier for the environment lighting intensity.
     virtual void setLightIntensity(float /*intensity*/) { }
 
     /// Notify the view that it has become the active backend (true) or has been

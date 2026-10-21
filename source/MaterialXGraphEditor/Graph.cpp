@@ -186,7 +186,6 @@ Graph::Graph(const std::string& materialFilename,
     _viewWidth = viewWidth;
     _viewHeight = viewHeight;
 
-
     // Create the initial render view.
     createRenderView("GLSL");
 }
@@ -3563,8 +3562,11 @@ void Graph::graphButtons()
 
     // RenderView window
     ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
-    _renderer->setViewWidth((int) screenSize[0]);
-    _renderer->setViewHeight((int) screenSize[1]);
+    if (!_fixedSizeRendering)
+    {
+        _renderer->setViewWidth((int) screenSize[0]);
+        _renderer->setViewHeight((int) screenSize[1]);
+    }
 
     if (_renderer)
     {

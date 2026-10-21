@@ -13,12 +13,12 @@
 #include <MaterialXRender/CgltfLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Mesh.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXFormat/Util.h>
-#include <MaterialXFormat/XmlIo.h>
 
 #include <imgui.h>
 
@@ -27,7 +27,6 @@
 #include "scene/background.h"
 #include "scene/camera.h"
 #include "scene/integrator.h"
-#include "scene/light.h"
 #include "scene/mesh.h"
 #include "scene/object.h"
 #include "scene/osl.h"
@@ -145,63 +144,13 @@ const char* CYCLES_UV_HELPER =
     "    return vector2(uv.x, uv.y);\n"
     "}\n";
 
-// The MaterialX OSL image implementations pass their address modes to
-// texture() through the "swrap"/"twrap" options (see libraries/stdlib/genosl/
-// mx_image_*.osl). Cycles' OSL texture service ignores those options and
-// samples the image using its extension type, which for textures registered
-// through OSL defaults to EXTENSION_CLIP (see the Cycles sources
-// kernel/osl/services_shared.h and scene/image.h). Coordinates outside [0, 1]
-// therefore return the missing/black color, so any texture that tiles or
-// offsets its coordinates (e.g. a tiledimage with uvtiling, or place2d)
-// renders as black over most of a surface. OSL's own texture system honors the address modes, so this behavior only
-// affects the
-// Cycles backend. Work around it by applying the address mode in the generated
-// OSL before sampling, keeping the coordinates passed to texture() within
-// [0, 1]. This is worth reporting upstream to the MaterialX and OpenShadingLanguage
-// projects: either Cycles should honor swrap/twrap, or the MaterialX OSL
-// images should not rely on texture() to perform wrapping.
-const char* CYCLES_ADDRESS_MODE_HELPER =
-    "float mx_cycles_address_component(float value, string addressmode)\n"
-    "{\n"
-    "    if (addressmode == \"periodic\")\n"
-    "    {\n"
-    "        return value - floor(value);\n"
-    "    }\n"
-    "    if (addressmode == \"mirror\")\n"
-    "    {\n"
-    "        float folded = fmod(abs(value), 2.0);\n"
-    "        return (folded > 1.0) ? (2.0 - folded) : folded;\n"
-    "    }\n"
-    "    if (addressmode == \"clamp\")\n"
-    "    {\n"
-    "        return clamp(value, 0.0, 1.0);\n"
-    "    }\n"
-    "    // \"constant\" (and unknown modes) are left unchanged; the generated\n"
-    "    // image functions already return their default color when a constant\n"
-    "    // coordinate lies outside [0, 1].\n"
-    "    return value;\n"
-    "}\n"
-    "\n"
-    "vector2 mx_cycles_wrap_uv(vector2 st, string uaddressmode, string vaddressmode)\n"
-    "{\n"
-    "    vector2 wrapped = vector2(mx_cycles_address_component(st.x, uaddressmode),\n"
-    "                              mx_cycles_address_component(st.y, vaddressmode));\n"
-    "    // Cycles returns the missing color when a filtered sample falls just\n"
-    "    // outside [0, 1], so a coordinate of exactly 0 or 1 (produced by clamping\n"
-    "    // or wrapping) still samples black. Nudge exact boundaries inward to stay\n"
-    "    // within the filterable region.\n"
-    "    float edge_epsilon = 0.001;\n"
-    "    wrapped.x = (wrapped.x <= 0.0) ? edge_epsilon : ((wrapped.x >= 1.0) ? (1.0 - edge_epsilon) : wrapped.x);\n"
-    "    wrapped.y = (wrapped.y <= 0.0) ? edge_epsilon : ((wrapped.y >= 1.0) ? (1.0 - edge_epsilon) : wrapped.y);\n"
-    "    return wrapped;\n"
-    "}\n"
-    "\n"
-    "// Cycles' OSL runtime does not bind the OSL dPdu/dPdv globals, so the\n"
-    "// MaterialX-generated tangent ('normalize(transform(space, dPdu))') is\n"
-    "// invalid. Anisotropic specular/coat lobes then produce invalid shading\n"
-    "// (visible as colored speckles). Use the Cycles UV tangent attribute\n"
-    "// ('geom:tangent') when available, falling back to a stable tangent derived\n"
-    "// from the shading normal.\n"
+// Cycles' OSL runtime does not bind the OSL dPdu/dPdv globals, so the
+// MaterialX-generated tangent ('normalize(transform(space, dPdu))') is
+// invalid. Anisotropic specular/coat lobes then produce invalid shading
+// (visible as colored speckles). Use the Cycles UV tangent attribute
+// ('geom:tangent') when available, falling back to a stable tangent derived
+// from the shading normal.
+const char* CYCLES_TANGENT_HELPER =
     "vector mx_cycles_tangent(string space)\n"
     "{\n"
     "    vector tangent = vector(0.0, 0.0, 0.0);\n"
@@ -216,7 +165,7 @@ const char* CYCLES_ADDRESS_MODE_HELPER =
     "    return normalize(tangent);\n"
     "}\n";
 
-std::string remapUvForCycles(const std::string& source)
+std::string customizeOslForCycles(const std::string& source)
 {
     std::string result = source;
 
@@ -235,7 +184,7 @@ std::string remapUvForCycles(const std::string& source)
         searchFrom = eol + 1;
     }
     result.insert(insertPos, std::string("\n") + CYCLES_UV_HELPER + "\n" +
-                                  CYCLES_ADDRESS_MODE_HELPER + "\n");
+                                  CYCLES_TANGENT_HELPER + "\n");
 
     auto replaceAll = [](std::string& text, const std::string& from, const std::string& to)
     {
@@ -250,18 +199,22 @@ std::string remapUvForCycles(const std::string& source)
     replaceAll(result, "vector2(u,v)", "mx_cycles_uv()");
     replaceAll(result, "vector(u,v,0)", "vector(mx_cycles_uv(), 0)");
 
-    // The image functions compute their sample coordinate through
-    // mx_transform_uv(texcoord) and then pass it to texture(); wrap it first.
-    // The hextiled image functions hardcode periodic addressing after scaling
-    // the coordinate by the tiling factor.
-    replaceAll(result, "mx_transform_uv(texcoord * tiling)",
-               "mx_cycles_wrap_uv(mx_transform_uv(texcoord * tiling), \"periodic\", \"periodic\")");
-    replaceAll(result, "mx_transform_uv(texcoord)",
-               "mx_cycles_wrap_uv(mx_transform_uv(texcoord), uaddressmode, vaddressmode)");
-
     // Replace the MaterialX tangent (which relies on the unbound OSL dPdu).
     replaceAll(result, "normalize(transform(geomprop_Tworld_space, dPdu))",
                "mx_cycles_tangent(geomprop_Tworld_space)");
+
+    // Cycles' OSL shading system does not implement the OSL standard library's
+    // anisotropic_vdf closure, which the generated open_pbr_surface uses for
+    // its transmission volume. An unsupported closure evaluates to empty and
+    // turns the whole material black. The transmission BSDF already provides
+    // the surface refraction for the preview, so map the VDF to an empty
+    // closure. This also avoids a division-by-zero in the albedo when
+    // transmission_depth is zero (extinction = absorption + scattering = 0).
+    // Worth reporting upstream: Cycles should register the standard-library
+    // VDF closures, or the MaterialX open_pbr_surface OSL implementation
+    // should not rely on them.
+    replaceAll(result, "anisotropic_vdf(albedo, extinction, anisotropy)",
+               "null_closure()");
 
     return result;
 }
@@ -276,6 +229,21 @@ ccl::float3 toFloat3(const mx::Color3& c)
     return ccl::make_float3(c[0], c[1], c[2]);
 }
 
+// ImGui draw-list callbacks that toggle sRGB encoding while the render view is
+// drawn, mirroring GlslRenderView::beginFrameDisplay. The Cycles display
+// texture holds linear scene-referred data (GL_RGBA32F), so without this the
+// preview is written to the default framebuffer without the linear-to-sRGB
+// encode and appears far darker than the captured images.
+void enableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glEnable(GL_FRAMEBUFFER_SRGB);
+}
+
+void disableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
+{
+    glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 ccl::PassType passTypeFromName(const std::string& name)
 {
     if (name == "albedo" || name == "diffuse_color")
@@ -285,131 +253,21 @@ ccl::PassType passTypeFromName(const std::string& name)
     return ccl::PASS_COMBINED;
 }
 
-// A directional light read from a MaterialX light rig, matching the setup used
-// by the GLSL render view.
-struct DirectionalLightRig
-{
-    ccl::float3 direction;
-    ccl::float3 color;
-    float intensity;
-};
-
-// Read the light rig associated with the environment map (e.g.
-// san_giuseppe_bridge_split.mtlx), returning its directional lights. The GLSL
-// render view loads the same file in GlslRenderView::loadEnvironmentLight.
-std::vector<DirectionalLightRig> loadLightRig(const mx::FileSearchPath& searchPath,
-                                              const mx::FilePath& envRadianceFilename)
-{
-    std::vector<DirectionalLightRig> lights;
-    if (envRadianceFilename.isEmpty())
-    {
-        return lights;
-    }
-
-    mx::FilePath rigFilename = envRadianceFilename;
-    rigFilename.removeExtension();
-    rigFilename.addExtension(mx::MTLX_EXTENSION);
-    rigFilename = searchPath.find(rigFilename);
-    if (rigFilename.isEmpty() || !rigFilename.exists())
-    {
-        return lights;
-    }
-
-    try
-    {
-        mx::DocumentPtr rig = mx::createDocument();
-        mx::readFromXmlFile(rig, rigFilename, searchPath);
-        for (mx::NodePtr node : rig->getNodes())
-        {
-            if (node->getCategory() != "directional_light")
-            {
-                continue;
-            }
-
-            DirectionalLightRig rigLight = { ccl::make_float3(0.0f, -1.0f, 0.0f),
-                                             ccl::make_float3(1.0f, 1.0f, 1.0f), 1.0f };
-            if (mx::InputPtr input = node->getInput("direction"))
-            {
-                if (input->getValue())
-                {
-                    rigLight.direction = toFloat3(input->getValue()->asA<mx::Vector3>());
-                }
-            }
-            if (mx::InputPtr input = node->getInput("color"))
-            {
-                if (input->getValue())
-                {
-                    rigLight.color = toFloat3(input->getValue()->asA<mx::Color3>());
-                }
-            }
-            if (mx::InputPtr input = node->getInput("intensity"))
-            {
-                if (input->getValue())
-                {
-                    rigLight.intensity = input->getValue()->asA<float>();
-                }
-            }
-            lights.push_back(rigLight);
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Cycles: failed to read light rig: " << e.what() << std::endl;
-    }
-
-    return lights;
-}
-
-// Add a MaterialX directional light as a Cycles sun light. The sun travels
-// along the object's local +Z axis, so the light direction is placed in the
-// third column of the transform.
-ccl::Light* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig& rig, float intensityScale)
-{
-    ccl::float3 forward = ccl::normalize(-rig.direction);
-    ccl::float3 upHint = ccl::make_float3(0.0f, 1.0f, 0.0f);
-    if (std::fabs(ccl::dot(forward, upHint)) > 0.999f)
-    {
-        upHint = ccl::make_float3(0.0f, 0.0f, 1.0f);
-    }
-    const ccl::float3 right = ccl::normalize(ccl::cross(forward, upHint));
-    const ccl::float3 up = ccl::cross(right, forward);
-
-    ccl::Light* sun = scene->create_node<ccl::Light>();
-    // Cycles 5.1 models the sun as a distant light with an angular diameter.
-    sun->set_light_type(ccl::LIGHT_DISTANT);
-    sun->set_angle(0.00918f);
-    const float intensity = rig.intensity * intensityScale;
-    sun->set_strength(ccl::make_float3(intensity, intensity, intensity));
-
-    auto lightGraph = std::make_unique<ccl::ShaderGraph>();
-    ccl::EmissionNode* emission = lightGraph->create_node<ccl::EmissionNode>();
-    emission->set_color(rig.color);
-    emission->set_strength(1.0f);
-    lightGraph->connect(emission->output("Emission"), lightGraph->output()->input("Surface"));
-    ccl::Shader* shader = scene->create_node<ccl::Shader>();
-    shader->set_graph(std::move(lightGraph));
-    ccl::array<ccl::Node*> usedShaders;
-    usedShaders.push_back_slow(shader);
-    sun->set_used_shaders(usedShaders);
-
-    ccl::Transform tfm = ccl::transform_identity();
-    tfm.x = ccl::make_float4(right.x, up.x, forward.x, 0.0f);
-    tfm.y = ccl::make_float4(right.y, up.y, forward.y, 0.0f);
-    tfm.z = ccl::make_float4(right.z, up.z, forward.z, 0.0f);
-
-    ccl::Object* lightObject = scene->create_node<ccl::Object>();
-    lightObject->set_tfm(tfm);
-    lightObject->set_visibility(ccl::PATH_RAY_ALL_VISIBILITY & ~ccl::PATH_RAY_CAMERA);
-    lightObject->set_geometry(sun);
-
-    return sun;
-}
-
 } // anonymous namespace
 
 //
 // CyclesRenderView methods
 //
+
+void CyclesRenderView::beginFrameDisplay()
+{
+    ImGui::GetWindowDrawList()->AddCallback(enableSRGBCallback, nullptr);
+}
+
+void CyclesRenderView::endFrameDisplay()
+{
+    ImGui::GetWindowDrawList()->AddCallback(disableSRGBCallback, nullptr);
+}
 
 CyclesRenderView::CyclesRenderView(mx::DocumentPtr doc,
                                    mx::DocumentPtr stdLib,
@@ -795,7 +653,7 @@ bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
     // uses the environment only for lighting. Replicate that: the background
     // visible to camera rays is the screen color, while shadow and indirect
     // rays see the environment.
-    const ccl::float3 screenColor = ccl::make_float3(0.3f, 0.3f, 0.32f);
+    const ccl::float3 screenColor = toFloat3(mx::DEFAULT_SCREEN_COLOR_LIN_REC709);
 
     _environmentBackground = nullptr;
     _irradianceBackground = nullptr;
@@ -877,19 +735,6 @@ bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
     scene->default_background->set_graph(std::move(graph));
     scene->default_background->tag_update(scene);
 
-    // Add the directional key light(s) from the MaterialX light rig, matching
-    // GlslRenderView::applyDirectLights.
-    _sunLights.clear();
-    _sunBaseIntensities.clear();
-    for (const DirectionalLightRig& rig : loadLightRig(_searchPath, _envRadianceFilename))
-    {
-        if (ccl::Light* sun = addDirectionalLight(scene, rig, _lightIntensity))
-        {
-            _sunLights.push_back(sun);
-            _sunBaseIntensities.push_back(rig.intensity);
-        }
-    }
-
     return hasEnvironment;
 }
 
@@ -910,12 +755,6 @@ void CyclesRenderView::applyLightIntensity()
     {
         _irradianceBackground->set_strength(_baseIrradianceStrength * _lightIntensity);
         scene->default_background->tag_update(scene);
-    }
-    for (size_t i = 0; i < _sunLights.size(); i++)
-    {
-        const float intensity = _sunBaseIntensities[i] * _lightIntensity;
-        _sunLights[i]->set_strength(ccl::make_float3(intensity, intensity, intensity));
-        _sunLights[i]->tag_update(scene);
     }
     restartRender();
 }
@@ -1297,6 +1136,12 @@ void CyclesRenderView::drawContents()
                 // highlights into colored (green) splotches in the saved PNG.
                 // The interactive preview samples the float texture directly and
                 // is clamped by the GPU, so it did not show the artifact.
+                //
+                // The buffer is scene-linear, while 8-bit formats such as PNG
+                // are display-referred: encode the RGB channels to sRGB so the
+                // capture matches the on-screen preview and the GLSL backend,
+                // whose readback returns sRGB-encoded bytes. Alpha is linear
+                // and is left untouched.
                 saveImage = mx::Image::create(_image->getWidth(), _image->getHeight(), 4,
                                               mx::Image::BaseType::UINT8);
                 saveImage->createResourceBuffer();
@@ -1309,6 +1154,10 @@ void CyclesRenderView::drawContents()
                         {
                             color[c] = std::isfinite(color[c]) ? std::clamp(color[c], 0.0f, 1.0f) : 0.0f;
                         }
+                        const mx::Color3 srgb = mx::Color3(color[0], color[1], color[2]).linearToSrgb();
+                        color[0] = srgb[0];
+                        color[1] = srgb[1];
+                        color[2] = srgb[2];
                         saveImage->setTexelColor(x, y, color);
                     }
                 }
@@ -1460,7 +1309,7 @@ void CyclesRenderView::generateOsl(mx::TypedElementPtr typedElem)
         if (!outputs.empty())
         {
             _oslOutputName = outputs[0]->getVariable();
-            _oslSource = remapUvForCycles(shader->getSourceCode(mx::Stage::PIXEL));
+            _oslSource = customizeOslForCycles(shader->getSourceCode(mx::Stage::PIXEL));
         }
     }
     catch (mx::Exception& e)

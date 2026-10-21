@@ -35,7 +35,7 @@ const std::string options =
     "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
-    "    --renderBackend [NAME]         Specify the initial render backend (e.g. GLSL, OSL, Cycles)\n"
+    "    --renderBackend [NAME]         Specify the initial render backend (e.g. GLSL, Cycles)\n"
     "    --renderPass [NAME]            Specify the render pass to display (e.g. combined, albedo)\n"
     "    --denoise [true|false]         Enable the Cycles CPU denoiser (default true)\n"
     "    --denoiseStartSample [N]       Number of samples to render before denoising begins (default 16)\n"
@@ -43,7 +43,7 @@ const std::string options =
     "    --adaptiveThreshold [VALUE]    Adaptive sampling noise threshold, lower is stricter (default 0.01)\n"
     "    --adaptiveMinSamples [N]       Minimum samples for adaptive sampling (default 0, automatic)\n"
     "    --samples [N]                  Maximum number of samples to render (default 4096)\n"
-    "    --lightIntensity [FACTOR]      Cycles direct lighting (light rig) intensity multiplier (default 0.75)\n"
+    "    --lightIntensity [FACTOR]      Cycles environment lighting intensity multiplier (default 0.75)\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
     "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
     "    --pinShape [circle|flow]       Specify the shape of node pins (circle, flow).  Default is circle.\n"
@@ -325,6 +325,8 @@ int main(int argc, char* const argv[])
     graph->setLightIntensity(lightIntensity);
     if (!captureFilename.empty())
     {
+        // Keep the render view at the requested resolution while capturing.
+        graph->setFixedSizeRendering(true);
         graph->getRenderer()->requestFrameCapture(captureFilename);
         graph->getRenderer()->requestExit();
     }
