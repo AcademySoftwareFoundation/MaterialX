@@ -11,6 +11,36 @@ The MaterialX Graph Editor is an example application for visualizing, creating, 
 ## Building the MaterialX Graph Editor
 Select the `MATERIALX_BUILD_GRAPH_EDITOR` option in CMake to build the MaterialX Graph Editor.  Installation will copy the **MaterialXGraphEditor** executable to a `/bin` directory within the selected install folder.
 
+## Cycles Render Backend
+
+The Graph Editor can display an interactive path-traced preview using the [Cycles](https://www.cycles-renderer.org/) renderer.  Enable it with the `MATERIALX_BUILD_RENDER_CYCLES` option:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_CYCLES=ON
+cmake --build build --config Release
+```
+
+Notes on this option:
+
+- It requires `MATERIALX_BUILD_GRAPH_EDITOR=ON` and the OSL shader generator (`MATERIALX_BUILD_GEN_OSL=ON`, the default).
+- The Graph Editor links against the Cycles session/scene C++ API, which is not exported by a stock Cycles build.  MaterialX fetches a Cycles fork that supports being built as a linkable shared library (`WITH_CYCLES_DEVELOPMENT_INSTALL`) and builds it as part of the MaterialX build.  The repository and revision can be overridden with the `MATERIALX_CYCLES_GIT_REPOSITORY` and `MATERIALX_CYCLES_GIT_TAG` options.
+- Cycles is not self-contained: it links against a set of precompiled third-party libraries (OpenImageIO, OpenColorIO, OSL, TBB, Embree, OpenVDB, OpenImageDenoise, ...).  Blender publishes those as multi-gigabyte Git LFS repositories.  By default MaterialX fetches the bundle that matches the current platform and the exact revision pinned by the Cycles fork, which requires `git-lfs` to be installed and transfers several gigabytes.  To avoid that download, point `MATERIALX_CYCLES_PRECOMPILED_LIB_DIR` at an existing Blender `lib` folder (the folder containing `linux_x64`, `macos_arm64`, `windows_x64`, etc.), or set `MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS=OFF` to require that path.
+
+  ```
+  cmake -S . -B build \
+    -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+    -DMATERIALX_BUILD_RENDER_CYCLES=ON \
+    -DMATERIALX_CYCLES_PRECOMPILED_LIB_DIR=/path/to/cycles/lib
+  ```
+
+- If a parent CMake project already provides a `Cycles::cycles` target (for example an external superbuild), MaterialX links that target instead of fetching its own copy.
+
+Once built, the active renderer can be selected from the **Viewer** menu.  When the Cycles backend is active, the same menu exposes controls for the displayed pass (Combined or Albedo), the OpenImageDenoise denoiser, adaptive sampling, sample count, and environment light intensity.  Command-line equivalents such as `--renderBackend Cycles` and `--samples` are documented under [Command-Line Options](#command-line-options).
+
+At runtime Cycles reads its OSL node shaders and headers from its shader directory.  When built from MaterialX, the path is compiled in through `CYCLES_SHADER_DIR` and applied via the `CYCLES_SHADER_PATH` environment variable unless that variable is already set.  The Cycles runtime shared libraries are copied next to the **MaterialXGraphEditor** executable and located through a relative rpath, so the executable can be launched directly without setting `LD_LIBRARY_PATH`.  Set `MATERIALX_CYCLES_BUNDLE_RUNTIME=OFF` to skip this bundling (for example when the Cycles libraries are already provided by the environment).
+
 ## Summary of Graph Editor Features
 
 1. **`Load Material`**: Load a material document in the MTLX format.

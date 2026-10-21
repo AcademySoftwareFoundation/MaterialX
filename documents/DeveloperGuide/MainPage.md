@@ -9,6 +9,7 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Select the `MATERIALX_BUILD_PYTHON` option to build Python bindings.
 - Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
 - Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md). 
+- Select the `MATERIALX_BUILD_RENDER_CYCLES` option, alongside `MATERIALX_BUILD_GRAPH_EDITOR`, to add the Cycles path-traced render backend to the Graph Editor. This fetches a Cycles fork that can be linked as a library; see [Cycles Render Backend](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md#cycles-render-backend).
 
 ## Supported Platforms
 
@@ -49,6 +50,19 @@ Additional options for the generation of MaterialX Python include the following:
 ### Building The MaterialX Viewer
 
 Select the `MATERIALX_BUILD_VIEWER` option to build the MaterialX Viewer.  Installation will copy the `MaterialXView` executable to a `bin/` directory within the selected install folder.
+
+### Building The Graph Editor With Cycles
+
+Select the `MATERIALX_BUILD_GRAPH_EDITOR` and `MATERIALX_BUILD_RENDER_CYCLES` options to build the Graph Editor with the Cycles render backend.  Cycles is fetched and built as part of the MaterialX build:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_CYCLES=ON
+cmake --build build --config Release
+```
+
+Cycles links against a large set of precompiled Blender dependency libraries that MaterialX fetches by default (several gigabytes, requires `git-lfs`).  To use an existing checkout instead, set `MATERIALX_CYCLES_PRECOMPILED_LIB_DIR` to a Blender `lib` folder.  See the [Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md#cycles-render-backend) documentation for details.
 
 ### Building API Documentation
 
