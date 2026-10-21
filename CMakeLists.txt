@@ -36,7 +36,11 @@ project(MaterialX VERSION ${MATERIALX_LIBRARY_VERSION})
 option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindings. Requires Python 3.9 or greater." OFF)
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
-option(MATERIALX_BUILD_RENDER_CYCLES "Build the Cycles render backend for the graph editor. Requires an installed Cycles development package (find_package(Cycles))." OFF)
+option(MATERIALX_BUILD_RENDER_CYCLES "Build the Cycles render backend for the graph editor. Fetches a Cycles fork that can be linked as a library. Requires MATERIALX_BUILD_GRAPH_EDITOR and MATERIALX_BUILD_GEN_OSL." OFF)
+set(MATERIALX_CYCLES_GIT_REPOSITORY "https://github.com/seang-ilm/cycles.git" CACHE STRING "Git repository for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
+set(MATERIALX_CYCLES_GIT_TAG "5_1-add-library-build-support" CACHE STRING "Git tag or branch for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
+set(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR "" CACHE PATH "Directory containing the precompiled Cycles/Blender dependency libraries (the lib/ folder). When empty, MATERIALX_BUILD_RENDER_CYCLES fetches them into the build tree.")
+option(MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS "Automatically fetch the multi-gigabyte Cycles/Blender precompiled dependency libraries when MATERIALX_CYCLES_PRECOMPILED_LIB_DIR is not set. Requires git-lfs." ON)
 option(MATERIALX_BUILD_DOCS "Create HTML documentation using Doxygen. Requires that Doxygen be installed." OFF)
 
 option(MATERIALX_BUILD_GEN_GLSL "Build the GLSL shader generator back-end." ON)
@@ -88,6 +92,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_RENDER_CYCLES OFF)
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
@@ -106,6 +111,7 @@ if (MATERIALX_BUILD_APPLE_FRAMEWORK)
     set(MATERIALX_BUILD_PYTHON OFF)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
+    set(MATERIALX_BUILD_RENDER_CYCLES OFF)
     set(MATERIALX_BUILD_TESTS OFF)
     set(MATERIALX_BUILD_SHARED_LIBS ON)
 endif()
@@ -183,6 +189,10 @@ mark_as_advanced(MATERIALX_BUILD_GEN_MSL)
 mark_as_advanced(MATERIALX_BUILD_OSOS)
 mark_as_advanced(MATERIALX_BUILD_RENDER)
 mark_as_advanced(MATERIALX_BUILD_RENDER_PLATFORMS)
+mark_as_advanced(MATERIALX_CYCLES_GIT_REPOSITORY)
+mark_as_advanced(MATERIALX_CYCLES_GIT_TAG)
+mark_as_advanced(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR)
+mark_as_advanced(MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
@@ -255,6 +265,113 @@ if(MATERIALX_BUILD_PERFETTO_TRACING)
     endif()
     
     message(STATUS "Perfetto tracing support enabled")
+endif()
+
+# Cycles render backend for the graph editor.
+#
+# Cycles is not usable as a system library: the graph editor links against the
+# Cycles session/scene C++ API, which is only exported by a fork that provides a
+# development install. Fetch that fork here and embed it in the build so that
+# the `Cycles::cycles` target and its build-tree shader directory are available
+# to the graph editor. Skip the fetch if a parent project already provided the
+# target (e.g. an external superbuild).
+#
+# Cycles itself is built from source, but it links against a set of precompiled
+# third-party libraries (OpenImageIO, OpenColorIO, OSL, TBB, Embree, ...) that
+# Blender publishes as multi-gigabyte Git LFS repositories. Those are not built
+# by this project, so MaterialX either uses a checkout supplied through
+# MATERIALX_CYCLES_PRECOMPILED_LIB_DIR or (by default) fetches the matching
+# platform bundle with git-lfs.
+if(MATERIALX_BUILD_RENDER_CYCLES AND NOT TARGET Cycles::cycles)
+    if(NOT MATERIALX_BUILD_GRAPH_EDITOR)
+        message(FATAL_ERROR "MATERIALX_BUILD_RENDER_CYCLES requires MATERIALX_BUILD_GRAPH_EDITOR.")
+    endif()
+    if(NOT MATERIALX_BUILD_GEN_OSL)
+        message(FATAL_ERROR "MATERIALX_BUILD_RENDER_CYCLES requires MATERIALX_BUILD_GEN_OSL.")
+    endif()
+
+    # Cycles is embedded, so it does not need its standalone executable or the
+    # USD/Hydra integration. A development install exposes the combined
+    # `Cycles::cycles` library, its headers, and the build-tree shader folder.
+    set(WITH_CYCLES_STANDALONE OFF CACHE BOOL "" FORCE)
+    set(WITH_CYCLES_DEVELOPMENT_INSTALL ON CACHE BOOL "" FORCE)
+    set(WITH_CYCLES_HYDRA_RENDER_DELEGATE OFF CACHE BOOL "" FORCE)
+    set(WITH_CYCLES_USD OFF CACHE BOOL "" FORCE)
+    set(WITH_USD OFF CACHE BOOL "" FORCE)
+
+    include(FetchContent)
+    if(POLICY CMP0169)
+        cmake_policy(SET CMP0169 OLD)
+    endif()
+    FetchContent_Declare(cycles
+        GIT_REPOSITORY "${MATERIALX_CYCLES_GIT_REPOSITORY}"
+        GIT_TAG "${MATERIALX_CYCLES_GIT_TAG}"
+        GIT_SHALLOW TRUE
+        GIT_SUBMODULES "")
+    # Populate the source now (without adding it as a subdirectory) so that the
+    # dependency libraries can be fetched into the source tree first; Cycles
+    # locates them at configure time.
+    FetchContent_Populate(cycles)
+
+    if(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR)
+        set(CYCLES_LIB_DIR "${MATERIALX_CYCLES_PRECOMPILED_LIB_DIR}" CACHE PATH
+            "Directory containing the precompiled Blender dependency libraries" FORCE)
+    else()
+        # Match the platform directory naming used by Cycles' own external_libs.cmake.
+        if(APPLE)
+            if(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
+                set(_materialx_cycles_platform "macos_x64")
+            else()
+                set(_materialx_cycles_platform "macos_arm64")
+            endif()
+        elseif(WIN32)
+            if(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+                set(_materialx_cycles_platform "windows_arm64")
+            else()
+                set(_materialx_cycles_platform "windows_x64")
+            endif()
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+            set(_materialx_cycles_platform "linux_x64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+            set(_materialx_cycles_platform "linux_arm64")
+        else()
+            set(_materialx_cycles_platform "linux_${CMAKE_SYSTEM_PROCESSOR}")
+        endif()
+
+        set(_materialx_cycles_lib_submodule "lib/${_materialx_cycles_platform}")
+        if(NOT MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS)
+            message(FATAL_ERROR "MATERIALX_BUILD_RENDER_CYCLES requires the Cycles dependency "
+                "libraries. Set MATERIALX_CYCLES_PRECOMPILED_LIB_DIR to a Blender 'lib' folder "
+                "(containing ${_materialx_cycles_platform}), or enable "
+                "MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS to fetch them.")
+        endif()
+
+        find_package(Git REQUIRED)
+        execute_process(COMMAND "${GIT_EXECUTABLE}" lfs version
+            RESULT_VARIABLE _materialx_git_lfs_result
+            OUTPUT_QUIET ERROR_QUIET)
+        if(NOT _materialx_git_lfs_result EQUAL 0)
+            message(FATAL_ERROR "Fetching the Cycles dependency libraries requires git-lfs, which "
+                "was not found. Install git-lfs, or set MATERIALX_CYCLES_PRECOMPILED_LIB_DIR to an "
+                "existing Blender 'lib' folder.")
+        endif()
+
+        message(STATUS "Fetching Cycles precompiled dependency libraries "
+            "(${_materialx_cycles_lib_submodule}); this is a large download ...")
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" submodule update --init --checkout --depth 1 --
+                    "${_materialx_cycles_lib_submodule}"
+            WORKING_DIRECTORY "${cycles_SOURCE_DIR}"
+            RESULT_VARIABLE _materialx_cycles_lib_result)
+        if(NOT _materialx_cycles_lib_result EQUAL 0)
+            message(FATAL_ERROR "Failed to fetch the Cycles dependency libraries "
+                "('${_materialx_cycles_lib_submodule}'). Check network access and the git-lfs "
+                "installation, or set MATERIALX_CYCLES_PRECOMPILED_LIB_DIR.")
+        endif()
+    endif()
+
+    add_subdirectory("${cycles_SOURCE_DIR}" "${cycles_BINARY_DIR}")
+    message(STATUS "Cycles render backend enabled (embedded)")
 endif()
 
 if (MATERIALX_BUILD_USE_CCACHE)

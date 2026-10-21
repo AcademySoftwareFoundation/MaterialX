@@ -86,19 +86,27 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
     endif()
     list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl MaterialXRenderOsl)
 
-    if(TARGET Cycles::cycles)
-        # Cycles is embedded in the same CMake build (e.g. a superbuild that
-        # pulls in both projects). Link the in-tree target and use its
-        # build-tree shader directory instead of an installed package.
+    if(TARGET cycles_build_shaders)
+        # Cycles is embedded in the same CMake build (e.g. fetched by the
+        # top-level project or a superbuild that pulls in both projects). Link
+        # the in-tree target and use its build-tree shader directory instead of
+        # an installed package.
+        if(NOT TARGET Cycles::cycles)
+            message(FATAL_ERROR "The embedded Cycles build does not provide the Cycles::cycles target.")
+        endif()
         list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
         set(MATERIALX_CYCLES_SHADER_DIR "${CYCLES_BUILD_SHADER_DIR}")
-        if(TARGET cycles_build_shaders)
-            add_dependencies(MaterialXGraphEditor cycles_build_shaders)
-        endif()
+        add_dependencies(MaterialXGraphEditor cycles_build_shaders)
     else()
         find_package(Cycles CONFIG REQUIRED)
         list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
         set(MATERIALX_CYCLES_SHADER_DIR "${Cycles_SHADER_DIR}")
+    endif()
+
+    if(NOT MATERIALX_CYCLES_SHADER_DIR)
+        message(FATAL_ERROR "Could not determine the Cycles shader directory. "
+            "The embedded build must define CYCLES_BUILD_SHADER_DIR, or an "
+            "installed Cycles package must define Cycles_SHADER_DIR.")
     endif()
 
     target_compile_definitions(MaterialXGraphEditor PRIVATE

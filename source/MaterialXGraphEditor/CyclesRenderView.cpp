@@ -351,6 +351,11 @@ void CyclesRenderView::buildScene()
 
     ccl::SessionParams sessionParams;
     sessionParams.device = devices.front();
+    // Reuse the render device for denoising. Leaving the denoise device at its
+    // default (an id of "CPU" with an empty description) while the render device
+    // carries the enumerated CPU description trips Cycles' DeviceInfo equality
+    // assertion when the session compares the two.
+    sessionParams.denoise_device = sessionParams.device;
     sessionParams.background = false;
     sessionParams.headless = false;
     sessionParams.samples = _maxSamples;
