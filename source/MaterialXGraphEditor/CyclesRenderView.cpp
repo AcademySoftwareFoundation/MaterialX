@@ -286,6 +286,40 @@ ccl::PassType passTypeFromName(const std::string& name)
     return ccl::PASS_COMBINED;
 }
 
+#ifdef CYCLES_SHADER_DIR
+// Locate the Cycles OSL shader directory relative to the executable first, so
+// that an installed bundle does not depend on the build-tree path that was
+// compiled into CYCLES_SHADER_DIR.  The compiled-in path remains as a fallback
+// for uninstalled development builds.
+mx::FilePath findCyclesShaderDir()
+{
+    try
+    {
+        const mx::FilePath moduleDir = mx::FilePath::getModulePath();
+        const mx::FilePath candidates[] =
+        {
+            moduleDir / "shader",
+            moduleDir / ".." / "shader",
+            moduleDir / ".." / "share" / "cycles" / "shader",
+            mx::FilePath(CYCLES_SHADER_DIR)
+        };
+        for (const mx::FilePath& candidate : candidates)
+        {
+            if ((candidate / "stdosl.h").exists() &&
+                (candidate / "stdcycles.h").exists())
+            {
+                return candidate;
+            }
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Cycles: could not resolve the shader directory: " << e.what() << std::endl;
+    }
+    return mx::FilePath();
+}
+#endif
+
 } // anonymous namespace
 
 //
@@ -362,12 +396,21 @@ void CyclesRenderView::buildScene()
 {
 #ifdef CYCLES_SHADER_DIR
     // Cycles locates its OSL node shaders and stdcycles.h through
-    // path_get("shader"), which is derived from the host executable's path.
-    // Point it at the Cycles installation so that OSL shading works when
-    // embedded here.
+    // CYCLES_SHADER_PATH.  Prefer the copy next to the executable so that the
+    // bundle is relocatable, then fall back to the compiled-in path.
     if (getenv("CYCLES_SHADER_PATH") == nullptr)
     {
-        setenv("CYCLES_SHADER_PATH", CYCLES_SHADER_DIR, 0);
+        const mx::FilePath shaderDir = findCyclesShaderDir();
+        if (!shaderDir.isEmpty())
+        {
+            setenv("CYCLES_SHADER_PATH", shaderDir.asString().c_str(), 0);
+        }
+        else
+        {
+            std::cerr << "Cycles: could not find the OSL shader directory "
+                         "(expected a 'shader' folder next to the executable)"
+                      << std::endl;
+        }
     }
 #endif
 

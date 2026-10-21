@@ -275,19 +275,33 @@ int main(int argc, char* const argv[])
     ImFont* customFont = nullptr;
     if (!fontFilename.empty())
     {
-        customFont = io.Fonts->AddFontFromFileTTF(fontFilename.c_str(), scaledFontSize);
+        mx::FilePath customFontPath(fontFilename);
+        if (!customFontPath.isAbsolute())
+        {
+            customFontPath = searchPath.find(customFontPath);
+        }
+        if (customFontPath.exists())
+        {
+            customFont = io.Fonts->AddFontFromFileTTF(customFontPath.asString().c_str(), scaledFontSize);
+        }
+        else
+        {
+            std::cerr << "Could not load font file: " << fontFilename << std::endl;
+        }
     }
     if (!customFont)
     {
         const mx::FilePath defaultFontFile("resources/Fonts/Roboto-Regular.ttf");
         mx::FilePath resolvedFontPath = searchPath.find(defaultFontFile);
-        if (!resolvedFontPath.isEmpty())
+        if (!resolvedFontPath.isEmpty() && resolvedFontPath.exists())
         {
             customFont = io.Fonts->AddFontFromFileTTF(resolvedFontPath.asString().c_str(), scaledFontSize);
         }
     }
     if (!customFont)
     {
+        std::cerr << "Using ImGui's built-in font; resources/Fonts/Roboto-Regular.ttf was not found."
+                  << std::endl;
         io.Fonts->AddFontDefault();
     }
 

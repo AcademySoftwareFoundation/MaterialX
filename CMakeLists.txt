@@ -284,6 +284,12 @@ endif()
 # by this project, so MaterialX either uses a checkout supplied through
 # MATERIALX_CYCLES_PRECOMPILED_LIB_DIR or (by default) fetches the matching
 # platform bundle with git-lfs.
+# A caller-provided development install can be used directly instead of
+# fetching and rebuilding Cycles from source.
+if(Cycles_DIR)
+    find_package(Cycles CONFIG REQUIRED)
+endif()
+
 if(MATERIALX_BUILD_RENDER_CYCLES AND NOT TARGET Cycles::cycles)
     if(NOT MATERIALX_BUILD_GRAPH_EDITOR)
         message(FATAL_ERROR "MATERIALX_BUILD_RENDER_CYCLES requires MATERIALX_BUILD_GRAPH_EDITOR.")
