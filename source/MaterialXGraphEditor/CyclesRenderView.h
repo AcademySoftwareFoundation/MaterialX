@@ -31,7 +31,7 @@ namespace ccl {
 class Session;
 class Scene;
 class Object;
-class SunLight;
+class Light;
 class BackgroundNode;
 class SessionParams;
 class SceneParams;
@@ -220,7 +220,7 @@ class CyclesRenderView : public RenderViewBase
     // Direct lighting (sun light rig) intensity multiplier, and the sun lights
     // created from the rig so the multiplier can be applied live.
     float _lightIntensity = 0.75f;
-    std::vector<ccl::SunLight*> _sunLights;
+    std::vector<ccl::Light*> _sunLights;
     std::vector<float> _sunBaseIntensities;
 
     // Environment background nodes, split by ray type: the sharp radiance map for

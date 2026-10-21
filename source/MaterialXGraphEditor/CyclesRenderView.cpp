@@ -363,7 +363,7 @@ std::vector<DirectionalLightRig> loadLightRig(const mx::FileSearchPath& searchPa
 // Add a MaterialX directional light as a Cycles sun light. The sun travels
 // along the object's local +Z axis, so the light direction is placed in the
 // third column of the transform.
-ccl::SunLight* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig& rig, float intensityScale)
+ccl::Light* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig& rig, float intensityScale)
 {
     ccl::float3 forward = ccl::normalize(-rig.direction);
     ccl::float3 upHint = ccl::make_float3(0.0f, 1.0f, 0.0f);
@@ -374,7 +374,9 @@ ccl::SunLight* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig&
     const ccl::float3 right = ccl::normalize(ccl::cross(forward, upHint));
     const ccl::float3 up = ccl::cross(right, forward);
 
-    ccl::SunLight* sun = scene->create_node<ccl::SunLight>();
+    ccl::Light* sun = scene->create_node<ccl::Light>();
+    // Cycles 5.1 models the sun as a distant light with an angular diameter.
+    sun->set_light_type(ccl::LIGHT_DISTANT);
     sun->set_angle(0.00918f);
     const float intensity = rig.intensity * intensityScale;
     sun->set_strength(ccl::make_float3(intensity, intensity, intensity));
@@ -397,7 +399,7 @@ ccl::SunLight* addDirectionalLight(ccl::Scene* scene, const DirectionalLightRig&
 
     ccl::Object* lightObject = scene->create_node<ccl::Object>();
     lightObject->set_tfm(tfm);
-    lightObject->set_visibility(ccl::PATH_RAY_VISIBILITY_ALL & ~ccl::PATH_RAY_VISIBILITY_CAMERA);
+    lightObject->set_visibility(ccl::PATH_RAY_ALL_VISIBILITY & ~ccl::PATH_RAY_CAMERA);
     lightObject->set_geometry(sun);
 
     return sun;
@@ -666,7 +668,7 @@ bool CyclesRenderView::buildMesh(ccl::Scene* scene)
     ccl::Mesh* cyclesMesh = scene->create_node<ccl::Mesh>();
     cyclesMesh->resize_mesh((int) positions.size(), (int) triangleCount);
 
-    ccl::packed_float3* cyclePositions = cyclesMesh->get_position_for_write();
+    ccl::float3* cyclePositions = cyclesMesh->get_verts().data();
     for (size_t i = 0; i < positions.size(); i++)
     {
         cyclePositions[i] = positions[i];
@@ -685,7 +687,7 @@ bool CyclesRenderView::buildMesh(ccl::Scene* scene)
     {
         if (ccl::Attribute* attribute = cyclesMesh->attributes.add(ccl::ATTR_STD_VERTEX_NORMAL))
         {
-            ccl::packed_normal* normalData = attribute->data_for_write<ccl::packed_normal>();
+            ccl::packed_normal* normalData = attribute->data_normal();
             for (size_t i = 0; i < normals.size(); i++)
             {
                 normalData[i] = ccl::packed_normal(normals[i]);
@@ -697,7 +699,7 @@ bool CyclesRenderView::buildMesh(ccl::Scene* scene)
     {
         if (ccl::Attribute* attribute = cyclesMesh->attributes.add(ccl::ATTR_STD_UV))
         {
-            ccl::float2* uvData = attribute->data_for_write<ccl::float2>();
+            ccl::float2* uvData = attribute->data_float2();
             for (size_t t = 0; t < triangleCount; t++)
             {
                 for (int k = 0; k < 3; k++)
@@ -772,7 +774,7 @@ void CyclesRenderView::buildFallbackSphere(ccl::Scene* scene)
     }
 
     mesh->resize_mesh((int) positions.size(), (int) (indices.size() / 3));
-    std::copy(positions.begin(), positions.end(), mesh->get_position_for_write());
+    std::copy(positions.begin(), positions.end(), mesh->get_verts().data());
     int* triangles = mesh->get_triangles().data();
     std::copy(indices.begin(), indices.end(), triangles);
     std::ranges::fill(mesh->get_smooth(), true);
@@ -881,7 +883,7 @@ bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
     _sunBaseIntensities.clear();
     for (const DirectionalLightRig& rig : loadLightRig(_searchPath, _envRadianceFilename))
     {
-        if (ccl::SunLight* sun = addDirectionalLight(scene, rig, _lightIntensity))
+        if (ccl::Light* sun = addDirectionalLight(scene, rig, _lightIntensity))
         {
             _sunLights.push_back(sun);
             _sunBaseIntensities.push_back(rig.intensity);

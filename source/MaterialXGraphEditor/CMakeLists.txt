@@ -84,11 +84,26 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
     if(NOT MATERIALX_BUILD_GEN_OSL)
         message(FATAL_ERROR "The Cycles render backend requires MATERIALX_BUILD_GEN_OSL.")
     endif()
-    find_package(Cycles CONFIG REQUIRED)
-    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl MaterialXRenderOsl Cycles::cycles)
+    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl MaterialXRenderOsl)
+
+    if(TARGET Cycles::cycles)
+        # Cycles is embedded in the same CMake build (e.g. a superbuild that
+        # pulls in both projects). Link the in-tree target and use its
+        # build-tree shader directory instead of an installed package.
+        list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
+        set(MATERIALX_CYCLES_SHADER_DIR "${CYCLES_BUILD_SHADER_DIR}")
+        if(TARGET cycles_build_shaders)
+            add_dependencies(MaterialXGraphEditor cycles_build_shaders)
+        endif()
+    else()
+        find_package(Cycles CONFIG REQUIRED)
+        list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
+        set(MATERIALX_CYCLES_SHADER_DIR "${Cycles_SHADER_DIR}")
+    endif()
+
     target_compile_definitions(MaterialXGraphEditor PRIVATE
         MATERIALX_BUILD_RENDER_CYCLES
-        CYCLES_SHADER_DIR="${Cycles_SHADER_DIR}")
+        CYCLES_SHADER_DIR="${MATERIALX_CYCLES_SHADER_DIR}")
 endif()
 
 if(APPLE)
