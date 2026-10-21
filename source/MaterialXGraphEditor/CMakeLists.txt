@@ -97,6 +97,7 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
         list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
         set(MATERIALX_CYCLES_SHADER_DIR "${CYCLES_BUILD_SHADER_DIR}")
         add_dependencies(MaterialXGraphEditor cycles_build_shaders)
+        set(_materialx_cycles_embedded TRUE)
     else()
         find_package(Cycles CONFIG REQUIRED)
         list(APPEND MATERIALX_LIBRARIES Cycles::cycles)
@@ -125,9 +126,58 @@ target_link_libraries(
     ${MATERIALX_LIBRARIES}
  	glfw_minimal)
 
+# The Cycles precompiled libraries use DT_RUNPATH="$ORIGIN" and depend on
+# siblings in other directories, so the executable cannot resolve them through
+# its own rpath. Copy the whole dependency closure next to the executable and
+# point the rpaths at "$ORIGIN" so that it runs without LD_LIBRARY_PATH.
+if(MATERIALX_BUILD_RENDER_CYCLES AND MATERIALX_CYCLES_BUNDLE_RUNTIME AND _materialx_cycles_embedded AND RPATH_RELATIVE_SYMBOL)
+    # cycles_shared's build-tree rpath points at the original precompiled
+    # directories, which would bypass the bundled copies, so override it.
+    set_target_properties(cycles_shared PROPERTIES
+        BUILD_RPATH "${RPATH_RELATIVE_SYMBOL}"
+        INSTALL_RPATH "${RPATH_RELATIVE_SYMBOL}")
+
+    get_target_property(_materialx_build_rpath MaterialXGraphEditor BUILD_RPATH)
+    if(NOT _materialx_build_rpath)
+        set(_materialx_build_rpath "")
+    endif()
+    set_target_properties(MaterialXGraphEditor PROPERTIES
+        BUILD_RPATH "${RPATH_RELATIVE_SYMBOL};${_materialx_build_rpath}"
+        INSTALL_RPATH "${RPATH_RELATIVE_SYMBOL}")
+
+    add_custom_command(TARGET MaterialXGraphEditor POST_BUILD
+        COMMAND "${CMAKE_COMMAND}"
+            "-DEXECUTABLE=$<TARGET_FILE:MaterialXGraphEditor>"
+            "-DDESTINATION=$<TARGET_FILE_DIR:MaterialXGraphEditor>"
+            "-DEXTRA_LIBRARIES=$<TARGET_FILE:Cycles::cycles>"
+            "-DCOPY_FILES=$<TARGET_SONAME_FILE:Cycles::cycles>"
+            "-DDIRECTORIES=${CYCLES_BUNDLED_LIBRARY_DIRS}"
+            "-DCYCLES_LIBRARY_DIR=$<TARGET_FILE_DIR:Cycles::cycles>"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/BundleCyclesRuntime.cmake"
+        COMMENT "Bundling Cycles runtime libraries beside MaterialXGraphEditor"
+        VERBATIM)
+    # Re-run the bundle when the script changes.
+    set_property(TARGET MaterialXGraphEditor APPEND PROPERTY LINK_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/BundleCyclesRuntime.cmake")
+endif()
+
 install(TARGETS MaterialXGraphEditor
     EXPORT MaterialX
     RUNTIME DESTINATION ${MATERIALX_INSTALL_BIN_PATH})
+if(MATERIALX_BUILD_RENDER_CYCLES AND MATERIALX_CYCLES_BUNDLE_RUNTIME AND _materialx_cycles_embedded)
+    # Install the libraries bundled beside the build-tree executable. Using the
+    # actual build output directory handles multi-config generators; the install
+    # prefix is resolved at install time so that --prefix works.
+    install(CODE
+        "file(GLOB _materialx_cycles_runtime_libs
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.so*\"
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.dylib*\"
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.dll\")
+         if(_materialx_cycles_runtime_libs)
+            file(INSTALL \${_materialx_cycles_runtime_libs}
+                DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_BIN_PATH}\")
+         endif()")
+endif()
 if(MSVC)
     install(FILES $<TARGET_PDB_FILE:MaterialXGraphEditor>
             DESTINATION ${MATERIALX_INSTALL_BIN_PATH} OPTIONAL)
