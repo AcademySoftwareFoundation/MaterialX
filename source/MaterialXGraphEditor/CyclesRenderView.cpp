@@ -199,9 +199,42 @@ std::string customizeOslForCycles(const std::string& source)
     replaceAll(result, "vector2(u,v)", "mx_cycles_uv()");
     replaceAll(result, "vector(u,v,0)", "vector(mx_cycles_uv(), 0)");
 
-    // Replace the MaterialX tangent (which relies on the unbound OSL dPdu).
-    replaceAll(result, "normalize(transform(geomprop_Tworld_space, dPdu))",
-               "mx_cycles_tangent(geomprop_Tworld_space)");
+    // Replace the MaterialX tangent, which relies on the OSL dPdu global that
+    // Cycles does not bind. The variable holding the space input is named after
+    // the node and input (e.g. "geomprop_Tworld_space"), but the reduced
+    // shader interface used by this view may append a "_tmp" suffix to
+    // constant inputs, so match any identifier instead of a fixed name.
+    auto replaceTangent = [](std::string& text)
+    {
+        const std::string call = "normalize(transform(";
+        const std::string tail = ", dPdu))";
+        auto isIdentifierChar = [](char c)
+        {
+            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                   (c >= '0' && c <= '9') || c == '_';
+        };
+        size_t pos = 0;
+        while ((pos = text.find(call, pos)) != std::string::npos)
+        {
+            size_t idEnd = pos + call.size();
+            while (idEnd < text.size() && isIdentifierChar(text[idEnd]))
+            {
+                ++idEnd;
+            }
+            if (idEnd > pos + call.size() && text.compare(idEnd, tail.size(), tail) == 0)
+            {
+                const std::string space = text.substr(pos + call.size(), idEnd - (pos + call.size()));
+                const std::string replacement = "mx_cycles_tangent(" + space + ")";
+                text.replace(pos, (idEnd + tail.size()) - pos, replacement);
+                pos += replacement.size();
+            }
+            else
+            {
+                pos += call.size();
+            }
+        }
+    };
+    replaceTangent(result);
 
     // Cycles' OSL shading system does not implement the OSL standard library's
     // anisotropic_vdf closure, which the generated open_pbr_surface uses for
@@ -1253,6 +1286,14 @@ void CyclesRenderView::initContext(mx::GenContext& context)
     unitSystem->setUnitConverterRegistry(unitRegistry);
     context.getShaderGenerator().setUnitSystem(unitSystem);
     context.getOptions().targetDistanceUnit = "meter";
+
+    // Publish only the shader's nodedef interface as parameters. The default
+    // COMPLETE interface exposes every unconnected input on every node, which
+    // for textured or layered materials easily exceeds the 64-input limit of
+    // Cycles' NodeType (SocketModifiedFlags is a 64-bit mask) and trips an
+    // assertion. The graph editor regenerates the shader whenever values
+    // change, so per-node runtime uniforms are not needed.
+    context.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
 
     // Register type definitions.
     context.getShaderGenerator().registerTypeDefs(_document);
