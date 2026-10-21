@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
+#include <MaterialXGraphEditor/GlslRenderView.h>
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
@@ -108,20 +109,16 @@ std::string getUserNodeDefName(const std::string& val)
     return result;
 }
 
-static void EnableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glEnable(GL_FRAMEBUFFER_SRGB);
-}
-static void DisableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glDisable(GL_FRAMEBUFFER_SRGB);
-}
-
 static float getUiScaleFromFont()
 {
     const float fontSize = ImGui::GetFontSize();
     return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
 }
+
+// The set of render backends that can be selected from the Viewer menu.
+const std::vector<std::string> RENDER_BACKENDS = {
+    "GLSL"
+};
 
 } // anonymous namespace
 
@@ -177,21 +174,68 @@ Graph::Graph(const std::string& materialFilename,
     createNodeUIList(_stdLib);
     initializeGraph();
 
-    // Create a renderer using the initial startup document.
-    mx::FilePath captureFilename = "resources/Materials/Examples/example.png";
-    std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
-    _renderer = std::make_shared<RenderView>(_graphDoc, _stdLib, meshFilename, envRadianceFilename,
-                                             _searchPath, viewWidth, viewHeight);
-    _renderer->initialize();
-    for (const std::string& ext : _renderer->getImageHandler()->supportedExtensions())
+    // Store the render view initialization information.
+    _meshFilename = meshFilename;
+    _envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
+    _viewWidth = viewWidth;
+    _viewHeight = viewHeight;
+
+
+    // Create the initial render view.
+    createRenderView("GLSL");
+}
+
+void Graph::setRenderBackend(const std::string& backendName)
+{
+    if (_renderer && backendName == _renderer->getBackendName())
     {
-        _imageFilter.emplace_back("." + ext);
+        return;
     }
-    _renderer->updateMaterials(nullptr);
-    for (const std::string& incl : _renderer->getXincludeFiles())
+    createRenderView(backendName);
+}
+
+void Graph::createRenderView(const std::string& backendName)
+{
+    // Reuse an existing render view for this backend when available, so that
+    // OpenGL resources are not torn down and rebuilt on every backend switch.
+    auto renderViewIt = _renderViews.find(backendName);
+    if (renderViewIt == _renderViews.end())
     {
-        _xincludeFiles.insert(incl);
+        // Create a render view for the requested backend.
+        RenderViewBasePtr renderView;
+        if (backendName == "GLSL")
+        {
+            renderView = std::make_shared<GlslRenderView>(_graphDoc, _stdLib, _meshFilename.asString(),
+                                                          _envRadianceFilename.asString(), _searchPath,
+                                                          _viewWidth, _viewHeight);
+        }
+        else
+        {
+            std::cerr << "Unsupported render backend: " << backendName << std::endl;
+            return;
+        }
+
+        renderView->initialize();
+
+        _imageFilter.clear();
+        for (const std::string& ext : renderView->getImageHandler()->supportedExtensions())
+        {
+            _imageFilter.emplace_back("." + ext);
+        }
+
+        _xincludeFiles.clear();
+        for (const std::string& incl : renderView->getXincludeFiles())
+        {
+            _xincludeFiles.insert(incl);
+        }
+
+        _renderViews[backendName] = renderView;
     }
+
+    _renderer = _renderViews[backendName];
+
+    // Refresh the materials for the newly active backend.
+    updateMaterials();
 }
 
 mx::ElementPredicate Graph::getElementPredicate() const
@@ -802,7 +846,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
             // Note that if there is a topogical change due to
             // this value change or a transparency change, then
             // this is not currently caught here.
-            _renderer->getMaterials()[0]->modifyUniform(name, value);
+            _renderer->modifyUniform(name, value);
         }
     }
 }
@@ -2577,9 +2621,6 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
     UiNodePtr uiDownNode = _state.nodes[downNode];
     UiNodePtr uiUpNode = _state.nodes[upNode];
 
-    // Make sure there is an implementation for node
-    const mx::ShaderGenerator& shadergen = _renderer->getGenContext().getShaderGenerator();
-
     // Prevent direct connecting from input to output
     if (uiDownNode->getInput() && uiUpNode->getOutput())
     {
@@ -2595,8 +2636,7 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
     }
     else if (uiUpNode->getNode())
     {
-        mx::ShaderNodeImplPtr impl = shadergen.getImplementation(*_state.nodes[upNode]->getNode()->getNodeDef(), _renderer->getGenContext());
-        if (!impl)
+        if (!_renderer->isNodeDefSupported(_state.nodes[upNode]->getNode()->getNodeDef()))
         {
             showLabel("Invalid Connection: Node does not have an implementation", ImColor(50, 50, 50, 255));
             return false;
@@ -3214,6 +3254,19 @@ void Graph::graphButtons()
             {
                 loadGeometry();
             }
+            ImGui::Separator();
+            if (ImGui::BeginMenu("Render Backend"))
+            {
+                const std::string activeBackend = _renderer ? _renderer->getBackendName() : mx::EMPTY_STRING;
+                for (const std::string& backend : RENDER_BACKENDS)
+                {
+                    if (ImGui::MenuItem(backend.c_str(), nullptr, backend == activeBackend))
+                    {
+                        setRenderBackend(backend);
+                    }
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndMenu();
         }
 
@@ -3332,16 +3385,15 @@ void Graph::graphButtons()
     if (_renderer)
     {
         // Enable sRGB conversion for framebuffer ONLY when drawing material preview
-        ImGui::GetWindowDrawList()->AddCallback(EnableSRGBCallback, nullptr);
+        _renderer->beginFrameDisplay();
 
         _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
-        GLuint64 my_image_texture = _renderer->_textureID;
-        mx::Vector2 vec = _renderer->getViewCamera()->getViewportSize();
+        GLuint64 my_image_texture = _renderer->getRenderTextureId();
 
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
 
         // Disable sRGB conversion for all other imgui ui components.
-        ImGui::GetWindowDrawList()->AddCallback(DisableSRGBCallback, nullptr);
+        _renderer->endFrameDisplay();
     }
 
     ImGui::Separator();

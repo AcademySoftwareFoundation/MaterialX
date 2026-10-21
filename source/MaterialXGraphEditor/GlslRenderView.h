@@ -3,8 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_RENDERVIEW_H
-#define MATERIALX_RENDERVIEW_H
+#ifndef MATERIALX_GLSLRENDERVIEW_H
+#define MATERIALX_GLSLRENDERVIEW_H
+
+#include <MaterialXGraphEditor/RenderViewBase.h>
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslMaterial.h>
@@ -15,8 +17,8 @@
 
 namespace mx = MaterialX;
 
-class RenderView;
-using RenderViewPtr = std::shared_ptr<RenderView>;
+class GlslRenderView;
+using GlslRenderViewPtr = std::shared_ptr<GlslRenderView>;
 
 class DocumentModifiers
 {
@@ -26,20 +28,26 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
-class RenderView
+class GlslRenderView : public RenderViewBase
 {
   public:
-    RenderView(mx::DocumentPtr doc,
-               mx::DocumentPtr stdLib,
-               const std::string& meshFilename,
-               const std::string& envRadianceFilename,
-               const mx::FileSearchPath& searchPath,
-               int viewWidth,
-               int viewHeight);
-    ~RenderView() = default;
+    GlslRenderView(mx::DocumentPtr doc,
+                   mx::DocumentPtr stdLib,
+                   const std::string& meshFilename,
+                   const std::string& envRadianceFilename,
+                   const mx::FileSearchPath& searchPath,
+                   int viewWidth,
+                   int viewHeight);
+    ~GlslRenderView() = default;
+
+    // Return the name of this render backend.
+    std::string getBackendName() const override
+    {
+        return "GLSL";
+    }
 
     // Initialize the viewer for rendering.
-    void initialize();
+    void initialize() override;
 
     // Set the method for specular environment rendering.
     void setSpecularEnvironmentMethod(mx::HwSpecularEnvironmentMethod method)
@@ -81,38 +89,14 @@ class RenderView
         return _materialSearchPath;
     }
 
-    // Set the view width.
-    void setViewWidth(int width)
-    {
-        _viewWidth = width;
-    }
-
-    // Return the view width.
-    int getViewWidth() const
-    {
-        return _viewWidth;
-    }
-
-    // Set the view height.
-    void setViewHeight(int height)
-    {
-        _viewHeight = height;
-    }
-
-    // Return the view height.
-    int getViewHeight() const
-    {
-        return _viewHeight;
-    }
-
     // Return the pixel ratio.
-    float getPixelRatio() const
+    float getPixelRatio() const override
     {
         return _pixelRatio;
     }
 
     // Return the active image handler.
-    mx::ImageHandlerPtr getImageHandler() const
+    mx::ImageHandlerPtr getImageHandler() const override
     {
         return _imageHandler;
     }
@@ -152,25 +136,25 @@ class RenderView
         return _materials;
     }
 
-    mx::CameraPtr getViewCamera()
+    mx::CameraPtr getViewCamera() override
     {
         return _viewCamera;
     }
 
-    const mx::StringSet& getXincludeFiles() const
+    const mx::StringSet& getXincludeFiles() const override
     {
         return _xincludeFiles;
     }
 
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath& filename)
+    void requestFrameCapture(const mx::FilePath& filename) override
     {
         _captureRequested = true;
         _captureFilename = filename;
     }
 
     // Request that the viewer be closed after the next frame is rendered.
-    void requestExit()
+    void requestExit() override
     {
         _exitRequested = true;
     }
@@ -185,40 +169,37 @@ class RenderView
         _cameraZoom = amount;
     }
 
-    bool getMaterialCompilation()
+    // Return the OpenGL texture ID of the most recently rendered frame.
+    unsigned int getRenderTextureId() const override
     {
-        return _materialCompilation;
+        return _textureID;
     }
 
-    void setMaterialCompilation(bool mat)
-    {
-        _materialCompilation = mat;
-    }
+    // Called before the rendered frame is drawn by ImGui.
+    void beginFrameDisplay() override;
 
-    void drawContents();
-    unsigned int _textureID;
+    // Called after the rendered frame is drawn by ImGui.
+    void endFrameDisplay() override;
+
+    // Return true if the given node definition is supported by the GLSL backend.
+    bool isNodeDefSupported(const mx::NodeDefPtr& nodeDef) override;
+
+    // Update a uniform in the currently selected material.
+    void modifyUniform(const std::string& name, mx::ValuePtr value) override;
+
+    void drawContents() override;
     void reloadShaders();
 
-    void setDocument(mx::DocumentPtr document);
+    void setDocument(mx::DocumentPtr document) override;
     void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
-    void updateMaterials(mx::TypedElementPtr typedElem);
-    void setMouseButtonEvent(int button, bool down, mx::Vector2 pos);
-    void setMouseMotionEvent(mx::Vector2 pos);
-    void setKeyEvent(int key);
-    void setScrollEvent(float scrollY);
+    void updateMaterials(mx::TypedElementPtr typedElem) override;
+    void setMouseButtonEvent(int button, bool down, mx::Vector2 pos) override;
+    void setMouseMotionEvent(mx::Vector2 pos) override;
+    void setKeyEvent(int key) override;
+    void setScrollEvent(float scrollY) override;
     void setMaterial(mx::TypedElementPtr elem);
 
-    void loadMesh(const mx::FilePath& filename);
-
-    unsigned int getFrame() const
-    {
-        return _frame;
-    }
-
-    void setFrame(unsigned int frame)
-    {
-        _frame = frame;
-    }
+    void loadMesh(const mx::FilePath& filename) override;
 
   private:
     void initContext(mx::GenContext& context);
@@ -267,9 +248,8 @@ class RenderView
     float _cameraZoom;
 
     float _pixelRatio;
-    int _viewWidth;
-    int _viewHeight;
     mx::GLFramebufferPtr _renderFrame;
+    unsigned int _textureID;
 
     mx::Vector3 _userTranslation;
     mx::Vector3 _userTranslationStart;
@@ -328,9 +308,6 @@ class RenderView
     // Mesh options
     bool _splitByUdims;
 
-    // Material options
-    bool _materialCompilation;
-
     // Unit options
     mx::StringVec _distanceUnitOptions;
     mx::LinearUnitConverterPtr _distanceUnitConverter;
@@ -346,7 +323,6 @@ class RenderView
 
     // Time and frame
     mx::ScopedTimer _timer;
-    unsigned int _frame;
 };
 
 extern const mx::Vector3 DEFAULT_CAMERA_POSITION;

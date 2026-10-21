@@ -8,10 +8,14 @@
 
 #include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/Layout.h>
-#include <MaterialXGraphEditor/RenderView.h>
+#include <MaterialXGraphEditor/RenderViewBase.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
+#include <MaterialXRender/Util.h>
+
 #include <imgui_node_editor.h>
+
+#include <map>
 
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
@@ -116,7 +120,7 @@ class Graph
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
-    RenderViewPtr getRenderer()
+    RenderViewBasePtr getRenderer()
     {
         return _renderer;
     }
@@ -295,6 +299,12 @@ class Graph
     void saveGraphToFile();
     void loadGeometry();
 
+    // Set the active render backend, re-creating the render view as needed.
+    void setRenderBackend(const std::string& backendName);
+
+    // Create a render view for the given backend name.
+    void createRenderView(const std::string& backendName);
+
     // Initialize the graph state from the current document.
     void initializeGraph();
 
@@ -335,12 +345,23 @@ class Graph
     mx::StringVec _mtlxFilter;
     mx::StringVec _imageFilter;
 
-    RenderViewPtr _renderer;
+    RenderViewBasePtr _renderer;
+
+    // Render views by backend name, kept alive across backend switches so that
+    // OpenGL resources are not torn down and rebuilt on every switch.
+    std::unordered_map<std::string, RenderViewBasePtr> _renderViews;
 
     // document and initializing information
     mx::FilePath _materialFilename;
     mx::DocumentPtr _graphDoc;
     mx::StringSet _xincludeFiles;
+
+    // render view initialization information
+    mx::FilePath _meshFilename;
+    mx::FilePath _envRadianceFilename;
+    int _viewWidth = 0;
+    int _viewHeight = 0;
+
 
     mx::FileSearchPath _searchPath;
     mx::FilePathVec _libraryFolders;
