@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <limits>
+#include <chrono>
 
 namespace
 {
@@ -34,6 +35,7 @@ const std::string options =
     "    --font [FILENAME]              Specify the name of the custom font file to use.  If not specified the default font will be used.\n"
     "    --fontSize [SIZE]              Specify font size to use for the custom font.  If not specified a default of 18 will be used.\n"
     "    --captureFilename [FILENAME]   Specify the filename to which the first rendered frame should be written\n"
+    "    --renderBackend [NAME]         Specify the initial render backend (e.g. GLSL, OSL, Cycles)\n"
     "    --previewWidth [WIDTH]         Specify the width for image previews\n"
     "    --pinsOnBorder [true|false]    Specify whether node pins should be drawn on the border of nodes (true) or inside the node (false).  Default is true.\n"
     "    --pinShape [circle|flow]       Specify the shape of node pins (circle, flow).  Default is circle.\n"
@@ -77,6 +79,7 @@ int main(int argc, char* const argv[])
     int fontSize = 18;
     float previewWidth = 256.0f;
     std::string captureFilename;
+    std::string renderBackend;
     bool pinsOnBorder = true;
     std::string pinShape = "circle";
 
@@ -128,6 +131,10 @@ int main(int argc, char* const argv[])
         else if (token == "--captureFilename")
         {
             parseToken(nextToken, "string", captureFilename);
+        }
+        else if (token == "--renderBackend")
+        {
+            parseToken(nextToken, "string", renderBackend);
         }
         else if (token == "--pinsOnBorder")
         {
@@ -253,6 +260,10 @@ int main(int argc, char* const argv[])
                              previewWidth,
                              pinsOnBorder,
                              pinShape);
+    if (!renderBackend.empty())
+    {
+        graph->setRenderBackend(renderBackend);
+    }
     if (!captureFilename.empty())
     {
         graph->getRenderer()->requestFrameCapture(captureFilename);
@@ -281,6 +292,9 @@ int main(int argc, char* const argv[])
     editorStyle.LinkStrength  = 125.0f;
 
     // Main loop
+    const double captureStart = std::chrono::duration<double>(
+                                    std::chrono::steady_clock::now().time_since_epoch())
+                                    .count();
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -295,7 +309,16 @@ int main(int argc, char* const argv[])
         renderer->drawContents();
         if (!captureFilename.empty())
         {
-            break;
+            // Some render backends (e.g. Cycles) render asynchronously, so wait
+            // until a frame is available and give the renderer time to capture.
+            const double now = std::chrono::duration<double>(
+                                   std::chrono::steady_clock::now().time_since_epoch())
+                                   .count();
+            if ((renderer->getRenderTextureId() != 0 && now - captureStart > 2.5) ||
+                now - captureStart > 30.0)
+            {
+                break;
+            }
         }
 
         double xpos = 0.0;
@@ -308,6 +331,10 @@ int main(int argc, char* const argv[])
     }
 
     // Cleanup
+    // Destroy the graph (and its render views / render threads) while the
+    // OpenGL context is still current, then tear down ImGui and GLFW.
+    delete graph;
+    graph = nullptr;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

@@ -5,6 +5,9 @@
 
 #include <MaterialXGraphEditor/Graph.h>
 #include <MaterialXGraphEditor/GlslRenderView.h>
+#ifdef MATERIALX_BUILD_RENDER_CYCLES
+#include <MaterialXGraphEditor/CyclesRenderView.h>
+#endif
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
@@ -118,6 +121,9 @@ static float getUiScaleFromFont()
 // The set of render backends that can be selected from the Viewer menu.
 const std::vector<std::string> RENDER_BACKENDS = {
     "GLSL"
+#ifdef MATERIALX_BUILD_RENDER_CYCLES
+    , "Cycles"
+#endif
 };
 
 } // anonymous namespace
@@ -209,6 +215,14 @@ void Graph::createRenderView(const std::string& backendName)
                                                           _envRadianceFilename.asString(), _searchPath,
                                                           _viewWidth, _viewHeight);
         }
+#ifdef MATERIALX_BUILD_RENDER_CYCLES
+        else if (backendName == "Cycles")
+        {
+            renderView = std::make_shared<CyclesRenderView>(_graphDoc, _stdLib, _meshFilename.asString(),
+                                                            _envRadianceFilename.asString(), _searchPath,
+                                                            _viewWidth, _viewHeight);
+        }
+#endif
         else
         {
             std::cerr << "Unsupported render backend: " << backendName << std::endl;
@@ -223,12 +237,6 @@ void Graph::createRenderView(const std::string& backendName)
             _imageFilter.emplace_back("." + ext);
         }
 
-        _xincludeFiles.clear();
-        for (const std::string& incl : renderView->getXincludeFiles())
-        {
-            _xincludeFiles.insert(incl);
-        }
-
         _renderViews[backendName] = renderView;
     }
 
@@ -236,6 +244,11 @@ void Graph::createRenderView(const std::string& backendName)
 
     // Refresh the materials for the newly active backend.
     updateMaterials();
+
+    for (const std::string& incl : _renderer->getXincludeFiles())
+    {
+        _xincludeFiles.insert(incl);
+    }
 }
 
 mx::ElementPredicate Graph::getElementPredicate() const
