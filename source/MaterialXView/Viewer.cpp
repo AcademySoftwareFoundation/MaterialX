@@ -1521,6 +1521,10 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                 }
             }
        
+            // Track explicit bindings so UDIM selection cannot replace them with
+            // a different material that happens to use the same tile.
+            std::unordered_map<mx::MeshPartitionPtr, mx::NodePtr> explicitMaterialNodes;
+
             // Apply material assignments in the order in which they are declared within the document,
             // with later assignments superseding earlier ones.
             for (mx::LookPtr look : doc->getLooks())
@@ -1542,6 +1546,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                                 if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
                                 {
                                     assignMaterial(part, mat);
+                                    explicitMaterialNodes[part] = mat->getMaterialNode();
                                     break;
                                 }
                             }
@@ -1554,6 +1559,7 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                                 if (mat->getMaterialNode() == matAssign->getReferencedMaterial())
                                 {
                                     assignMaterial(part, mat);
+                                    explicitMaterialNodes[part] = mat->getMaterialNode();
                                     break;
                                 }
                             }
@@ -1587,6 +1593,14 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
                         {
                             if (geom->getName() == udim)
                             {
+                                // Refine an explicit binding only with UDIM variants of
+                                // that material, rather than another material on the tile.
+                                auto explicitMaterial = explicitMaterialNodes.find(geom);
+                                if (explicitMaterial != explicitMaterialNodes.end() &&
+                                    explicitMaterial->second != materialNode)
+                                {
+                                    continue;
+                                }
                                 assignMaterial(geom, mat);
                             }
                         }
