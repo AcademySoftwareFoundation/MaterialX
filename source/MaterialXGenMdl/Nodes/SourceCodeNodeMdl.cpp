@@ -24,6 +24,17 @@ ShaderNodeImplPtr SourceCodeNodeMdl::create()
     return std::make_shared<SourceCodeNodeMdl>();
 }
 
+bool SourceCodeNodeMdl::isInputUsed(const ShaderInput& input) const
+{
+    if (!_inlined)
+    {
+        return true;
+    }
+
+    const string marker = "{{" + input.getName() + "}}";
+    return _functionSource.find(marker) != string::npos;
+}
+
 void SourceCodeNodeMdl::resolveSourceCode(const InterfaceElement& /*element*/, GenContext& /*context*/)
 {
     // Initialize without fetching the source code from file.
