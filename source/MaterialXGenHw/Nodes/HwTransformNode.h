@@ -26,6 +26,7 @@ class MX_GENHW_API HwTransformNode : public ShaderNodeImpl
     virtual const string& getWorldToModelMatrix() const = 0;
     virtual string getHomogeneousCoordinate() const = 0;
     virtual bool shouldNormalize() const { return false; }
+    virtual void emitNormalizeCall(const ShaderOutput* output, GenContext& context, ShaderStage& stage) const;
 
     virtual string getFromSpace(const ShaderNode&) const;
     virtual string getToSpace(const ShaderNode&) const;

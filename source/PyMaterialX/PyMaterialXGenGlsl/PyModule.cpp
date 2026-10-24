@@ -11,7 +11,6 @@ void bindPyGlslShaderGenerator(py::module& mod);
 void bindPyGlslResourceBindingContext(py::module &mod);
 void bindPyEsslShaderGenerator(py::module& mod);
 void bindPyVkShaderGenerator(py::module& mod);
-void bindPyWgslShaderGenerator(py::module& mod);
 
 PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 {
@@ -25,5 +24,4 @@ PYBIND11_MODULE(PyMaterialXGenGlsl, mod)
 
     bindPyEsslShaderGenerator(mod);
     bindPyVkShaderGenerator(mod);
-    bindPyWgslShaderGenerator(mod);
 }

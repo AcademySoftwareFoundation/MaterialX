@@ -18,6 +18,8 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [genmsl](stdlib/genmsl): MSL language support.
         - [lib](stdlib/genmsl/lib) : Shader utility files.
         - [stdlib_genmsl_impl.mtlx](stdlib/genmsl/stdlib_genmsl_impl.mtlx) : Mapping from declarations to implementations.
+    - [genwgsl](stdlib/genwgsl): WGSL language support (WebGPU). Most `.wgsl` files are **generated** from `genglsl` by [`mxgenwgsl.py`](../source/MaterialXGenWgsl/tools/mxgenwgsl.py); see [WGSL Shader Generation](../documents/DeveloperGuide/WGSLShaderGeneration.md). Hand-written files are listed in [`skip_transpile.txt`](../source/MaterialXGenWgsl/tools/skip_transpile.txt). OCIO GPU fragments (when built with `MATERIALX_BUILD_OCIO=ON`) live under `genwgsl/ocio/`.
+        - [stdlib_genwgsl_impl.mtlx](stdlib/genwgsl/stdlib_genwgsl_impl.mtlx) : Mapping from declarations to implementations.
 
 ## Physically Based Shading Library
 - [pbrlib](pbrlib)
@@ -33,6 +35,8 @@ This folder contains the standard data libraries for MaterialX, providing declar
         - [pbrlib_genmdl_impl.mtlx](pbrlib/genmdl/pbrlib_genmdl_impl.mtlx) : Mapping from declarations to implementations.
     - [genmsl](pbrlib/genmsl) : MSL language support
         - [pbrlib_genmsl_impl.mtlx](pbrlib/genmsl/pbrlib_genmsl_impl.mtlx) : Mapping from declarations to implementations.
+    - [genwgsl](pbrlib/genwgsl) : WGSL language support (generated from `genglsl`; see [WGSL Shader Generation](../documents/DeveloperGuide/WGSLShaderGeneration.md)).
+        - [pbrlib_genwgsl_impl.mtlx](pbrlib/genwgsl/pbrlib_genwgsl_impl.mtlx) : Mapping from declarations to implementations.
 
 ## BxDF Graph Library
 - [bxdf](bxdf)
@@ -40,6 +44,11 @@ This folder contains the standard data libraries for MaterialX, providing declar
     - [gltf_pbr.mtlx](bxdf/gltf_pbr.mtlx) : Graph definition of the [glTF PBR](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#appendix-b-brdf-implementation) shading model.
     - [usd_preview_surface.mtlx](bxdf/usd_preview_surface.mtlx) : Graph definition of the [UsdPreviewSurface](https://openusd.org/release/spec_usdpreviewsurface.html) shading model.
     - [lama](bxdf/lama) : Graph definitions of the [MaterialX Lama](https://rmanwiki.pixar.com/display/REN24/MaterialX+Lama) node set.
+
+## Light Shaders Library
+- [lights](lights)
+    - Light shader node definitions and implementations for hardware targets.
+    - [genwgsl](lights/genwgsl) : Hand-written WGSL light shaders (`mx_*_light.wgsl`; see [`skip_transpile.txt`](../source/MaterialXGenWgsl/tools/skip_transpile.txt)).
 
 ## Color Management Library
 - MaterialX shader generation natively supports a small set of common spaces for input colors, with all color transforms implemented as language-independent MaterialX graphs.The canonical definitions of these color transforms may be found in the following ASWF Color Interop Forum [Recommendation](https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/01_TextureAssetColorSpaces/TextureAssetColorSpaces.md).
@@ -54,12 +63,14 @@ This folder contains the standard data libraries for MaterialX, providing declar
   - OSL : `genosl`
   - MDL : `genmdl`
   - MSL : `genmsl`
+  - WGSL : `genwgsl` ([`genwgsl.mtlx`](targets/genwgsl.mtlx))
 - Any additional target files should be added under this folder and loaded in as required.
 
 ### Target Support
 - GLSL target support is for version 4.0 or higher.
 - OSL target support is for version 1.12.6 or higher.
 - MDL target support is for version 1.6 or higher.
+- WGSL target support follows the [WebGPU Shading Language](https://www.w3.org/TR/WGSL/) specification; enable with `-DMATERIALX_BUILD_GEN_WGSL=ON` (see [WGSL Shader Generation](../documents/DeveloperGuide/WGSLShaderGeneration.md)).
 - Basic GLSL and MSL `lightshader` node definitions and implementations are provided for the following light types:
     - point, directional, spot
 - Shader generation does not currently support:
