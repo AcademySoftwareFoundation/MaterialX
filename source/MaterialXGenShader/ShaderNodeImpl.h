@@ -53,6 +53,9 @@ class MX_GENSHADER_API ShaderNodeImpl
         return _hash;
     }
 
+    /// Append a suffix to the function name of this implementation, updating its hash.
+    virtual void setFunctionNameSuffix(const string& suffix, GenContext& context);
+
     /// Add additional inputs on a node.
     virtual void addInputs(ShaderNode& node, GenContext& context) const;
 

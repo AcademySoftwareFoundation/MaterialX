@@ -34,6 +34,10 @@ void ShaderNodeImpl::initialize(const InterfaceElement& element, GenContext&)
     _hash = std::hash<string>{}(_name);
 }
 
+void ShaderNodeImpl::setFunctionNameSuffix(const string&, GenContext&)
+{
+}
+
 void ShaderNodeImpl::addInputs(ShaderNode&, GenContext&) const
 {
 }
