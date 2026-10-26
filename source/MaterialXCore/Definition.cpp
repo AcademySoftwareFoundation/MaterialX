@@ -192,8 +192,12 @@ ConstInterfaceElementPtr Implementation::getDeclaration(const string&) const
 StringVec TargetDef::getMatchingTargets() const
 {
     StringVec result = { getName() };
+    StringSet visited = { getName() };
     ElementPtr base = getInheritsFrom();
-    while (base)
+
+    // Stop at the first repeated target, so that a cyclic inheritance chain
+    // returns each target once instead of looping forever.
+    while (base && visited.insert(base->getName()).second)
     {
         result.push_back(base->getName());
         base = base->getInheritsFrom();

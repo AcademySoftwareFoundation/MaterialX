@@ -334,6 +334,47 @@ TEST_CASE("Inheritance", "[nodedef]")
         nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
+TEST_CASE("TargetDef inheritance cycle", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    SECTION("inheritance chain")
+    {
+        mx::readFromXmlString(doc, R"(<?xml version="1.0"?>
+<materialx>
+  <targetdef name="T1"/>
+  <targetdef name="T2" inherit="T1"/>
+</materialx>
+)");
+        REQUIRE(doc->getTargetDef("T2")->getMatchingTargets() == mx::StringVec{ "T2", "T1" });
+    }
+
+    SECTION("self cycle")
+    {
+        mx::readFromXmlString(doc, R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_x" node="foo"/>
+  <targetdef name="T" inherit="T"/>
+</materialx>
+)");
+        REQUIRE(doc->getTargetDef("T")->getMatchingTargets() == mx::StringVec{ "T" });
+        REQUIRE(doc->getNodeDef("ND_x")->getImplementation("T") == nullptr);
+    }
+
+    SECTION("mutual cycle")
+    {
+        mx::readFromXmlString(doc, R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_x" node="foo"/>
+  <targetdef name="T1" inherit="T2"/>
+  <targetdef name="T2" inherit="T1"/>
+</materialx>
+)");
+        REQUIRE(doc->getTargetDef("T1")->getMatchingTargets() == mx::StringVec{ "T1", "T2" });
+        REQUIRE(doc->getNodeDef("ND_x")->getImplementation("T1") == nullptr);
+    }
+}
+
 TEST_CASE("Topological sort", "[nodegraph]")
 {
     // Create a document.
