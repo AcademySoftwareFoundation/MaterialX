@@ -99,7 +99,16 @@ export material mx_oren_nayar_diffuse_bsdf(
 ) [[
     anno::usage( "materialx:bsdf")
 ]]
-= material(
+= let {
+    // MDL adds multiscatter_tint independently of the single-scatter tint.
+    // Match the color-dependent EON compensation used by the HW implementation.
+    float roughness = math::clamp(mxp_roughness, 0.0, 1.0);
+    color albedo = math::clamp(mxp_color, color(0.0), color(1.0));
+    float A = 1.0 / (1.0 + (0.5 - 2.0 / (3.0 * math::PI)) * roughness);
+    float avg_albedo = A * (1.0 + (2.0 / 3.0 - 28.0 / (15.0 * math::PI)) * roughness);
+    color multiscatter_tint = albedo * albedo * avg_albedo /
+        (color(1.0) - albedo * (1.0 - avg_albedo));
+} in material(
     surface: material_surface(
         // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
@@ -107,7 +116,7 @@ export material mx_oren_nayar_diffuse_bsdf(
             layer: df::diffuse_reflection_bsdf(
                 tint: mxp_color,
                 roughness: mxp_roughness,
-                multiscatter_tint: mxp_energy_compensation ? color(1.0) : color(0.0)
+                multiscatter_tint: mxp_energy_compensation ? multiscatter_tint : color(0.0)
             ),
             base: mxp_base.surface.scattering,
             normal: mxp_normal
