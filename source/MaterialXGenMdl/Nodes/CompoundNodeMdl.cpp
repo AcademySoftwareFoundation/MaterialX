@@ -41,6 +41,18 @@ void CompoundNodeMdl::initialize(const InterfaceElement& element, GenContext& co
     }
 }
 
+void CompoundNodeMdl::setFunctionNameSuffix(const string& suffix, GenContext& context)
+{
+    CompoundNode::setFunctionNameSuffix(suffix, context);
+
+    // Keep the return struct name in step with the function name, so that
+    // specialized instances of a nodegraph define distinct structs.
+    if (!_returnStruct.empty())
+    {
+        _returnStruct = _functionName + "__result";
+    }
+}
+
 void CompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const
 {
     DEFINE_SHADER_STAGE(stage, Stage::PIXEL)
