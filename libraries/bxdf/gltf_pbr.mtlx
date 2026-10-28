@@ -355,7 +355,7 @@
     <input name="scale" type="vector2" value="1, 1" uifolder="Image" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" uifolder="Image" />
     <input name="offset" type="vector2" value="0, 0" uifolder="Image" />
-    <input name="operationorder" type="integer" value="1" uifolder="Image" />
+    <input name="operationorder" type="integer" value="0" uifolder="Image" />
     <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
     <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" uifolder="Image" />
     <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" uifolder="Image" />
@@ -374,9 +374,9 @@
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />
       <input name="offset" type="vector2" interfacename="offset" />
-      <input name="operationorder" type="integer" value="0" />
-      <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
       <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </gltf_image>
     <multiply name="modulate_color" type="color4">
@@ -470,7 +470,7 @@
     <input name="scale" type="vector2" value="1, 1" />
     <input name="rotate" type="float" value="0" unit="degree" unittype="angle" uimin="0" uimax="360" />
     <input name="offset" type="vector2" value="0, 0" />
-    <input name="operationorder" type="integer" value="1" />
+    <input name="operationorder" type="integer" value="0" />
     <input name="uaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
     <input name="vaddressmode" type="string" uniform="true" value="periodic" enum="constant,clamp,periodic,mirror" />
     <input name="filtertype" type="string" uniform="true" value="linear" enum="closest,linear,cubic" />
@@ -744,9 +744,9 @@
       <input name="scale" type="vector2" interfacename="scale" />
       <input name="rotate" type="float" interfacename="rotate" />
       <input name="offset" type="vector2" interfacename="offset" />
-      <input name="operationorder" type="integer" value="0" />
-      <input name="uaddressmode" type="string" uniform="true" value="periodic" />
-      <input name="vaddressmode" type="string" uniform="true" value="periodic" />
+      <input name="operationorder" type="integer" interfacename="operationorder" />
+      <input name="uaddressmode" type="string" uniform="true" interfacename="uaddressmode" />
+      <input name="vaddressmode" type="string" uniform="true" interfacename="vaddressmode" />
       <input name="filtertype" type="string" uniform="true" interfacename="filtertype" />
     </gltf_image>
     <separate3 name="separate3" type="multioutput">
