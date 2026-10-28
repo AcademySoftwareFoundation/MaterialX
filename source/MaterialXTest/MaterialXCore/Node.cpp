@@ -334,6 +334,70 @@ TEST_CASE("Inheritance", "[nodedef]")
         nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
+TEST_CASE("Default Instance", "[nodedef]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, doc);
+    REQUIRE(doc->validate());
+
+    // When a node instance has no explicit version and multiple exact matches
+    // are available, prefer a single nodedef marked as the default version.
+    mx::NodeDefPtr ambiguousDefV1 = doc->addNodeDef("ND_ambiguous_a", "float", "ambiguous");
+    ambiguousDefV1->setNodeGroup(mx::NodeDef::PROCEDURAL_NODE_GROUP);
+    ambiguousDefV1->setVersionString("1.0");
+    ambiguousDefV1->addInput("value", "float");
+    mx::NodePtr ambiguousNodeV1 = doc->addNode("ambiguous", mx::EMPTY_STRING, "float");
+    ambiguousNodeV1->setVersionString("1.0");
+    REQUIRE(ambiguousNodeV1->getNodeDef() == ambiguousDefV1);
+
+    mx::NodeDefPtr ambiguousDefV2 = doc->addNodeDef("ND_ambiguous_b", "float", "ambiguous");
+    ambiguousDefV2->setNodeGroup(mx::NodeDef::PROCEDURAL_NODE_GROUP);
+    ambiguousDefV2->setDefaultVersion(true);
+    ambiguousDefV2->setVersionString("2.0");
+    ambiguousDefV2->addInput("value", "float");
+
+    mx::NodePtr ambiguousNodeV2 = doc->addNode("ambiguous", mx::EMPTY_STRING, "float");
+    ambiguousNodeV2->addInput("value", "float");
+    REQUIRE(ambiguousNodeV2->getNodeDef() == ambiguousDefV2);
+
+    // Modify <normalmap> make second nodedef in the list the default version.
+    // instead of being order dependent resulting in choosing
+    // the first one found in Node::getNodeDef().
+    mx::NodePtr normalmapNode = doc->addNode("normalmap", mx::EMPTY_STRING, "vector3");
+    normalmapNode->addInputsFromNodeDef();
+    mx::InputPtr normalmapNodeScaleInput = normalmapNode->getInput("scale");
+    const std::string previousScaleType = normalmapNodeScaleInput->getType();  
+
+    std::vector<mx::NodeDefPtr> nodeDefs = doc->getMatchingNodeDefs(normalmapNode->getQualifiedName(normalmapNode->getCategory()));
+    std::string defaultScaleType = mx::EMPTY_STRING;
+    bool isFirstNodeDef = true;
+    for (auto nodeDef : nodeDefs)
+    {
+        if (isFirstNodeDef)
+        {
+            nodeDef->setDefaultVersion(false);
+            isFirstNodeDef = false;
+            continue;
+        }
+
+        nodeDef->setDefaultVersion(true);
+        mx::InputPtr scaleInput = nodeDef->getInput("scale");
+        if (defaultScaleType.empty() && scaleInput)
+        {
+            defaultScaleType = scaleInput->getType();
+        }
+    }
+
+    // Check new logic and compare against definition returned with a default being set
+    mx::NodePtr normalmapNodeDefault = doc->addNode("normalmap", mx::EMPTY_STRING, "vector3");
+    normalmapNodeDefault->addInputsFromNodeDef();
+    mx::InputPtr normalmapNodeDefaultScaleInput = normalmapNodeDefault->getInput("scale");
+    REQUIRE(normalmapNodeDefaultScaleInput->getType() == defaultScaleType);
+
+    REQUIRE(defaultScaleType != previousScaleType);
+}
+
 TEST_CASE("Topological sort", "[nodegraph]")
 {
     // Create a document.
