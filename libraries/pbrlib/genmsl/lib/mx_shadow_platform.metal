@@ -11,3 +11,9 @@ float mx_shadow_occlusion(
     float2 shadowMoments = texture(shadow_map_tex, shadowCoord.xy).xy;
     return mx_variance_shadow_occlusion(shadowMoments, shadowCoord.z);
 }
+
+float2 mx_compute_depth_moments()
+{
+    float depth = gl_FragCoord.z;
+    return float2(depth, mx_square(depth));
+}
