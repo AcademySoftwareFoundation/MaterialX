@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGenGlsl/WgslShaderGenerator.h>
+#include <MaterialXGenWgsl/WgslShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
 
 #include <emscripten/bind.h>
@@ -22,6 +22,6 @@ namespace
 
 EMSCRIPTEN_BINDINGS(WgslShaderGenerator)
 {
-    ems::class_<mx::WgslShaderGenerator, ems::base<mx::GlslShaderGenerator>>("WgslShaderGenerator")
+    ems::class_<mx::WgslShaderGenerator, ems::base<mx::HwShaderGenerator>>("WgslShaderGenerator")
         .class_function("create", &WgslShaderGenerator_create);
 }

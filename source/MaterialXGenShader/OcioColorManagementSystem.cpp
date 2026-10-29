@@ -72,9 +72,18 @@ class OcioColorManagementSystemImpl
     {
         if (_implementations.count(implName))
         {
+            if (_shaderNodeImplFactory)
+            {
+                return _shaderNodeImplFactory();
+            }
             return OcioNode::create();
         }
         return {};
+    }
+
+    void setShaderNodeImplFactory(OcioShaderNodeImplFactory factory)
+    {
+        _shaderNodeImplFactory = std::move(factory);
     }
 
     string getGpuProcessorCode(const string& implName, const string& functionName) const;
@@ -96,6 +105,8 @@ class OcioColorManagementSystemImpl
     // config fallback below would re-parse that config on every lookup, and
     // populateColorTransformMap performs up to four such lookups per color port.
     mutable std::map<string, string> _resolvedColorSpaceNames;
+
+    OcioShaderNodeImplFactory _shaderNodeImplFactory;
 };
 
 const char* OcioColorManagementSystemImpl::getSupportedColorSpaceName(const char* colorSpace) const
@@ -291,7 +302,7 @@ string OcioColorManagementSystemImpl::getGpuProcessorCode(const string& implName
 
     // TODO: Extend to essl and MDL and possibly SLang.
     bool isOSL = false;
-    if (_target == "genglsl")
+    if (_target == "genglsl" || _target == "genwgsl")
     {
         shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_4_0);
     }
@@ -348,7 +359,7 @@ string OcioColorManagementSystemImpl::getGpuProcessorCode(const string& implName
 
 OcioColorManagementSystemPtr OcioColorManagementSystem::createFromEnv(string target)
 {
-    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    if (target != "genglsl" && target != "genmsl" && target != "genosl" && target != "genwgsl")
     {
         throw std::runtime_error("OCIO does not support this target");
     }
@@ -359,7 +370,7 @@ OcioColorManagementSystemPtr OcioColorManagementSystem::createFromEnv(string tar
 
 OcioColorManagementSystemPtr OcioColorManagementSystem::createFromFile(const string& filename, string target)
 {
-    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    if (target != "genglsl" && target != "genmsl" && target != "genosl" && target != "genwgsl")
     {
         throw std::runtime_error("OCIO does not support this target");
     }
@@ -370,7 +381,7 @@ OcioColorManagementSystemPtr OcioColorManagementSystem::createFromFile(const str
 
 OcioColorManagementSystemPtr OcioColorManagementSystem::createFromBuiltinConfig(const string& configName, string target)
 {
-    if (target != "genglsl" && target != "genmsl" && target != "genosl")
+    if (target != "genglsl" && target != "genmsl" && target != "genosl" && target != "genwgsl")
     {
         throw std::runtime_error("OCIO does not support this target");
     }
@@ -444,9 +455,19 @@ ShaderNodeImplPtr OcioColorManagementSystem::createImplementation(const string& 
     return _impl->createImplementation(implName);
 }
 
+void OcioColorManagementSystem::setShaderNodeImplFactory(OcioShaderNodeImplFactory factory)
+{
+    _impl->setShaderNodeImplFactory(std::move(factory));
+}
+
 string OcioColorManagementSystem::getGpuProcessorCode(const string& implName, const string& functionName) const
 {
     return _impl->getGpuProcessorCode(implName, functionName);
+}
+
+NodeDefPtr OcioColorManagementSystem::ensureTransformNodeDef(const ColorSpaceTransform& transform) const
+{
+    return getNodeDef(transform);
 }
 
 MATERIALX_NAMESPACE_END

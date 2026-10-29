@@ -32,8 +32,9 @@ To enable OpenImageIO and OpenColorIO support in MaterialX builds, the following
 
 - `MATERIALX_BUILD_OIIO`: Requests that MaterialXRender be built with OpenImageIO in addition to stb_image, extending the set of supported image formats.  The minimum supported version of OpenImageIO is 2.2.
 - `MATERIALX_BUILD_OCIO`: Requests that MaterialXGenShader be built with support for custom OpenColorIO color spaces and transforms.  The minimum supported version of OpenColorIO is 2.4.
+- `MATERIALX_BUILD_GEN_WGSL`: Builds the native WGSL (`genwgsl`) shader generator and transpiles the WGSL node library from `genglsl` (requires Python and [naga](https://github.com/gfx-rs/wgpu/tree/trunk/naga) when generating). See [WGSL Shader Generation](WGSLShaderGeneration.md).
 
-See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, and MDL.
+See the [MaterialX Unit Tests](https://github.com/AcademySoftwareFoundation/MaterialX/tree/main/source/MaterialXTest) page for documentation on shader generation and render testing in GLSL, OSL, MDL, and WGSL.
 
 ### Building MaterialX Python
 
