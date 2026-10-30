@@ -6,6 +6,7 @@
 #include <MaterialXGenShader/ShaderGenerator.h>
 
 #include <MaterialXGenShader/GenContext.h>
+#include <MaterialXGenShader/ShaderGraph.h>
 #include <MaterialXGenShader/ShaderNodeImpl.h>
 #include <MaterialXGenShader/Nodes/CompoundNode.h>
 #include <MaterialXGenShader/Nodes/SourceCodeNode.h>
@@ -326,8 +327,22 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
 
     const string& name = implElement->getName();
 
+    // Cache nodegraph implementations by target color space and filename transforms.
+    string cacheName = name;
+    string suffix;
+    if (implElement->isA<NodeGraph>())
+    {
+        const string targetColorSpace = ShaderGraph::getTargetColorSpace(context);
+        suffix = ShaderGraph::getColorTransformSuffix(nodedef, targetColorSpace, context);
+        if (!targetColorSpace.empty())
+        {
+            cacheName += "@" + targetColorSpace;
+        }
+        cacheName += suffix;
+    }
+
     // Check if it's created and cached already.
-    ShaderNodeImplPtr impl = context.findNodeImplementation(name);
+    ShaderNodeImplPtr impl = context.findNodeImplementation(cacheName);
     if (impl)
     {
         return impl;
@@ -360,9 +375,13 @@ ShaderNodeImplPtr ShaderGenerator::getImplementation(const NodeDef& nodedef, Gen
     }
 
     impl->initialize(*implElement, context);
+    if (!suffix.empty())
+    {
+        impl->setFunctionNameSuffix(suffix, context);
+    }
 
     // Cache it.
-    context.addNodeImplementation(name, impl);
+    context.addNodeImplementation(cacheName, impl);
 
     return impl;
 }

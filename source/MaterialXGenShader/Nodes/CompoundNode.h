@@ -21,6 +21,8 @@ class MX_GENSHADER_API CompoundNode : public ShaderNodeImpl
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
 
+    void setFunctionNameSuffix(const string& suffix, GenContext& context) override;
+
     void addClassification(ShaderNode& node) const override;
 
     void createVariables(const ShaderNode& node, GenContext& context, Shader& shader) const override;
