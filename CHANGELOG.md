@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.39.6] - Development
+## [1.39.6] - Release Candidate
 
 ### Added
 - Added [scattering equations](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2964) and [shading model definitions](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2998) to the PBR specification, defining the mathematical foundations of each BSDF, EDF, and VDF node and the functional composition of Standard Surface, UsdPreviewSurface, glTF PBR, and OpenPBR Surface.
@@ -33,6 +33,7 @@
 - Eliminated [unused code](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3071) in generated MDL shaders, resolving compiler warnings.
 - Moved shared variance shadow code into [platform libraries](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3108) for GLSL, MSL, and Slang, enabling its transpilation to WGSL.
 - Optimized the [lookup of reserved identifiers](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3107) in shader generation.
+- Optimized [inheritance traversal](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3103) in document validation, skipping the traversal for elements without an inherit string and computing qualified graph names once during implementation lookup.
 - Migrated [JavaScript unit tests](https://github.com/AcademySoftwareFoundation/MaterialX/pull/2952) to Playwright, harmonizing on a single test framework for both unit and browser tests.
 - Updated [runner images](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3111) in GitHub CI, moving the oldest builds to MacOS 15 and Ubuntu 24.04 and raising the minimum Node version for JavaScript builds to 20.9.
 - Moved the nightly build into a [dedicated GitHub CI workflow](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3113) that runs [only in the ASWF repository](https://github.com/AcademySoftwareFoundation/MaterialX/pull/3093).
