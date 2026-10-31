@@ -1543,15 +1543,22 @@ surfaceshader standard_surface(
     vector3 main_rotated = normalize(rotate3d(tangent, specular_rotation * 360.0, normal));
     vector3 main_tangent = if (specular_anisotropy > 0.0) { main_rotated } else { tangent };
 
-    // Specular transmission (refraction), blended in by 'transmission'.
-    BSDF transmission_lobe = dielectric_bsdf(
-        tint = transmission_color,
-        ior = specular_IOR,
-        roughness = transmission_roughness,
-        normal = normal,
-        tangent = main_tangent,
-        scatter_mode = "T");
-    BSDF transmission_layer = mix(transmission_lobe, sheen_layer, transmission);
+    // Specular transmission (refraction) through the interior volume, with a thin-film twin blended
+    // in by 'thin_film_weight' and layered over the volume, then blended into the opaque base by
+    // 'transmission_weight'. The tint reverts to white once a finite depth carries color through
+    // the volume instead.
+    color3 transmission_tint = if (transmission_depth > 0.0) { color3(1.0) } else { transmission_color };
+    BSDF dielectric_transmission = dielectric_bsdf(
+      tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
+      normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T");
+    BSDF dielectric_transmission_tf = dielectric_bsdf(
+      tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
+      normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T",
+      thinfilm_thickness = thin_film_thickness_nm, thinfilm_ior = thin_film_ior);
+    BSDF dielectric_transmission_mix =
+      mix(dielectric_transmission_tf, dielectric_transmission, thin_film_weight);
+      BSDF dielectric_transmission_vol = layer(dielectric_transmission_mix, dielectric_volume);
+      BSDF dielectric_substrate = mix(dielectric_transmission_vol, opaque_base, transmission_weight);
 
     // Dielectric specular reflection, layered over the result, with optional thin-film.
     BSDF specular_lobe = dielectric_bsdf(
