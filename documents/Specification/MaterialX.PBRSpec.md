@@ -1965,7 +1965,7 @@ This is an open surface shading model that was designed as a collaboration betwe
 
 ### OpenPBR Surface Shader Definition
 
-This definition documents version 1.1.1 of the OpenPBR Surface model, and the associated nodegraph implementation is provided in the data libraries as [open_pbr_surface.mtlx](../../libraries/bxdf/open_pbr_surface.mtlx).
+This definition documents version 1.1.2 of the OpenPBR Surface model, and the associated nodegraph implementation is provided in the data libraries as [open_pbr_surface.mtlx](../../libraries/bxdf/open_pbr_surface.mtlx).
 
 The specular and coat roughness inputs are remapped by `open_pbr_anisotropy` rather than the standard [&lt;roughness_anisotropy>](#node-roughness-anisotropy) node used by the other models; its definition follows after the model below.
 
