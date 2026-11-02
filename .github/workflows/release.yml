@@ -11,7 +11,7 @@ jobs:
 
   release:
     name: Release Signing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
        RELEASE_TAG: ${{ github.ref_name }}
     permissions:

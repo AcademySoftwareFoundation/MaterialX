@@ -3,10 +3,18 @@ name: main
 on:
   push:
   pull_request:
-  schedule:
-    # Nightly build
-    - cron: '30 10 * * *'
+  workflow_call:
+    inputs:
+      extended:
+        description: Run the extended build, with additional dependencies and tests
+        type: boolean
+        default: false
   workflow_dispatch:
+    inputs:
+      extended:
+        description: Run the extended build, with additional dependencies and tests
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -19,17 +27,15 @@ jobs:
 
   build:
     name: Build
-    # Skip nightly (scheduled) builds on forks
-    if: github.event.repository.fork == false || github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     env:
-      IS_EXTENDED_BUILD: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      IS_EXTENDED_BUILD: ${{ inputs.extended == true }}
     strategy:
       fail-fast: false
       matrix:
         include:
         - name: Linux_GCC_10_Python39
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           compiler: gcc
           compiler_version: "10"
           python: 3.9
@@ -58,10 +64,10 @@ jobs:
           coverage_analysis: ON
           cmake_config: -DMATERIALX_COVERAGE_ANALYSIS=ON -DMATERIALX_BUILD_RENDER=OFF -DMATERIALX_BUILD_PYTHON=OFF
 
-        - name: Linux_Clang_13_Python39
-          os: ubuntu-22.04
+        - name: Linux_Clang_14_Python39
+          os: ubuntu-24.04
           compiler: clang
-          compiler_version: "13"
+          compiler_version: "14"
           python: 3.9
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON
 
@@ -72,10 +78,10 @@ jobs:
           python: 3.14
           clang_format: ON
 
-        - name: MacOS_Xcode_15_Python311
-          os: macos-14
+        - name: MacOS_Xcode_16_Python311
+          os: macos-15
           compiler: xcode
-          compiler_version: "15.4"
+          compiler_version: "16.0"
           cmake_config: -DMATERIALX_BUILD_SHARED_LIBS=ON -DMATERIALX_BUILD_DATA_LIBRARY=ON
           python: 3.11
 
@@ -445,9 +451,7 @@ jobs:
 
   javascript:
     name: JavaScript
-    # Skip nightly (scheduled) builds on forks
-    if: github.event.repository.fork == false || github.event_name != 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
@@ -507,7 +511,7 @@ jobs:
 
   sdist:
     name: Python SDist
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: github.repository == 'AcademySoftwareFoundation/MaterialX'
     outputs:
       sdist_filename: ${{ steps.generate.outputs.filename }}
@@ -543,7 +547,13 @@ jobs:
       fail-fast: false
       matrix:
         python-minor: ['9', '10', '11', '12', '13', '14']
-        os: ['ubuntu-24.04', 'windows-2022', 'macos-15']
+        os: ['ubuntu-24.04', 'windows-2022', 'windows-11-arm', 'macos-15']
+        exclude:
+          # Python 3.9 and 3.10 are not available for Windows ARM64 in actions/setup-python.
+          - os: 'windows-11-arm'
+            python-minor: '9'
+          - os: 'windows-11-arm'
+            python-minor: '10'
 
     steps:
     - name: Sync Repository
@@ -591,5 +601,5 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
-        name: MaterialX_Python_Wheel_${{ runner.os }}_3_${{ matrix.python-minor }}
+        name: MaterialX_Python_Wheel_${{ matrix.os == 'windows-11-arm' && 'Windows_ARM64' || runner.os }}_3_${{ matrix.python-minor }}
         path: wheelhouse/*.whl
