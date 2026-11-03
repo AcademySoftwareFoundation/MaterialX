@@ -15,9 +15,3 @@ float mx_variance_shadow_occlusion(vec2 moments, float fragmentDepth)
     float pMax = variance / (variance + mx_square(d));
     return max(p, pMax);
 }
-
-vec2 mx_compute_depth_moments()
-{
-    float depth = gl_FragCoord.z;
-    return vec2(depth, mx_square(depth));
-}

@@ -11,6 +11,8 @@
 
 #include <MaterialXCore/Definition.h>
 
+#include <set>
+
 MATERIALX_NAMESPACE_BEGIN
 
 ShaderNodeImplPtr ClosureCompoundNodeMdl::create()
@@ -38,7 +40,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
         if (!_returnStruct.empty() && _unrollReturnStructMembers)
         {
             // make sure the upstream definitions are known
-            for (const ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
+            for (ShaderGraphOutputSocket* outputSocket : _rootGraph->getOutputSockets())
             {
                 if (!outputSocket->getConnection())
                     continue;
@@ -65,9 +67,20 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 // Function body.
                 shadergen.emitScopeBegin(stage);
 
-                // Emit all texturing nodes. These are inputs to the
-                // closure nodes and need to be emitted first.
-                shadergen.emitFunctionCalls(*_rootGraph, context, stage, ShaderNode::Classification::TEXTURE);
+                // Emit only texturing nodes upstream of this output field.
+                std::set<const ShaderNode*> upstreamNodes;
+                for (ShaderGraphEdge edge : ShaderGraph::traverseUpstream(outputSocket->getConnection()))
+                {
+                    upstreamNodes.insert(edge.upstream->getNode());
+                }
+                for (const ShaderNode* child : _rootGraph->getNodes())
+                {
+                    if (upstreamNodes.count(child) &&
+                        child->hasClassification(ShaderNode::Classification::TEXTURE))
+                    {
+                        shadergen.emitFunctionCall(*child, context, stage);
+                    }
+                }
 
                 // Emit function calls for internal closures nodes connected to the graph sockets.
                 // These will in turn emit function calls for any dependent closure nodes upstream.

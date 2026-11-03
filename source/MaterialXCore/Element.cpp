@@ -378,6 +378,10 @@ bool Element::hasInheritedBase(ConstElementPtr base) const
 
 bool Element::hasInheritanceCycle() const
 {
+    if (!hasInheritString())
+    {
+        return false;
+    }
     try
     {
         for (ConstElementPtr elem : traverseInheritance()) { }
