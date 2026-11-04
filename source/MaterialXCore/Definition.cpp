@@ -7,6 +7,8 @@
 
 #include <MaterialXCore/Document.h>
 
+#include <MaterialXCore/Node.h>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const string COLOR_SEMANTIC = "color";
@@ -156,6 +158,86 @@ ConstInterfaceElementPtr NodeDef::getDeclaration(const string&) const
     return getSelf()->asA<InterfaceElement>();
 }
 
+StringVec NodeDef::getMatchingDefinitions() const
+{
+    StringVec result = { getName() };
+    ElementPtr base = getInheritsFrom();
+    while (base)
+    {
+        result.push_back(base->getName());
+        base = base->getInheritsFrom();
+    }
+    return result;
+}
+
+bool NodeDef::hasSharedImplementation(const string& target) const
+{
+    bool hasSharedImplementations = false;
+
+    StringVec definitionNames = getMatchingDefinitions();
+    StringSet implementationNames;
+    for (const string& definitionName : definitionNames)
+    {
+        NodeDefPtr definition = getDocument()->getNodeDef(definitionName);
+        InterfaceElementPtr implementation = definition ? definition->getImplementation(target) : nullptr;
+        if (implementation)
+        {
+            const string& implementationName = implementation->getName();
+            if (implementationNames.find(implementationName) != implementationNames.end())
+            {
+                hasSharedImplementations = true;
+                break;
+            }
+            else
+            {
+                implementationNames.insert(implementationName);
+            }
+        }    
+    }
+    return hasSharedImplementations;
+}
+
+InterfaceElementPtr  NodeDef::inlineImplementation(const string& target, bool requireExclusive)
+{
+    // Do not allow inlining if shared implementations exist and exclusivity is required.
+    if (requireExclusive && hasSharedImplementation(target))
+    {
+        return nullptr;
+    }
+
+    InterfaceElementPtr impl = getImplementation(target);
+    if (!impl)
+    {
+        return nullptr;
+    }
+    
+    // Firewall check to only support functional nodegraphs for now.
+    StringSet supportedCategories = { Implementation::NODE_GRAPH_ATTRIBUTE };
+    if (supportedCategories.find(impl->getCategory()) == supportedCategories.end())
+    {
+        return nullptr;
+    }
+    
+    string newImplName = impl->getName();
+    newImplName = createValidChildName(newImplName);
+    ElementPtr newImpl= addChildOfCategory(impl->getCategory(), newImplName);
+    if (!newImpl)
+    {
+        return nullptr;
+    }
+
+    InterfaceElementPtr newInterface = newImpl->asA<InterfaceElement>();
+    if (newInterface)
+    {
+        // Remove the definition back-reference otherwise the existing implementation will be
+        // used instead of the new child implementation.
+        impl->removeAttribute(InterfaceElement::NODE_DEF_ATTRIBUTE);
+
+        newImpl->copyContentFrom(impl);
+    }
+    return newInterface;
+}
+
 //
 // Implementation methods
 //
@@ -174,6 +256,12 @@ void Implementation::setNodeDef(ConstNodeDefPtr nodeDef)
 
 NodeDefPtr Implementation::getNodeDef() const
 {
+    ElementPtr parent = getSelfNonConst()->getParent();
+    NodeDefPtr nodedef = parent->asA<NodeDef>();
+    if (nodedef)
+    {
+        return nodedef;
+    }
     return resolveNameReference<NodeDef>(getNodeDefString());
 }
 
