@@ -18,6 +18,10 @@
 
 #import <Metal/Metal.h>
 
+#if !__has_feature(objc_arc)
+#error "MaterialXRenderMsl must be compiled with ARC enabled"
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 namespace
@@ -278,13 +282,13 @@ id<MTLRenderPipelineState> MslProgram::build(id<MTLDevice> device, MetalFramebuf
 
         psoDesc.vertexDescriptor = vd;
 
+        MTLRenderPipelineReflection *reflection = nil;
         _pso = [device newRenderPipelineStateWithDescriptor:psoDesc
                                                     options:MTLPipelineOptionArgumentInfo | MTLPipelineOptionBufferTypeInfo
-                                                 reflection:&_psoReflection
+                                                 reflection:&reflection
                                                       error:&error];
 
-        [_pso retain];
-        [_psoReflection retain];
+        _psoReflection = reflection;
 
         if (error)
         {
@@ -525,15 +529,7 @@ void MslProgram::unbindGeometry()
 {
     // Clean up buffers
     //
-    for (const auto& attributeBufferId : _attributeBufferIds)
-    {
-        [attributeBufferId.second release];
-    }
     _attributeBufferIds.clear();
-    for (const auto& indexBufferId : _indexBufferIds)
-    {
-        [indexBufferId.second release];
-    }
     _indexBufferIds.clear();
 }
 
@@ -1432,16 +1428,7 @@ void MslProgram::bindUniformBuffers(id<MTLRenderCommandEncoder> renderCmdEncoder
 
 void MslProgram::reset()
 {
-    if (_pso != nil)
-    {
-        [_pso release];
-    }
     _pso = nil;
-
-    if (_psoReflection != nil)
-    {
-        [_psoReflection release];
-    }
     _psoReflection = nil;
 
     // Program deleted, so also clear cached input lists

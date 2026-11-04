@@ -237,7 +237,7 @@ stdlib.delete();
 genContext.delete();
 gen.delete();
 ```
-Shader generation options may be changed by getting the options from the context and altering its properties. Changes to these options must occur after the standard libraries have been loaded as the call to `mx.loadStandardLibraries(genContext)` sets the options to some defaults.
+Shader generation options may be changed by getting the options from the context and altering its properties. Changes to these options must occur after the standard libraries have been loaded as the call to `mx.loadStandardLibraries(genContext)` sets the options to some defaults. As an example, `fileTextureVerticalFlip` may be left false by web clients that flip images vertically on upload (as in the MaterialX Web Viewer), compensating for the lower-left origin of texture space in MaterialX.
 ```javascript
 genContext.getOptions().fileTextureVerticalFlip = false;
 ```

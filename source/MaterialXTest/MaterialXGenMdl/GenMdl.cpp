@@ -304,17 +304,8 @@ TEST_CASE("GenShader: MDL Shader Generation", "[genmdl]")
     mx::GenOptions genOptions;
     genOptions.targetColorSpaceOverride = "lin_rec709_scene";
 
-    // Flipping the texture lookups for the test renderer only.
-    // This is because OSL testrender does not allow to change the UV layout of their sphere (yet) and the MaterialX test suite
-    // adopts the OSL behavior in order to produce comparable results. This means that raw texture coordinates, or procedurals
-    // that use the texture coordinates, do not match what might be expected when reading the MaterialX spec:
-    //    "[...] the image is mapped onto the geometry based on geometry UV coordinates, with the lower-left corner of an image
-    //     mapping to the (0,0) UV coordinate [...]"
-    // This means for MDL: here, and only here in the test suite, we flip the UV coordinates of mesh using the `--uv_flip` option
-    // of the renderer, and to correct the image orientation, we apply `fileTextureVerticalFlip`.
-    // In regular MDL integrations this is not needed because MDL and MaterialX define the texture space equally with the origin
-    // at the bottom left.
-    genOptions.fileTextureVerticalFlip = true;
+    // No texture coordinate flips are required for MDL, since MDL and MaterialX
+    // define texture space equally, with the origin at the lower left.
 
     mx::FilePath optionsFilePath = searchPath.find("resources/Materials/TestSuite/_options.mtlx");
 

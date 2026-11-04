@@ -8,6 +8,7 @@
 
 #include <MaterialXTest/MaterialXGenShader/GenShaderUtil.h>
 
+#include <MaterialXRender/GeometryHandler.h>
 #include <MaterialXRender/Mesh.h>
 #include <MaterialXRender/ImageHandler.h>
 #include <MaterialXRender/Timer.h>
@@ -205,6 +206,11 @@ struct RenderProfileResult
     bool success = true;
 };
 
+// Resolve the given render geometry to a full file path, falling back to the
+// default sphere when no geometry is specified.
+mx::FilePath findRenderGeometry(const mx::FilePath& renderGeometry,
+                                const mx::FileSearchPath& searchPath);
+
 // Base class used for performing compilation and render tests for a given
 // shading language and target.
 //
@@ -246,6 +252,11 @@ class ShaderRenderTester
                                 const GenShaderUtil::TestSuiteOptions &/*options*/,
                                 mx::GenContext& /*context*/) {};
 
+    // Set any target-specific generation options, e.g. the vertical flip of
+    // file texture lookups compensating for the image origin of the target.
+    // Called once when the generation context for the test run is created.
+    virtual void setTargetGenerationOptions(mx::GenOptions& /*options*/) {};
+
     //
     // Code validation methods (compile and render)
     //
@@ -272,6 +283,10 @@ class ShaderRenderTester
 
     // If these streams don't exist add them for testing purposes
     void addAdditionalTestStreams(mx::MeshPtr mesh);
+
+    // Load the given geometry into the given handler, if not already present,
+    // adding any additional streams required for testing.
+    void loadRenderGeometry(mx::GeometryHandlerPtr geomHandler, const mx::FilePath& geomPath);
 
     // Add any paths to explicitly skip here
     virtual void addSkipFiles()

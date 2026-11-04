@@ -9,6 +9,10 @@
 
 #include <iostream>
 
+#if !__has_feature(objc_arc)
+#error "MaterialXRenderMsl must be compiled with ARC enabled"
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 MetalTextureHandler::MetalTextureHandler(id<MTLDevice> device, ImageLoaderPtr imageLoader) :
@@ -17,6 +21,7 @@ MetalTextureHandler::MetalTextureHandler(id<MTLDevice> device, ImageLoaderPtr im
     int maxTextureUnits = 31;
     _boundTextureLocations.resize(maxTextureUnits, MslProgram::UNDEFINED_METAL_RESOURCE_ID);
     _device = device;
+    _commandQueue = [device newCommandQueue];
 }
 
 bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
@@ -163,8 +168,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texture = _metalTextureMap[image->getResourceId()];
     }
 
-    id<MTLCommandQueue> cmdQueue = [_device newCommandQueue];
-    id<MTLCommandBuffer> cmdBuffer = [cmdQueue commandBuffer];
+    id<MTLCommandBuffer> cmdBuffer = [_commandQueue commandBuffer];
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
@@ -252,9 +256,6 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
 
-    if (buffer)
-        [buffer release];
-
     return true;
 }
 
@@ -279,11 +280,6 @@ void MetalTextureHandler::releaseRenderResources(ImagePtr image)
 
     unbindImage(image);
     unsigned int resourceId = image->getResourceId();
-    auto tex = _metalTextureMap.find(resourceId);
-    if (tex != _metalTextureMap.end())
-    {
-        [tex->second release];
-    }
     _metalTextureMap.erase(resourceId);
     image->setResourceId(MslProgram::UNDEFINED_METAL_RESOURCE_ID);
 }

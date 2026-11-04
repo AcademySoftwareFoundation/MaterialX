@@ -9,6 +9,11 @@
 #include <MaterialXFormat/Util.h>
 #include <MaterialXFormat/XmlIo.h>
 
+#if !defined(_WIN32)
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
 namespace mx = MaterialX;
 
 TEST_CASE("Load content", "[xmlio]")
@@ -370,4 +375,55 @@ TEST_CASE("Locale region testing", "[xmlio]")
 
     // Restore the original locale.
     std::locale::global(origLocale);
+}
+
+TEST_CASE("Write with created directories", "[xmlio]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::NodeGraphPtr nodeGraph = doc->addNodeGraph("nodegraph1");
+    nodeGraph->addNode("image", "image1");
+
+    mx::FilePath tempDir = mx::FilePath::createTemporaryDirectory();
+    mx::FilePath filename = tempDir / "new" / "nested" / "directory" / "document.mtlx";
+    REQUIRE(!filename.getParentPath().exists());
+
+    // By default, no directories are created, and the write fails.
+    mx::XmlWriteOptions writeOptions;
+    REQUIRE_THROWS_AS(mx::writeToXmlFile(doc, filename, &writeOptions), mx::ExceptionFileMissing);
+    REQUIRE(!filename.exists());
+
+    // With the createDirectories option, the parent hierarchy is created.
+    writeOptions.createDirectories = true;
+    mx::writeToXmlFile(doc, filename, &writeOptions);
+    REQUIRE(filename.getParentPath().isDirectory());
+    REQUIRE(filename.exists());
+
+    // Verify that the written document may be read back without loss.
+    mx::DocumentPtr writtenDoc = mx::createDocument();
+    mx::readFromXmlFile(writtenDoc, filename);
+    REQUIRE(*writtenDoc == *doc);
+
+    // Verify that writing to an existing directory remains supported.
+    mx::FilePath secondFilename = filename.getParentPath() / "document2.mtlx";
+    mx::writeToXmlFile(doc, secondFilename, &writeOptions);
+    REQUIRE(secondFilename.exists());
+
+#if !defined(_WIN32)
+    // Verify that a permission failure is reported as an exception, rather than
+    // silently writing nothing.  The root user bypasses permission checks, so
+    // this case is only meaningful for other users.
+    if (geteuid() != 0)
+    {
+        mx::FilePath readOnlyDir = tempDir / "readOnly";
+        readOnlyDir.createDirectory();
+        REQUIRE(chmod(readOnlyDir.asString().c_str(), 0500) == 0);
+        mx::FilePath deniedFilename = readOnlyDir / "denied" / "document.mtlx";
+        REQUIRE_THROWS_AS(mx::writeToXmlFile(doc, deniedFilename, &writeOptions), mx::ExceptionFileMissing);
+        REQUIRE(!deniedFilename.exists());
+        REQUIRE(chmod(readOnlyDir.asString().c_str(), 0700) == 0);
+    }
+#endif
+
+    REQUIRE(tempDir.removeDirectory(true));
+    REQUIRE(!tempDir.exists());
 }

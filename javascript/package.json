@@ -6,6 +6,6 @@
     "MaterialXView"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9.0"
   }
 }

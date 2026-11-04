@@ -263,18 +263,23 @@ Viewer::Viewer(const std::string& materialFilename,
 #else
     _renderPipeline = GLRenderPipeline::create(this);
     
-    // Set Essl generator options
+    // Set Essl generator options, with file texture lookups left unflipped,
+    // matching web clients such as the MaterialX Web Viewer, which flip
+    // images vertically on upload.
     _genContextEssl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContextEssl.getOptions().fileTextureVerticalFlip = false;
     _genContextEssl.getOptions().hwMaxActiveLightSources = 1;
 #endif
 #if MATERIALX_BUILD_GEN_OSL
-    // Set OSL generator options.
+    // Set OSL generator options, with file texture lookups compensating for
+    // the top-left image origin of OSL texture lookups.
     _genContextOsl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
-    _genContextOsl.getOptions().fileTextureVerticalFlip = false;
+    _genContextOsl.getOptions().fileTextureVerticalFlip = true;
 #endif
 #if MATERIALX_BUILD_GEN_MDL
-    // Set MDL generator options.
+    // Set MDL generator options, with file texture lookups left unflipped,
+    // since MDL and MaterialX define texture space equally, with the origin
+    // at the lower left.
     _genContextMdl.getOptions().targetColorSpaceOverride = "lin_rec709_scene";
     _genContextMdl.getOptions().fileTextureVerticalFlip = false;
 #endif
@@ -424,7 +429,14 @@ void Viewer::loadEnvironmentLight()
         if (_saveGeneratedLights)
         {
             _imageHandler->saveImage("IndirectRadiance.hdr", envRadianceMap);
-            mx::writeToXmlFile(_lightRigDoc, "DirectLightRig.mtlx");
+            try
+            {
+                mx::writeToXmlFile(_lightRigDoc, "DirectLightRig.mtlx");
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save direct light rig", e.what());
+            }
         }
     }
 
@@ -657,10 +669,17 @@ void Viewer::createSaveMaterialsInterface(ng::ref<Widget> parent, const std::str
 
             mx::XmlWriteOptions writeOptions;
             writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
+            try
+            {
+                mx::writeToXmlFile(material->getDocument(), filename, &writeOptions);
 
-            // Update material file name
-            _materialFilename = filename;
+                // Update material file name
+                _materialFilename = filename;
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save material document", e.what());
+            }
         }
         m_process_events = true;
     });
@@ -2023,9 +2042,16 @@ bool Viewer::keyboard_event(int key, int scancode, int action, int modifiers)
 
             mx::XmlWriteOptions writeOptions;
             writeOptions.elementPredicate = getElementPredicate();
-            mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
+            try
+            {
+                mx::writeToXmlFile(translatedDoc, translatedFilename, &writeOptions);
 
-            new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Information, "Saved translated material: ", translatedFilename);
+            }
+            catch (std::exception& e)
+            {
+                new ng::MessageDialog(this, ng::MessageDialog::Type::Warning, "Cannot save translated material", e.what());
+            }
         }
         return true;
     }
