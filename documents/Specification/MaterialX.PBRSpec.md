@@ -2057,14 +2057,20 @@ surfaceshader open_pbr_surface(
     // Thin-film thickness, converted from micrometers to nanometers for the BSDF inputs.
     float thin_film_thickness_nm = thin_film_thickness * 1000.0;
 
-    // Specular transmission (refraction) through the interior volume, blended into the opaque base
-    // by 'transmission_weight'. The tint reverts to white once a finite depth carries color through
-    // the volume instead.
+    // Specular transmission (refraction) through the interior volume, with a thin-film twin blended
+    // in by 'thin_film_weight' and layered over the volume, then blended into the opaque base by
+    // 'transmission_weight'.
     color3 transmission_tint = if (transmission_depth > 0.0) { color3(1.0) } else { transmission_color };
     BSDF dielectric_transmission = dielectric_bsdf(
-        tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
-        normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T");
-    BSDF dielectric_transmission_vol = layer(dielectric_transmission, dielectric_volume);
+    tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
+    normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T");
+    BSDF dielectric_transmission_tf = dielectric_bsdf(
+       tint = transmission_tint, ior = modulated_eta_s, roughness = main_roughness,
+       normal = geometry_normal, tangent = geometry_tangent, scatter_mode = "T",
+       thinfilm_thickness = thin_film_thickness_nm, thinfilm_ior = thin_film_ior);
+    BSDF dielectric_transmission_mix =
+      mix(dielectric_transmission_tf, dielectric_transmission, thin_film_weight);
+    BSDF dielectric_transmission_vol = layer(dielectric_transmission_mix, dielectric_volume);
     BSDF dielectric_substrate = mix(dielectric_transmission_vol, opaque_base, transmission_weight);
 
     // Dielectric specular reflection, with a thin-film twin blended in by 'thin_film_weight',
