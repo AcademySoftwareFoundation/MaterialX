@@ -2,9 +2,11 @@
 <materialx version="1.39" colorspace="lin_rec709" fileprefix="boombox/">
   <gltf_colorimage name="image_basecolor" type="multioutput">
     <input name="file" type="filename" value="BoomBox_baseColor.png" colorspace="srgb_texture" />
+    <input name="color" type="color4" value="1.0, 1.0, 1.0, 1.0" />
   </gltf_colorimage>
   <gltf_image name="image_orm" type="vector3">
     <input name="file" type="filename" value="BoomBox_occlusionRoughnessMetallic.png" />
+    <input name="factor" type="vector3" value="1.0, 1.0, 1.0" />
   </gltf_image>
   <gltf_normalmap name="image_normal" type="vector3">
     <input name="file" type="filename" value="BoomBox_normal.png" />

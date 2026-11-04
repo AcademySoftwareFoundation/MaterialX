@@ -573,6 +573,7 @@
   -->
   <nodedef name="ND_gltf_image_vector3_vector3_1_0" node="gltf_image" version="1.0" isdefaultversion="true" nodegroup="texture2d">
     <input name="file" type="filename" uniform="true" value="" />
+    <input name="factor" type="vector3" value="1,1,1" />
     <input name="default" type="vector3" value="0, 0, 0" />
     <input name="texcoord" type="vector2" defaultgeomprop="UV0" />
     <input name="pivot" type="vector2" value="0, 1" />
@@ -614,7 +615,11 @@
       <input name="offset" type="vector2" nodename="negate_offset" />
       <input name="operationorder" type="integer" interfacename="operationorder" />
     </place2d>
-    <output name="out" type="vector3" nodename="image" />
+    <multiply name="scale_image" type="vector3">
+      <input name="in1" type="vector3" interfacename="factor" />
+      <input name="in2" type="vector3" nodename="image" />
+    </multiply>
+    <output name="out" type="vector3" nodename="scale_image" />
   </nodegraph>
 
   <!---
