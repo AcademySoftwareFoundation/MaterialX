@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodedef name="ND_inner_position_vector3" node="inner_position">
+    <input name="scale" type="float" value="1.0" />
+    <output name="out" type="vector3" />
+  </nodedef>
+  <nodegraph name="NG_inner_position_vector3" nodedef="ND_inner_position_vector3">
+    <position name="pos" type="vector3" />
+    <multiply name="scaled" type="vector3">
+      <input name="in1" type="vector3" nodename="pos" />
+      <input name="in2" type="float" interfacename="scale" />
+    </multiply>
+    <output name="out" type="vector3" nodename="scaled" />
+  </nodegraph>
+  <nodedef name="ND_outer_position_color3" node="outer_position">
+    <input name="scale" type="float" value="1.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodegraph name="NG_outer_position_color3" nodedef="ND_outer_position_color3">
+    <inner_position name="inner" type="vector3">
+      <input name="scale" type="float" interfacename="scale" />
+    </inner_position>
+    <convert name="to_color" type="color3">
+      <input name="in" type="vector3" nodename="inner" />
+    </convert>
+    <output name="out" type="color3" nodename="to_color" />
+  </nodegraph>
+  <outer_position name="outer1" type="color3">
+    <input name="scale" type="float" value="0.5" />
+  </outer_position>
+  <output name="out" type="color3" nodename="outer1" />
+</materialx>

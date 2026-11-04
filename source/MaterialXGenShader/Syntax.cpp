@@ -294,4 +294,20 @@ string StructTypeSyntax::getValue(const Value& value, bool /*uniform*/) const
     return result;
 }
 
+string Syntax::getLocalVariableDeclaration(const string& typeName, const string& varName,
+                                           const string& initializer) const
+{
+    if (initializer.empty())
+    {
+        return typeName + " " + varName;
+    }
+    return typeName + " " + varName + " = " + initializer;
+}
+
+string Syntax::getForLoopHeader(const string& indexVar, const string& start,
+                                const string& endExclusive, const string& increment) const
+{
+    return "for (int " + indexVar + " = " + start + "; " + indexVar + " < " + endExclusive + "; " + increment + ")";
+}
+
 MATERIALX_NAMESPACE_END

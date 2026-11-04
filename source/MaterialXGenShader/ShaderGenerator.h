@@ -180,7 +180,7 @@ class MX_GENSHADER_API ShaderGenerator
     virtual ShaderNodeImplPtr getImplementation(const NodeDef& nodedef, GenContext& context) const;
 
     /// Sets the color management system
-    void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
+    virtual void setColorManagementSystem(ColorManagementSystemPtr colorManagementSystem)
     {
         _colorManagementSystem = colorManagementSystem;
     }
