@@ -53,7 +53,7 @@ void RenderJobDispatcher::submit(const std::string& label,
     auto path = std::filesystem::weakly_canonical(std::filesystem::absolute(outputPrefix.asString()));
     auto key = path.generic_string();
 #if defined(_WIN32)
-    std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return std::tolower(c); });
+    std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 #endif
     if (!_outputPaths.insert(key).second)
         throw std::runtime_error("Conflicting render output: " + key + " (" + label + ")");
