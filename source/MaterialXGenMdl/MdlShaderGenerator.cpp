@@ -150,6 +150,15 @@ void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    // Reject invalid names to avoid generating invalid MDL code.
+    string validName = name;
+    _syntax->makeValidName(validName);
+    if (validName != name)
+    {
+        throw ExceptionShaderGenError("Invalid MDL shader name '" + name +
+                                      "'. MdlSyntax::makeValidName() can be used to generate a valid name.");
+    }
+
     // For MDL we cannot cache node implementations between generation calls,
     // because this generator needs to do edits to subgraphs implementations
     // depending on the context in which a node is used.
@@ -209,7 +218,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(0);
     emitString("export material ", stage);
 
-    // Begin shader signature. Note that the function name is already sanitized.
+    // Begin shader signature. The function name was validated above.
     string functionName = shader->getName();
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
