@@ -9,8 +9,182 @@
 #include <MaterialXCore/Material.h>
 
 #include <deque>
+#include <map>
+#include <unordered_set>
 
 MATERIALX_NAMESPACE_BEGIN
+
+namespace
+{
+
+void clearPortConnection(PortElementPtr port)
+{
+    if (!port)
+    {
+        return;
+    }
+    port->removeAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+    port->removeAttribute(PortElement::NODE_GRAPH_ATTRIBUTE);
+    port->removeAttribute(PortElement::OUTPUT_ATTRIBUTE);
+    port->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+}
+
+void copyConnectionAttributes(PortElementPtr source, PortElementPtr dest)
+{
+    if (!source || !dest)
+    {
+        return;
+    }
+
+    clearPortConnection(dest);
+    if (source->hasNodeName())
+    {
+        dest->setNodeName(source->getNodeName());
+    }
+    if (source->hasNodeGraphString())
+    {
+        dest->setNodeGraphString(source->getNodeGraphString());
+    }
+    if (source->hasOutputString())
+    {
+        dest->setOutputString(source->getOutputString());
+    }
+    if (source->hasInterfaceName())
+    {
+        dest->setInterfaceName(source->getInterfaceName());
+    }
+    dest->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+}
+
+bool inputConnectsOutsideSelection(InputPtr input, const std::unordered_set<string>& selectedNodeNames)
+{
+    if (!input)
+    {
+        return false;
+    }
+    if (input->hasNodeName())
+    {
+        return selectedNodeNames.find(input->getNodeName()) == selectedNodeNames.end();
+    }
+    return input->hasNodeGraphString() || input->hasInterfaceName() || input->hasOutputString();
+}
+
+void preserveExternalUpstreamConnections(NodeGraphPtr nodeGraph, const std::unordered_set<string>& selectedNodeNames)
+{
+    if (!nodeGraph)
+    {
+        return;
+    }
+
+    for (NodePtr copiedNode : nodeGraph->getNodes())
+    {
+        for (InputPtr input : copiedNode->getInputs())
+        {
+            if (!inputConnectsOutsideSelection(input, selectedNodeNames))
+            {
+                continue;
+            }
+
+            string interfaceName = nodeGraph->createValidChildName(copiedNode->getName() + "_" + input->getName());
+            InputPtr interfaceInput = nodeGraph->addInput(interfaceName, input->getType());
+            copyConnectionAttributes(input, interfaceInput);
+            input->setConnectedInterfaceName(interfaceInput->getName());
+        }
+    }
+}
+
+string getBoundaryOutputType(NodePtr sourceNode, PortElementPtr downstreamPort)
+{
+    if (downstreamPort && !downstreamPort->getType().empty())
+    {
+        return downstreamPort->getType();
+    }
+    if (sourceNode)
+    {
+        const string& outputName = downstreamPort ? downstreamPort->getOutputString() : EMPTY_STRING;
+        if (!outputName.empty())
+        {
+            OutputPtr output = sourceNode->getOutput(outputName);
+            if (!output && sourceNode->getNodeDef())
+            {
+                output = sourceNode->getNodeDef()->getOutput(outputName);
+            }
+            if (output && !output->getType().empty())
+            {
+                return output->getType();
+            }
+        }
+        return sourceNode->getType();
+    }
+    return DEFAULT_TYPE_STRING;
+}
+
+OutputPtr getOrCreateBoundaryOutput(NodeGraphPtr nodeGraph,
+                                    NodePtr sourceNode,
+                                    PortElementPtr downstreamPort,
+                                    std::map<string, OutputPtr>& boundaryOutputs)
+{
+    const string& sourceOutput = downstreamPort ? downstreamPort->getOutputString() : EMPTY_STRING;
+    string key = sourceNode->getName() + "|" + sourceOutput;
+    auto existing = boundaryOutputs.find(key);
+    if (existing != boundaryOutputs.end())
+    {
+        return existing->second;
+    }
+
+    string outputBaseName = sourceNode->getName() + (sourceOutput.empty() ? "_out" : "_" + sourceOutput);
+    OutputPtr boundaryOutput = nodeGraph->addOutput(nodeGraph->createValidChildName(outputBaseName),
+                                                    getBoundaryOutputType(sourceNode, downstreamPort));
+    boundaryOutput->setNodeName(sourceNode->getName());
+    if (!sourceOutput.empty())
+    {
+        boundaryOutput->setOutputString(sourceOutput);
+    }
+    boundaryOutput->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+    boundaryOutputs[key] = boundaryOutput;
+    return boundaryOutput;
+}
+
+void preserveExternalDownstreamConnections(NodeGraphPtr nodeGraph,
+                                           const vector<NodePtr>& nodesToGroup,
+                                           const std::unordered_set<string>& selectedNodeNames)
+{
+    if (!nodeGraph)
+    {
+        return;
+    }
+
+    std::map<string, OutputPtr> boundaryOutputs;
+    for (NodePtr sourceNode : nodesToGroup)
+    {
+        if (!sourceNode)
+        {
+            continue;
+        }
+        for (PortElementPtr downstreamPort : sourceNode->getDownstreamPorts())
+        {
+            if (!downstreamPort)
+            {
+                continue;
+            }
+
+            ElementPtr parent = downstreamPort->getParent();
+            if (parent && selectedNodeNames.find(parent->getName()) != selectedNodeNames.end())
+            {
+                continue;
+            }
+
+            OutputPtr boundaryOutput = getOrCreateBoundaryOutput(nodeGraph, sourceNode, downstreamPort, boundaryOutputs);
+            downstreamPort->setNodeGraphString(nodeGraph->getName());
+            downstreamPort->setOutputString(boundaryOutput->getName());
+            downstreamPort->removeAttribute(PortElement::NODE_NAME_ATTRIBUTE);
+            downstreamPort->removeAttribute(ValueElement::INTERFACE_NAME_ATTRIBUTE);
+            downstreamPort->removeAttribute(ValueElement::VALUE_ATTRIBUTE);
+        }
+    }
+}
+
+} // anonymous namespace
 
 const string Backdrop::CONTAINS_ATTRIBUTE = "contains";
 const string Backdrop::WIDTH_ATTRIBUTE = "width";
@@ -401,6 +575,45 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             removeNode(processNode->getName());
         }
     }
+}
+
+NodeGraphPtr GraphElement::createNodeGraphFromNodes(const vector<NodePtr>& nodes, const string& name)
+{
+    // Filter to valid direct-child nodes and collect their names.
+    std::unordered_set<string> selectedNodeNames;
+    vector<NodePtr> validNodes;
+    for (const NodePtr& node : nodes)
+    {
+        if (node && node->getParent() == getSelf() && selectedNodeNames.insert(node->getName()).second)
+        {
+            validNodes.push_back(node);
+        }
+    }
+    if (validNodes.empty())
+    {
+        return nullptr;
+    }
+
+    // Create the nodegraph and copy the selected nodes into it.
+    NodeGraphPtr nodeGraph = addChild<NodeGraph>(name);
+    for (const NodePtr& sourceNode : validNodes)
+    {
+        NodePtr copiedNode = nodeGraph->addNode(sourceNode->getCategory(), sourceNode->getName(), sourceNode->getType());
+        copiedNode->copyContentFrom(sourceNode);
+    }
+
+    // Preserve boundary connections. Downstream preservation reads the original
+    // nodes' downstream ports, so it must run before the originals are removed.
+    preserveExternalUpstreamConnections(nodeGraph, selectedNodeNames);
+    preserveExternalDownstreamConnections(nodeGraph, validNodes, selectedNodeNames);
+
+    // Remove the original nodes from this graph element.
+    for (const string& nodeName : selectedNodeNames)
+    {
+        removeChild(nodeName);
+    }
+
+    return nodeGraph;
 }
 
 ElementVec GraphElement::topologicalSort() const

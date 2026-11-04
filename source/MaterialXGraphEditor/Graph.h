@@ -13,6 +13,8 @@
 
 #include <imgui_node_editor.h>
 
+#include <unordered_set>
+
 namespace ed = ax::NodeEditor;
 namespace mx = MaterialX;
 
@@ -218,6 +220,9 @@ class Graph
 
     void deleteNode(UiNodePtr node);
 
+    void groupSelectedNodesIntoNodeGraph(const std::vector<ed::NodeId>& selectedNodes);
+    bool collectGroupableNodes(const std::vector<ed::NodeId>& selectedNodes, std::vector<UiNodePtr>& nodesToGroup);
+
     // Build the initial graph of a loaded document including shader, material and nodegraph node
     void setUiNodeInfo(UiNodePtr node, const std::string& type, const std::string& category);
 
@@ -297,6 +302,9 @@ class Graph
 
     // Initialize the graph state from the current document.
     void initializeGraph();
+
+    // Rebuild the UI state for the current graph element without changing navigation.
+    void rebuildCurrentGraph();
 
     void showHelp() const;
 
