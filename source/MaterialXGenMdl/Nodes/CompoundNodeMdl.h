@@ -33,6 +33,7 @@ class MX_GENMDL_API CompoundNodeMdl : public CompoundNode
     static ShaderNodeImplPtr create();
 
     void initialize(const InterfaceElement& element, GenContext& context) override;
+    void setFunctionNameSuffix(const string& suffix, GenContext& context) override;
     void emitFunctionDefinition(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage) const override;
 

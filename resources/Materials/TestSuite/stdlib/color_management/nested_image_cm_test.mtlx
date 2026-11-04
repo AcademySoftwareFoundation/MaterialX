@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+Test that a color space declared on the filename input of a nested nodegraph is applied once, at the image node that reads the file.
+ -->
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <nodedef name="ND_nested_image_inner" node="nested_image_inner">
+    <input name="file" type="filename" uniform="true" value="" />
+    <output name="out" type="color3" />
+  </nodedef>
+  <nodegraph name="NG_nested_image_inner" nodedef="ND_nested_image_inner">
+    <image name="image" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+    </image>
+    <output name="out" type="color3" nodename="image" />
+  </nodegraph>
+
+  <nodedef name="ND_nested_image_outer" node="nested_image_outer">
+    <input name="file" type="filename" uniform="true" value="" />
+    <output name="color" type="color3" />
+    <output name="alpha" type="float" />
+  </nodedef>
+  <nodegraph name="NG_nested_image_outer" nodedef="ND_nested_image_outer">
+    <nested_image_inner name="inner" type="color3">
+      <input name="file" type="filename" interfacename="file" />
+    </nested_image_inner>
+    <constant name="opaque" type="float">
+      <input name="value" type="float" value="1.0" />
+    </constant>
+    <output name="color" type="color3" nodename="inner" />
+    <output name="alpha" type="float" nodename="opaque" />
+  </nodegraph>
+
+  <nodegraph name="ng1">
+    <nested_image_outer name="texture" type="multioutput">
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_rec709_scene" />
+    </nested_image_outer>
+    <standard_surface name="nested_image_standard_surface" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="texture" output="color" />
+    </standard_surface>
+    <output name="nested_image_out" type="surfaceshader" nodename="nested_image_standard_surface" />
+  </nodegraph>
+</materialx>

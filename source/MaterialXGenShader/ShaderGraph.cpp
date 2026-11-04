@@ -560,7 +560,8 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
         // Create output sockets
         graph->addOutputSockets(*nodeDef, context);
 
-        // Create this shader node in the graph.
+        // Create this shader node in the graph, registering it as a parent node.
+        context.pushParentNode(node);
         ShaderNode* newNode = graph->createNode(node->getName(), node->getNamePath(), nodeDef, context);
 
         // Share metadata.
@@ -643,6 +644,7 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
 
         // Apply color and unit transforms to each input.
         graph->applyInputTransforms(node, newNode, context);
+        context.popParentNode();
 
         // Set root for upstream dependency traversal
         root = node;
@@ -664,50 +666,149 @@ ShaderGraphPtr ShaderGraph::create(const ShaderGraph* parent, const string& name
     return graph;
 }
 
+string ShaderGraph::resolveFilenameColorSpace(ConstInputPtr input, GenContext& context)
+{
+    // Skip the innermost parent node, which owns the given input.
+    const vector<ConstNodePtr>& parentNodes = context.getParentNodes();
+    auto parent = parentNodes.rbegin();
+    if (parent != parentNodes.rend())
+    {
+        ++parent;
+    }
+
+    ConstInputPtr current = input;
+    while (true)
+    {
+        if (current->hasColorSpace())
+        {
+            return current->getColorSpace();
+        }
+        if (!current->hasInterfaceName())
+        {
+            return current->getActiveColorSpace();
+        }
+
+        // Follow the interface name upstream, falling back to the nodedef input.
+        const string& interfaceName = current->getInterfaceName();
+        ConstInputPtr next;
+        ConstNodeDefPtr nodeDef;
+        if (parent != parentNodes.rend())
+        {
+            ConstNodePtr instance = *parent++;
+            next = instance->getInput(interfaceName);
+            nodeDef = next ? nullptr : instance->getNodeDef();
+        }
+        else
+        {
+            next = current->getInterfaceInput();
+            ConstNodeGraphPtr graph = next ? nullptr : current->getAncestorOfType<NodeGraph>();
+            nodeDef = graph ? graph->getNodeDef() : nullptr;
+        }
+        if (!next && nodeDef)
+        {
+            next = nodeDef->getActiveInput(interfaceName);
+        }
+        if (!next)
+        {
+            // Use the color space active where the file is named.
+            return current->getActiveColorSpace();
+        }
+        current = next;
+    }
+}
+
+bool ShaderGraph::isNoOpColorTransform(ColorManagementSystemPtr colorManagementSystem, const string& sourceColorSpace, const string& targetColorSpace)
+{
+    if (sourceColorSpace.empty() || targetColorSpace.empty())
+    {
+        return true;
+    }
+
+    if (colorManagementSystem)
+    {
+        return colorManagementSystem->isNoOpTransform(sourceColorSpace, targetColorSpace);
+    }
+
+    // Without a color management system, recognize only identical names and reserved no-op spaces.
+    return sourceColorSpace == targetColorSpace ||
+           ColorManagementSystem::isReservedNoOpColorSpace(sourceColorSpace) ||
+           ColorManagementSystem::isReservedNoOpColorSpace(targetColorSpace);
+}
+
+string ShaderGraph::getTargetColorSpace(GenContext& context)
+{
+    const string& targetColorSpaceOverride = context.getOptions().targetColorSpaceOverride;
+    if (!targetColorSpaceOverride.empty())
+    {
+        return targetColorSpaceOverride;
+    }
+
+    // Use the working color space of the document being generated, which contains the outermost parent node.
+    const vector<ConstNodePtr>& parentNodes = context.getParentNodes();
+    return parentNodes.empty() ? EMPTY_STRING : parentNodes.front()->getDocument()->getActiveColorSpace();
+}
+
+string ShaderGraph::getColorTransformSuffix(const NodeDef& nodedef, const string& targetColorSpace, GenContext& context)
+{
+    ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
+
+    // Confirm that the innermost parent node is the instance being created.
+    const vector<ConstNodePtr>& parentNodes = context.getParentNodes();
+    ConstNodePtr instance = parentNodes.empty() ? nullptr : parentNodes.back();
+    if (!instance || instance->getCategory() != nodedef.getNodeString())
+    {
+        return EMPTY_STRING;
+    }
+
+    string transforms;
+    for (const InputPtr& input : nodedef.getActiveInputs())
+    {
+        if (input->getType() != FILENAME_TYPE_STRING)
+        {
+            continue;
+        }
+        // Fall back to the nodedef input when the instance omits it.
+        ConstInputPtr instanceInput = instance->getInput(input->getName());
+        const string sourceColorSpace = resolveFilenameColorSpace(instanceInput ? instanceInput : input, context);
+        if (!isNoOpColorTransform(colorManagementSystem, sourceColorSpace, targetColorSpace))
+        {
+            transforms += "_" + input->getName() + "_" + sourceColorSpace;
+        }
+    }
+    return transforms.empty() ? EMPTY_STRING : "_colorspace" + transforms + "_to_" + targetColorSpace;
+}
+
 void ShaderGraph::applyInputTransforms(ConstNodePtr node, ShaderNode* shaderNode, GenContext& context)
 {
     ColorManagementSystemPtr colorManagementSystem = context.getShaderGenerator().getColorManagementSystem();
     UnitSystemPtr unitSystem = context.getShaderGenerator().getUnitSystem();
 
-    const string& targetColorSpace = context.getOptions().targetColorSpaceOverride.empty() ?
-                                     _document->getActiveColorSpace() :
-                                     context.getOptions().targetColorSpaceOverride;
+    const string targetColorSpace = getTargetColorSpace(context);
     const string& targetDistanceUnit = context.getOptions().targetDistanceUnit;
+
+    // Nodegraph implementations transform filename inputs at their image nodes.
+    const bool isCompound = shaderNode->getImplementation().getGraph() != nullptr;
 
     for (InputPtr input : node->getInputs())
     {
         if (input->hasValue() || input->hasInterfaceName())
         {
-            string sourceColorSpace = input->getActiveColorSpace();
             if (input->getType() == FILENAME_TYPE_STRING && (node->isColorType() || node->isMultiOutputType()))
             {
-                // Adjust the source color space for filename interface names.
-                if (input->hasInterfaceName())
-                {
-                    for (ConstNodePtr parentNode : context.getParentNodes())
-                    {
-                        if (!parentNode->isColorType() && !parentNode->isMultiOutputType())
-                        {
-                            InputPtr interfaceInput = parentNode->getInput(input->getInterfaceName());
-                            string interfaceColorSpace = interfaceInput ? interfaceInput->getActiveColorSpace() : EMPTY_STRING;
-                            if (!interfaceColorSpace.empty())
-                            {
-                                sourceColorSpace = interfaceColorSpace;
-                            }
-                        }
-                    }
-                }
-
+                const string sourceColorSpace = resolveFilenameColorSpace(input, context);
                 for (ShaderOutput* shaderOutput : shaderNode->getOutputs())
                 {
-                    populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
+                    if (!isCompound)
+                    {
+                        populateColorTransformMap(colorManagementSystem, shaderOutput, sourceColorSpace, targetColorSpace, false);
+                    }
                     populateUnitTransformMap(unitSystem, shaderOutput, input, targetDistanceUnit, false);
                 }
             }
             else
             {
                 ShaderInput* shaderInput = shaderNode->getInput(input->getName());
-                populateColorTransformMap(colorManagementSystem, shaderInput, sourceColorSpace, targetColorSpace, true);
+                populateColorTransformMap(colorManagementSystem, shaderInput, input->getActiveColorSpace(), targetColorSpace, true);
                 populateUnitTransformMap(unitSystem, shaderInput, input, targetDistanceUnit, true);
             }
         }
@@ -737,11 +838,10 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
 {
     ConstNodeDefPtr nodeDef = node->getNodeDef();
 
-    // Create this node in the graph.
+    // Create this node in the graph, registering it as a parent node.
     context.pushParentNode(node);
     ShaderNode* newNode = createNode(node->getName(), node->getNamePath(), nodeDef, context);
     newNode->initialize(*node, *nodeDef, context);
-    context.popParentNode();
 
     // Check if any of the node inputs should be connected to the graph interface
     for (ValueElementPtr elem : node->getChildrenOfType<ValueElement>())
@@ -782,6 +882,7 @@ ShaderNode* ShaderGraph::createNode(ConstNodePtr node, GenContext& context)
 
     // Apply color and unit transforms to each input.
     applyInputTransforms(node, newNode, context);
+    context.popParentNode();
 
     return newNode;
 }
@@ -1209,22 +1310,11 @@ void ShaderGraph::setVariableNames(GenContext& context)
 void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManagementSystem, ShaderPort* shaderPort,
                                             const string& sourceColorSpace, const string& targetColorSpace, bool asInput)
 {
-    if (!shaderPort || sourceColorSpace.empty() || targetColorSpace.empty())
-    {
-        return;
-    }
-
     // A transform that the color management system considers a no-op, such as one between
     // a legacy color space name and its color interop equivalent, or one involving a no-op
     // color space such as "data", is omitted from the graph and leaves the port's color
-    // space unset. Without a color management system, only identical names and the
-    // spec-reserved no-op color spaces are recognized.
-    const bool isNoOpTransform = colorManagementSystem ?
-                                 colorManagementSystem->isNoOpTransform(sourceColorSpace, targetColorSpace) :
-                                 sourceColorSpace == targetColorSpace ||
-                                 ColorManagementSystem::isReservedNoOpColorSpace(sourceColorSpace) ||
-                                 ColorManagementSystem::isReservedNoOpColorSpace(targetColorSpace);
-    if (isNoOpTransform)
+    // space unset.
+    if (!shaderPort || isNoOpColorTransform(colorManagementSystem, sourceColorSpace, targetColorSpace))
     {
         return;
     }
@@ -1247,8 +1337,7 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
                 else
                 {
                     const auto entry = std::make_pair(static_cast<ShaderOutput*>(shaderPort), transform);
-                    // An output can carry only one transform, even when filename inputs use different color spaces.
-                    // Retain the first request until per-image transforms inside compound nodes are supported.
+                    // An output can carry only one transform, so retain the first request.
                     if (std::find_if(_outputColorTransformMap.begin(), _outputColorTransformMap.end(),
                                      [shaderPort](const auto& request) { return request.first == shaderPort; }) ==
                         _outputColorTransformMap.end())
@@ -1259,8 +1348,9 @@ void ShaderGraph::populateColorTransformMap(ColorManagementSystemPtr colorManage
             }
             else
             {
-                throw ExceptionShaderGenError("Unsupported color space transform from '" +
-                                              sourceColorSpace + "' to '" + targetColorSpace + "'.");
+                const string& portName = shaderPort->getPath().empty() ? shaderPort->getFullName() : shaderPort->getPath();
+                throw ExceptionShaderGenError("Unsupported color space transform from '" + sourceColorSpace +
+                                              "' to '" + targetColorSpace + "' for '" + portName + "'.");
             }
         }
     }

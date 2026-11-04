@@ -56,6 +56,13 @@ void CompoundNode::initialize(const InterfaceElement& element, GenContext& conte
     _hash = std::hash<string>{}(_functionName);
 }
 
+void CompoundNode::setFunctionNameSuffix(const string& suffix, GenContext& context)
+{
+    _functionName += suffix;
+    context.getShaderGenerator().getSyntax().makeValidName(_functionName);
+    _hash = std::hash<string>{}(_functionName);
+}
+
 void CompoundNode::createVariables(const ShaderNode&, GenContext& context, Shader& shader) const
 {
     // Gather shader inputs from all child nodes
