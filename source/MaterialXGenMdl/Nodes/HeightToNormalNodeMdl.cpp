@@ -32,6 +32,11 @@ ShaderNodeImplPtr HeightToNormalNodeMdl::create()
     return std::make_shared<HeightToNormalNodeMdl>();
 }
 
+bool HeightToNormalNodeMdl::isInputSampled(const ShaderInput& input) const
+{
+    return getInputSamplingCoordinates(input, sampleCount) != nullptr;
+}
+
 void HeightToNormalNodeMdl::computeSampleOffsetStrings(const string& sampleSizeName, const string& offsetTypeString,
                                                        unsigned int, StringVec& offsetStrings) const
 {

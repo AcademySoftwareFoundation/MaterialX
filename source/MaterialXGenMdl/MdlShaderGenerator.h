@@ -74,8 +74,11 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
     /// Apply the default GenOptions for MDL shader generation.
     void applyDefaultOptions(GenOptions& options) const override;
 
-    /// Generate a shader starting from the given element, translating
-    /// the element and all dependencies upstream into shader code.
+    /// Generate a shader starting from the given element, translating the element and all
+    /// dependencies upstream into shader code.
+    ///
+    /// The name must be a valid MDL identifier. MdlSyntax::makeValidName() can be used to obtain a
+    /// valid MDL identifier.
     ShaderPtr generate(const string& name, ElementPtr element, GenContext& context) const override;
 
     /// Create the shader node implementation for a NodeGraph implementation.
@@ -108,6 +111,9 @@ class MX_GENMDL_API MdlShaderGenerator : public ShaderGenerator
 
     /// Emit type definitions for all data types that need them.
     void emitTypeDefinitions(GenContext& context, ShaderStage& stage) const override;
+
+    /// Return whether a graph input is referenced by generated MDL code.
+    bool isInputUsed(const ShaderGraphInputSocket& input) const;
 
   protected:
     // Create and initialize a new MDL shader for shader generation.
