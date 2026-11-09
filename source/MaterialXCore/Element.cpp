@@ -216,12 +216,15 @@ void Element::removeAttribute(const string& attrib)
 
 template <class T> shared_ptr<T> Element::asA()
 {
-    return std::dynamic_pointer_cast<T>(getSelf());
+    // Acquire shared ownership only after the type check succeeds.
+    T* instance = dynamic_cast<T*>(this);
+    return instance ? shared_ptr<T>(getSelf(), instance) : shared_ptr<T>();
 }
 
 template <class T> shared_ptr<const T> Element::asA() const
 {
-    return std::dynamic_pointer_cast<const T>(getSelf());
+    const T* instance = dynamic_cast<const T*>(this);
+    return instance ? shared_ptr<const T>(getSelf(), instance) : shared_ptr<const T>();
 }
 
 ElementPtr Element::addChildOfCategory(const string& category, string name)
@@ -316,14 +319,14 @@ template <class T> vector<shared_ptr<T>> Element::getChildrenOfType(const string
     {
         children = doc->getDataLibrary()->getChildrenOfType<T>(category);
     }
-    for (ElementPtr child : _childOrder)
+    for (const ElementPtr& child : _childOrder)
     {
         shared_ptr<T> instance = child->asA<T>();
         if (!instance)
             continue;
         if (!category.empty() && child->getCategory() != category)
             continue;
-        children.push_back(instance);
+        children.push_back(std::move(instance));
     }
     return children;
 }
