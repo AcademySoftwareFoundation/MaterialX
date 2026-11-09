@@ -6,10 +6,17 @@
 #include <PyMaterialX/PyMaterialX.h>
 
 #include <MaterialXGenShader/Util.h>
+#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
+#include <MaterialXGenShader/ShaderGraphHash.h>
 
 namespace py = pybind11;
 namespace mx = MaterialX;
+
+size_t computeStructuralHashFromShader(const mx::Shader& shader)
+{
+    return mx::computeStructuralHash(shader.getGraph());
+}
 
 std::vector<mx::TypedElementPtr> findRenderableMaterialNodes(mx::ConstDocumentPtr doc)
 {
@@ -36,4 +43,5 @@ void bindPyUtil(py::module& mod)
     mod.def("getUdimScaleAndOffset", &mx::getUdimScaleAndOffset);
     mod.def("connectsToWorldSpaceNode", &mx::connectsToWorldSpaceNode);
     mod.def("hasElementAttributes", &mx::hasElementAttributes);
+    mod.def("computeStructuralHash", &computeStructuralHashFromShader);
 }
