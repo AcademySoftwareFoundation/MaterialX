@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <nodegraph name="interior_mapping">
+
+    <!-- View direction in tangent space via TBN matrix -->
+    <viewdirection name="viewDir" type="vector3" />
+    <tangent name="T" type="vector3" />
+    <bitangent name="B" type="vector3" />
+    <normal name="N" type="vector3" />
+    <creatematrix name="TBN" type="matrix33">
+      <input name="in1" type="vector3" nodename="T" />
+      <input name="in2" type="vector3" nodename="B" />
+      <input name="in3" type="vector3" nodename="N" />
+    </creatematrix>
+    <transpose name="TBN_t" type="matrix33">
+      <input name="in" type="matrix33" nodename="TBN" />
+    </transpose>
+    <transformmatrix name="viewDir_tangent" type="vector3">
+      <input name="in" type="vector3" nodename="viewDir" />
+      <input name="mat" type="matrix33" nodename="TBN_t" />
+    </transformmatrix>
+
+    <!-- Ray origin from fractional UVs on front face of [-1,1] cube -->
+    <texcoord name="uv" type="vector2" />
+    <floor name="uv_floor" type="vector2">
+      <input name="in" type="vector2" nodename="uv" />
+    </floor>
+    <subtract name="uv_fract" type="vector2">
+      <input name="in1" type="vector2" nodename="uv" />
+      <input name="in2" type="vector2" nodename="uv_floor" />
+    </subtract>
+    <multiply name="uv_scaled" type="vector2">
+      <input name="in1" type="vector2" nodename="uv_fract" />
+      <input name="in2" type="vector2" value="2, 2" />
+    </multiply>
+    <convert name="uv_vec3" type="vector3">
+      <input name="in" type="vector2" nodename="uv_scaled" />
+    </convert>
+    <add name="ray_origin" type="vector3">
+      <input name="in1" type="vector3" nodename="uv_vec3" />
+      <input name="in2" type="vector3" value="-1, -1, 1" />
+    </add>
+
+    <!-- Ray-box intersection (AABB slab method) -->
+    <divide name="inv_dir" type="vector3">
+      <input name="in1" type="vector3" value="1, 1, 1" />
+      <input name="in2" type="vector3" nodename="viewDir_tangent" />
+    </divide>
+    <absval name="abs_inv_dir" type="vector3">
+      <input name="in" type="vector3" nodename="inv_dir" />
+    </absval>
+    <multiply name="origin_inv" type="vector3">
+      <input name="in1" type="vector3" nodename="ray_origin" />
+      <input name="in2" type="vector3" nodename="inv_dir" />
+    </multiply>
+    <subtract name="dist" type="vector3">
+      <input name="in1" type="vector3" nodename="abs_inv_dir" />
+      <input name="in2" type="vector3" nodename="origin_inv" />
+    </subtract>
+    <separate3 name="dist_xyz" type="multioutput">
+      <input name="in" type="vector3" nodename="dist" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+      <output name="outz" type="float" />
+    </separate3>
+    <min name="min_xy" type="float">
+      <input name="in1" type="float" output="outx" nodename="dist_xyz" />
+      <input name="in2" type="float" output="outy" nodename="dist_xyz" />
+    </min>
+    <min name="min_dist" type="float">
+      <input name="in1" type="float" nodename="min_xy" />
+      <input name="in2" type="float" output="outz" nodename="dist_xyz" />
+    </min>
+
+    <!-- Hit position -->
+    <multiply name="ray_step" type="vector3">
+      <input name="in1" type="vector3" nodename="viewDir_tangent" />
+      <input name="in2" type="float" nodename="min_dist" />
+    </multiply>
+    <add name="hit_pos" type="vector3">
+      <input name="in1" type="vector3" nodename="ray_step" />
+      <input name="in2" type="vector3" nodename="ray_origin" />
+    </add>
+
+    <!-- Equirectangular projection -->
+    <normalize name="hit_dir" type="vector3">
+      <input name="in" type="vector3" nodename="hit_pos" />
+    </normalize>
+    <separate3 name="dir_xyz" type="multioutput">
+      <input name="in" type="vector3" nodename="hit_dir" />
+      <output name="outx" type="float" />
+      <output name="outy" type="float" />
+      <output name="outz" type="float" />
+    </separate3>
+    <!-- Negate dx and dz: moves atan2 discontinuity to front face (+z), never rendered -->
+    <multiply name="neg_dx" type="float">
+      <input name="in1" type="float" output="outx" nodename="dir_xyz" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <multiply name="neg_dz" type="float">
+      <input name="in1" type="float" output="outz" nodename="dir_xyz" />
+      <input name="in2" type="float" value="-1" />
+    </multiply>
+    <atan2 name="lon_angle" type="float">
+      <input name="iny" type="float" nodename="neg_dx" />
+      <input name="inx" type="float" nodename="neg_dz" />
+    </atan2>
+    <multiply name="lon_scaled" type="float">
+      <input name="in1" type="float" nodename="lon_angle" />
+      <input name="in2" type="float" value="-0.15915" />
+    </multiply>
+    <add name="longitude" type="float">
+      <input name="in1" type="float" nodename="lon_scaled" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <asin name="lat_angle" type="float">
+      <input name="in" type="float" output="outy" nodename="dir_xyz" />
+    </asin>
+    <multiply name="lat_scaled" type="float">
+      <input name="in1" type="float" nodename="lat_angle" />
+      <input name="in2" type="float" value="0.31831" />
+    </multiply>
+    <add name="latitude" type="float">
+      <input name="in1" type="float" nodename="lat_scaled" />
+      <input name="in2" type="float" value="0.5" />
+    </add>
+    <add name="longitude_rotated" type="float">
+      <input name="in1" type="float" nodename="longitude" />
+      <input name="in2" type="float" value="0.25" />
+    </add>
+    <combine2 name="map_uv" type="vector2">
+      <input name="in1" type="float" nodename="longitude_rotated" />
+      <input name="in2" type="float" nodename="latitude" />
+    </combine2>
+
+    <!-- Sample equirectangular room image -->
+    <!-- closest filter is deliberate: bilinear would bleed across the 0/1 UV wrap seam -->
+    <image name="room_image" type="color3">
+      <input name="file" type="filename" value="room.png" />
+      <input name="texcoord" type="vector2" nodename="map_uv" />
+      <input name="uaddressmode" type="string" value="periodic" />
+      <input name="vaddressmode" type="string" value="periodic" />
+      <input name="filtertype" type="string" value="closest" />
+    </image>
+
+    <output name="out" type="color3" nodename="room_image" />
+  </nodegraph>
+</materialx>
