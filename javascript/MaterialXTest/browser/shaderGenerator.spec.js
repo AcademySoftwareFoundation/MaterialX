@@ -94,6 +94,9 @@ test.describe('Generate Shaders', () =>
             shaderInput.setType('surfaceshader');
             shaderInput.setNodeName(ssName);
 
+            docString = mx.writeToXmlString(doc);
+            console.log('Document XML:\n' + docString);
+
             const valid = doc.validate();
             shaderInput.delete();
             smNode.delete();
@@ -147,6 +150,23 @@ test.describe('Generate Shaders', () =>
                         if (!gl.getShaderParameter(glFS, gl.COMPILE_STATUS))
                         {
                             errors.push('Fragment shader: ' + gl.getShaderInfoLog(glFS));
+                        }
+
+                        if (typeof mx.createMermaidGraph === 'function')
+                        {
+                            const mermaidGraph = mx.createMermaidGraph(mxShader, true);
+                            if (!mermaidGraph || !mermaidGraph.includes('graph '))
+                            {
+                                errors.push('Failed to generate Mermaid graph');
+                            }
+                            else
+                            {
+                                console.log('Shader graph diagram generated.');
+                            }
+                        }
+                        else
+                        {
+                            errors.push('createMermaidGraph is not available on JsMaterialXGenShader module');
                         }
 
                         gl.deleteShader(glVS);
