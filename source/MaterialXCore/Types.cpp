@@ -11,6 +11,7 @@ const string DEFAULT_TYPE_STRING = "color3";
 const string FILENAME_TYPE_STRING = "filename";
 const string GEOMNAME_TYPE_STRING = "geomname";
 const string STRING_TYPE_STRING = "string";
+const string INTEGER_TYPE_STRING = "integer";
 const string BSDF_TYPE_STRING = "BSDF";
 const string EDF_TYPE_STRING = "EDF";
 const string VDF_TYPE_STRING = "VDF";

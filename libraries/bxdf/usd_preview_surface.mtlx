@@ -25,6 +25,25 @@
     <output name="out" type="surfaceshader" />
   </nodedef>
 
+  <nodedef name="ND_UsdPreviewSurface_surfaceshader_261" node="UsdPreviewSurface" nodegroup="pbr" doc="UsdPreviewSurface shader" version="2.6" isdefaultversion="true">
+    <input name="diffuseColor" type="color3" value="0.18, 0.18, 0.18" uimin="0,0,0" uimax="1,1,1" uiname="Diffuse Color" />
+    <input name="emissiveColor" type="color3" value="0, 0, 0" uimin="0,0,0" uisoftmax="1,1,1" uiname="Emissive Color" />
+    <input name="useSpecularWorkflow" type="integer" value="0" uimin="0" uimax="1" uistep="1" uiname="Use Specular Workflow" />
+    <input name="specularColor" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" uiname="Specular Color" />
+    <input name="metallic" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Metallic" />
+    <input name="roughness" type="float" value="0.5" uimin="0.0" uimax="1.0" uiname="Roughness" />
+    <input name="clearcoat" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Clearcoat" />
+    <input name="clearcoatRoughness" type="float" value="0.01" uimin="0.0" uimax="1.0" uiname="Clearcoat Roughness" />
+    <input name="opacity" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Opacity" />
+    <input name="opacityMode" type="string" enum="transparent,presence" value="transparent" uiname="Opacity Mode" />
+    <input name="opacityThreshold" type="float" value="0" uimin="0.0" uimax="1.0" uiname="Opacity Threshold" />
+    <input name="ior" type="float" value="1.5" uimin="0.0" uisoftmin="1.0" uisoftmax="3.0" uiname="Index of Refraction" />
+    <input name="normal" type="vector3" value="0, 0, 1" uimin="-1.0,-1.0,-1.0" uimax="1.0,1.0,1.0" uiname="Normal" />
+    <input name="displacement" type="float" value="0" uiname="Displacement" />
+    <input name="occlusion" type="float" value="1" uimin="0.0" uimax="1.0" uiname="Occlusion" />
+    <output name="out" type="surfaceshader" />
+  </nodedef>
+
   <!-- Node: UsdUVTexture -->
   <nodedef name="ND_UsdUVTexture" node="UsdUVTexture" nodegroup="texture2d" version="2.2" inherit="ND_UsdUVTexture_23">
     <output name="r" type="float" />
@@ -112,8 +131,11 @@
   <!-- USD Preview Surface nodegraph implementations                            -->
   <!-- ======================================================================== -->
 
+  <implementation name="IMP_UsdPreviewSurface_surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader" nodegraph="NG_UsdPreviewSurface_surfaceshader" />
+  <implementation name="IMP_UsdPreviewSurface_surfaceshader_261" nodedef="ND_UsdPreviewSurface_surfaceshader_261" nodegraph="NG_UsdPreviewSurface_surfaceshader" />
+
   <!-- Node: UsdPreviewSurface -->
-  <nodegraph name="IMP_UsdPreviewSurface_surfaceshader" nodedef="ND_UsdPreviewSurface_surfaceshader">
+  <nodegraph name="NG_UsdPreviewSurface_surfaceshader" >
 
     <convert name="use_specular_workflow_float" type="float">
       <input name="in" type="integer" interfacename="useSpecularWorkflow" />
