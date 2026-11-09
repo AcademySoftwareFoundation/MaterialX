@@ -3,7 +3,7 @@
   <standard_surface name="SR_numberformats" type="surfaceshader">
     <input name="base_color" type="color3" value="0.18,0.18, 0.18" />
     <input name="specular_color" type="color3" value="0.05, 0.05,0.05" />
-    <input name="normal" type="vector3" value="1,0.5,1" />
+    <input name="normal" type="vector3" value="0.666666666667,0.333333333333, 0.666666666667" />
     <input name="specular_roughness" type="float" value="0.25" />
     <input name="coat" type="float" value="1" />
   </standard_surface>

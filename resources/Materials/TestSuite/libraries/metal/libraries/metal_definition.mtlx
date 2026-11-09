@@ -6,7 +6,7 @@
     <input name="SurfaceRoughness" type="float" value="0.1" uiname="Roughness" uifolder="Basic Parameters" />
     <input name="SurfaceAlbedo" type="color3" value="1, 1, 1" uiname="Color" uifolder="Hilight Parameters" />
     <input name="SurfaceAnisotropy" type="float" value="0.0" uiname="Anisotropy" uifolder="Hilight Parameters" />
-    <input name="SurfaceNormal" type="vector3" value="1, 1, 1" uiname="Relief Pattern (Bump)" uifolder="Hilight Parameters" />
+    <input name="SurfaceNormal" type="vector3" value="0.57735026919, 0.57735026919, 0.57735026919" uiname="Relief Pattern (Bump)" uifolder="Hilight Parameters" />
     <input name="SurfaceRotation" type="float" value="0" uiname="Orientation" uifolder="Hilight Parameters" />
     <input name="SurfaceCutout" type="color3" value="1, 1, 1" uiname="Image" uifolder="Cutout" />
     <output name="out" type="surfaceshader" />
@@ -33,7 +33,7 @@
       <input name="coat_color" type="color3" value="1, 1, 1" />
       <input name="coat_roughness" type="float" value="0.1" />
       <input name="coat_IOR" type="float" value="1.5" />
-      <input name="coat_normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="coat_normal" type="vector3" value="0.0, 0.0, 1.0" />
       <input name="thin_walled" type="boolean" value="false" />
       <input name="thin_film_thickness" type="float" value="0" />
       <input name="thin_film_IOR" type="float" value="1.5" />
