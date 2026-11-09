@@ -47,6 +47,7 @@ const std::string options =
     "    --remap [TOKEN1:TOKEN2]        Specify the remapping from one token to another when MaterialX document is loaded\n"
     "    --skip [NAME]                  Specify to skip elements matching the given name attribute\n"
     "    --terminator [STRING]          Specify to enforce the given terminator string for file prefixes\n"
+    "    --transmissionMethod [STRING]  Specify the method used to render transmission. Options are: 'opacity', 'refraction'. Default is refraction\n"
     "    --help                         Display the complete list of command-line options\n";
 
 template <class T> void parseToken(std::string token, std::string type, T& res)
@@ -75,7 +76,7 @@ int main(int argc, char* const argv[])
     }
 
     std::string materialFilename = "resources/Materials/Examples/StandardSurface/standard_surface_default.mtlx";
-    std::string meshFilename = "resources/Geometry/shaderball.glb";
+    std::string meshFilename = "resources/Geometry/usdshaderball.glb";
     std::string envRadianceFilename = "resources/Lights/san_giuseppe_bridge_split.hdr";
     mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
     mx::FilePathVec libraryFolders;
@@ -88,6 +89,7 @@ int main(int argc, char* const argv[])
     mx::Vector3 cameraTarget;
     float cameraViewAngle(DEFAULT_CAMERA_VIEW_ANGLE);
     float cameraZoom(DEFAULT_CAMERA_ZOOM);
+    mx::HwTransmissionRenderMethod transmissionMethod = mx::TRANSMISSION_REFRACTION;
     mx::HwSpecularEnvironmentMethod specularEnvironmentMethod = mx::SPECULAR_ENVIRONMENT_FIS;
     int envSampleCount = mx::DEFAULT_ENV_SAMPLE_COUNT;
     float envLightIntensity = 1.0f;
@@ -254,6 +256,24 @@ int main(int argc, char* const argv[])
         {
             modifiers.filePrefixTerminator = nextToken;
         }
+        else if (token == "--transmissionMethod")
+        {
+            const std::string method = nextToken;
+            if (method == "opacity")
+            {
+                transmissionMethod = mx::TRANSMISSION_OPACITY;
+            }
+            else if (method == "refraction")
+            {
+                transmissionMethod = mx::TRANSMISSION_REFRACTION;
+            }
+            else
+            {
+                std::cout << "Unrecognized transmission method: " << method << std::endl;
+                std::cout << "Supported methods are: 'opacity', 'refraction'" << std::endl;
+            }
+        }
+
         else if (token == "--help")
         {
             std::cout << " MaterialXView version " << mx::getVersionString() << std::endl;
@@ -299,6 +319,7 @@ int main(int argc, char* const argv[])
         viewer->setCameraViewAngle(cameraViewAngle);
         viewer->setCameraZoom(cameraZoom);
         viewer->setSpecularEnvironmentMethod(specularEnvironmentMethod);
+        viewer->setTransmissionRenderMethod(transmissionMethod);
         viewer->setEnvSampleCount(envSampleCount);
         viewer->setEnvLightIntensity(envLightIntensity);
         viewer->setLightRotation(lightRotation);
