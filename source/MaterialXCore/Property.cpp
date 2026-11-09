@@ -7,11 +7,6 @@
 
 MATERIALX_NAMESPACE_BEGIN
 
-const string PropertyAssign::PROPERTY_ATTRIBUTE = "property";
-const string PropertyAssign::GEOM_ATTRIBUTE = "geom";
-const string PropertyAssign::COLLECTION_ATTRIBUTE = "collection";
-const string PropertySetAssign::PROPERTY_SET_ATTRIBUTE = "propertyset";
-
 //
 // PropertyAssign methods
 //
