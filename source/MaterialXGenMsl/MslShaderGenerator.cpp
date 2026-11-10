@@ -444,19 +444,47 @@ void MslShaderGenerator::emitGlobalVariables(GenContext& context,
                     {
                         if (uniforms[i]->getType() != Type::FILENAME)
                         {
+                            const string& variable = uniforms[i]->getVariable();
+
+                            // Array uniforms are passed to the constructor from the constant
+                            // uniform buffer and copied element-wise into a thread array member.
+                            size_t arraySize = 0;
+                            ValuePtr value = uniforms[i]->getValue();
+                            if (uniforms[i]->getType().isArray() && value)
+                            {
+                                if (value->isA<vector<float>>())
+                                    arraySize = value->asA<vector<float>>().size();
+                                else if (value->isA<vector<int>>())
+                                    arraySize = value->asA<vector<int>>().size();
+                            }
+                            const string arraySuffix = arraySize ? "[" + std::to_string(arraySize) + "]" : EMPTY_STRING;
+
                             emitLineBegin(stage);
                             emitString(separator, stage);
                             if (globalContextInit)
                             {
-                                emitString(uniforms.getInstance() + "." + uniforms[i]->getVariable(), stage);
+                                emitString(uniforms.getInstance() + "." + variable, stage);
                             }
                             else if (globalContextMembers || globalContextConstructorParams)
                             {
-                                emitLine(_syntax->getTypeName(uniforms[i]->getType()) + " " + uniforms[i]->getVariable(), stage, !globalContextConstructorParams);
+                                const string qualifier = (arraySize && globalContextConstructorParams) ? _syntax->getUniformQualifier() + " " : EMPTY_STRING;
+                                emitLine(qualifier + _syntax->getTypeName(uniforms[i]->getType()) + " " + variable + arraySuffix, stage, !globalContextConstructorParams);
                             }
                             else if (globalContextConstructorInit)
                             {
-                                emitLine(uniforms[i]->getVariable() + "(" + uniforms[i]->getVariable() + ")", stage, false);
+                                if (arraySize)
+                                {
+                                    string elements;
+                                    for (size_t e = 0; e < arraySize; ++e)
+                                    {
+                                        elements += (e == 0 ? "" : ", ") + variable + "[" + std::to_string(e) + "]";
+                                    }
+                                    emitLine(variable + "{" + elements + "}", stage, false);
+                                }
+                                else
+                                {
+                                    emitLine(variable + "(" + variable + ")", stage, false);
+                                }
                             }
                             emitLineEnd(stage, false);
                         }

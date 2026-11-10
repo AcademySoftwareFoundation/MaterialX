@@ -14,7 +14,8 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
          *.osl
          *.h
          *.metal
-         *.slang)
+         *.slang
+         *.wgsl)
 
     foreach(SOURCE_FILE IN LISTS MATERIALX_DATA_LIBRARY_SOURCE_FILES)
         set(SOURCE_FILEPATH ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE})
@@ -28,6 +29,32 @@ if(MATERIALX_BUILD_DATA_LIBRARY)
 
     add_custom_target(MaterialXBuildData ALL
         DEPENDS ${MATERIALX_DATA_LIBRARY_BUILD_FILES})
+
+    # genwgsl node/lib *.wgsl are generated at build time; sync them into the data-library
+    # build tree after transpile (the configure-time glob above only sees hand-written files).
+    if(TARGET MaterialXGenWgslLibrary)
+        set(_GENWGSL_SYNC_STAMP ${CMAKE_CURRENT_BINARY_DIR}/.genwgsl_sync.stamp)
+        add_custom_command(
+            OUTPUT ${_GENWGSL_SYNC_STAMP}
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/stdlib/genwgsl
+                ${DATA_LIBRARY_BUILD_DIR}/stdlib/genwgsl
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/pbrlib/genwgsl
+                ${DATA_LIBRARY_BUILD_DIR}/pbrlib/genwgsl
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/lights/genwgsl
+                ${DATA_LIBRARY_BUILD_DIR}/lights/genwgsl
+            COMMAND ${CMAKE_COMMAND} -E touch ${_GENWGSL_SYNC_STAMP}
+            DEPENDS MaterialXGenWgslLibrary
+            COMMENT "Syncing generated genwgsl library into data library build tree"
+            VERBATIM)
+        add_custom_target(MaterialXSyncGenWgslData DEPENDS ${_GENWGSL_SYNC_STAMP})
+        add_dependencies(MaterialXBuildData MaterialXSyncGenWgslData)
+        if(TARGET MaterialXGenWgslOcioLibrary)
+            add_dependencies(MaterialXSyncGenWgslData MaterialXGenWgslOcioLibrary)
+        endif()
+    endif()
 
     if (MATERIALX_BUILD_OSOS AND MATERIALX_OSL_BINARY_OSLC)
         set(OSO_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR}/DataLibraryBuild/targets/genoslnetwork/osos)

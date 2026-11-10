@@ -78,6 +78,7 @@ void bindPyColorManagement(py::module& mod)
         .def(py::init<>())
         .def("getName", &mx::ColorManagementSystem::getName)
         .def("loadLibrary", &mx::ColorManagementSystem::loadLibrary)
+        .def("getDocument", &mx::ColorManagementSystem::getDocument)
         .def("supportsTransform", &mx::ColorManagementSystem::supportsTransform)
         .def("isNoOpTransform", &mx::ColorManagementSystem::isNoOpTransform)
         .def("getUserFacingName", &mx::ColorManagementSystem::getUserFacingName);
@@ -91,6 +92,9 @@ void bindPyColorManagement(py::module& mod)
         .def_static("createFromEnv", &mx::OcioColorManagementSystem::createFromEnv)
         .def_static("createFromFile", &mx::OcioColorManagementSystem::createFromFile)
         .def_static("createFromBuiltinConfig", &mx::OcioColorManagementSystem::createFromBuiltinConfig)
-        .def("getName", &mx::OcioColorManagementSystem::getName);
+        .def("getName", &mx::OcioColorManagementSystem::getName)
+        .def("hasImplementation", &mx::OcioColorManagementSystem::hasImplementation)
+        .def("ensureTransformNodeDef", &mx::OcioColorManagementSystem::ensureTransformNodeDef)
+        .def("getGpuProcessorCode", &mx::OcioColorManagementSystem::getGpuProcessorCode);
 #endif
 }

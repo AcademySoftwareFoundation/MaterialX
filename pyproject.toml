@@ -58,6 +58,11 @@ wheel.packages = ["python/MaterialX"]
 
 sdist.include = [
     "/documents",
+    # Generated genwgsl files are git-ignored; ship them so wheel builds don't need naga.
+    "/libraries/stdlib/genwgsl",
+    "/libraries/pbrlib/genwgsl",
+    "/libraries/bxdf/genwgsl",
+    "/libraries/lights/genwgsl",
 ]
 
 sdist.exclude = [
@@ -89,6 +94,7 @@ result = "{major}.{minor}.{build}"
 [tool.scikit-build.cmake.define]
 MATERIALX_BUILD_SHARED_LIBS = 'OFF' # Be explicit
 MATERIALX_BUILD_PYTHON = 'ON'
+MATERIALX_BUILD_GEN_WGSL = 'ON'
 MATERIALX_BUILD_DOCS = 'ON'
 MATERIALX_PYTHON_FORCE_REPLACE_DOCS = 'ON'
 MATERIALX_TEST_RENDER = 'OFF'

@@ -15,6 +15,7 @@
 
 #include <MaterialXGenShader/DefaultColorManagementSystem.h>
 
+#include <functional>
 #include <map>
 
 MATERIALX_NAMESPACE_BEGIN
@@ -24,6 +25,9 @@ class OcioColorManagementSystemImpl;
 
 /// A shared pointer to a OcioColorManagementSystem
 using OcioColorManagementSystemPtr = std::shared_ptr<class OcioColorManagementSystem>;
+
+/// Optional factory for ShaderNodeImpl used for OCIO GPU transforms on this CMS instance.
+using OcioShaderNodeImplFactory = std::function<ShaderNodeImplPtr()>;
 
 /// @class OcioColorManagementSystem
 /// Class for a default color management system.
@@ -50,6 +54,9 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
     /// Create an OCIO node
     ShaderNodeImplPtr createImplementation(const string& implName) const override;
 
+    /// Override the default OcioNode implementation factory (e.g. set by the active ShaderGenerator).
+    void setShaderNodeImplFactory(OcioShaderNodeImplFactory factory);
+
     /// Returns true if no color transformation is required between the given source
     /// and target color spaces. In addition to the base class behavior, this treats any
     /// color space flagged as data in the OCIO config (e.g. "Raw") as a no-op, and
@@ -63,8 +70,11 @@ class MX_GENSHADER_API OcioColorManagementSystem : public DefaultColorManagement
     /// color spaces that are in the base MaterialX and Color Interop Forum set.
     string getUserFacingName(const string& colorSpace) const override;
 
-    /// Returns shader text for an implementation
+    /// Returns shader text for an implementation in the generator target language.
     string getGpuProcessorCode(const string& implName, const string& functionName) const;
+
+    /// Register an OCIO transform on the loaded library document (creates nodeDef/implementation if needed).
+    NodeDefPtr ensureTransformNodeDef(const ColorSpaceTransform& transform) const;
 
     /// Prefix common to all implementation names
     static const string IMPL_PREFIX;

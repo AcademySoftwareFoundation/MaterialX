@@ -57,6 +57,9 @@ class MX_GENSHADER_API ColorManagementSystem
     /// replacing any previously loaded content.
     virtual void loadLibrary(DocumentPtr document);
 
+    /// Return the document loaded by loadLibrary().
+    DocumentPtr getDocument() const { return _document; }
+
     /// Returns whether this color management system supports a provided transform
     bool supportsTransform(const ColorSpaceTransform& transform) const;
 

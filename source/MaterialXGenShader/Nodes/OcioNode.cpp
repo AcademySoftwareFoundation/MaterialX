@@ -23,12 +23,9 @@ MATERIALX_NAMESPACE_BEGIN
 namespace
 {
 
-// Internal OCIO strings:
-constexpr const char OCIO_COLOR3[] = "color3";
+// OCIO implementation name suffixes (IMPL_MXOCIO_<function>_color3|color4) and OSL temp naming.
+constexpr size_t IMPL_SUFFIX_LEN = sizeof("_color3") - 1;
 constexpr const char COLOR4_SUFFIX[] = "_color4_temp";
-
-// Lengths where needed:
-constexpr auto OCIO_COLOR3_LEN = sizeof(OCIO_COLOR3) / sizeof(OCIO_COLOR3[0]);
 
 } // anonymous namespace
 
@@ -151,15 +148,20 @@ void OcioNode::emitFunctionCall(
     }
 }
 
+string OcioNode::getFunctionNameFromImplName(const string& implName)
+{
+    const size_t startPos = OcioColorManagementSystem::IMPL_PREFIX.size();
+    if (implName.size() <= startPos + IMPL_SUFFIX_LEN)
+    {
+        return implName;
+    }
+    // Strip the _color3 / _color4 suffix.
+    return implName.substr(startPos, implName.size() - IMPL_SUFFIX_LEN - startPos);
+}
+
 string OcioNode::getFunctionName() const
 {
-    auto name = getName();
-
-    // Strip _color3 and _color4 suffixes and impl prefix:
-    size_t startPos = OcioColorManagementSystem::IMPL_PREFIX.size();
-    size_t length = name.size() - OCIO_COLOR3_LEN - 1 - startPos;
-
-    return name.substr(startPos, length);
+    return getFunctionNameFromImplName(getName());
 }
 
 MATERIALX_NAMESPACE_END
