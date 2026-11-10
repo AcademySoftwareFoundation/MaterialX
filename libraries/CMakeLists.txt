@@ -87,34 +87,6 @@ else()
     set(DATA_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
-# CI generates genwgsl under libraries/ at build time; ensure transpile (and any data-library
-# sync) completes before install rules copy the tree. `cmake --build --target install` does not
-# otherwise build ALL custom targets such as MaterialXGenWgslLibrary.
-if(TARGET MaterialXGenWgslLibrary)
-    if(MATERIALX_BUILD_DATA_LIBRARY AND TARGET MaterialXSyncGenWgslData)
-        set(_MATERIALX_WGSL_PREINSTALL_TARGET MaterialXSyncGenWgslData)
-    else()
-        set(_MATERIALX_WGSL_PREINSTALL_TARGET MaterialXGenWgslLibrary)
-    endif()
-    install(CODE "
-        set(_materialx_wgsl_build_config \"\")
-        if(CMAKE_INSTALL_CONFIG_NAME)
-            set(_materialx_wgsl_build_config --config \"\${CMAKE_INSTALL_CONFIG_NAME}\")
-        elseif(CMAKE_BUILD_TYPE)
-            set(_materialx_wgsl_build_config --config \"${CMAKE_BUILD_TYPE}\")
-        endif()
-        execute_process(
-            COMMAND \"${CMAKE_COMMAND}\" --build \"${CMAKE_BINARY_DIR}\"
-                    \${_materialx_wgsl_build_config}
-                    --target ${_MATERIALX_WGSL_PREINSTALL_TARGET}
-            RESULT_VARIABLE _materialx_wgsl_preinstall_result)
-        if(NOT _materialx_wgsl_preinstall_result EQUAL 0)
-            message(FATAL_ERROR
-                \"${_MATERIALX_WGSL_PREINSTALL_TARGET} failed before installing libraries\")
-        endif()
-    ")
-endif()
-
 if(NOT SKBUILD)
     install(DIRECTORY ${DATA_LIBRARY_DIR}/
             DESTINATION "${MATERIALX_INSTALL_STDLIB_PATH}"

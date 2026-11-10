@@ -34,8 +34,9 @@ let geometry = dirent
     .map((fileName) => ({ name: fileName, value: `${geometryFilesURL}/${fileName}` }));
 
 // Shared asset copy (WASM, libraries, textures, materials, geometry, lights). Applied to
-// both backend configs so index-webgpu.html deploys standalone with all assets.
-const copyPlugin = new CopyPlugin({
+// both backend configs so index-webgpu.html deploys standalone with all assets. A plugin
+// instance is bound to one compiler, so each config gets its own.
+const makeCopyPlugin = () => new CopyPlugin({
     patterns: [
         { context: "../../resources/Images", from: "*.*", to: "Images" },
         { context: "../../resources/Geometry/", from: "*.glb", to: "Geometry" },
@@ -82,7 +83,7 @@ function makeConfig(backend) {
                 template: 'index.ejs',
                 templateParameters: { materials, geometry, backend },
             }),
-            copyPlugin,
+            makeCopyPlugin(),
         ],
     };
 }

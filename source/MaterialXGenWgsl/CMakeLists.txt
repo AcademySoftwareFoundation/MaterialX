@@ -192,7 +192,11 @@ endif()
 
 # -- OCIO: pre-bake GpuShaderDesc GLSL to stdlib/genwgsl/ocio/*.wgsl -----------------
 
-if(MATERIALX_BUILD_OCIO)
+if(MATERIALX_BUILD_OCIO AND NOT MATERIALX_BUILD_PYTHON)
+    # The bake runs mxgenwgsl.py against the built Python modules.
+    message(WARNING "MaterialXGenWgsl: MATERIALX_BUILD_OCIO requires MATERIALX_BUILD_PYTHON to bake "
+                    "OCIO WGSL fragments; skipping the bake")
+elseif(MATERIALX_BUILD_OCIO)
     get_filename_component(_ocio_install_root "${OpenColorIO_DIR}/../../.." ABSOLUTE)
     set(_ocio_wgsl_out "${_wgsl_out_dir}/stdlib/genwgsl/ocio")
     set(_ocio_py_stage "${CMAKE_BINARY_DIR}/ocio_bake_py")

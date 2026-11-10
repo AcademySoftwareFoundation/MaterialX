@@ -67,7 +67,9 @@ void toVec4Wgsl(const TypeDesc& type, string& variable)
         variable = "vec4f(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     else if (type == Type::INTEGER)
         variable = "vec4f(f32(" + variable + "), f32(" + variable + "), f32(" + variable + "), 1.0)";
-    else if (type == Type::BSDF || type == Type::EDF)
+    else if (type == Type::BSDF)
+        variable = "vec4f(" + variable + ".response, 1.0)";
+    else if (type == Type::EDF)
         variable = "vec4f(" + variable + ", 1.0)";
     else
         variable = "vec4f(0.0, 0.0, 0.0, 1.0)";
@@ -229,11 +231,23 @@ HwResourceBindingContextPtr WgslShaderGenerator::getResourceBindingContext(GenCo
 
 ShaderPtr WgslShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
-    // Provide a default standalone resource binding context if none was supplied.
+    // Provide a default standalone resource binding context if none was supplied; it is scoped to
+    // this call so the caller's context is left unchanged.
+    struct ScopedDefaultBinding
+    {
+        GenContext& context;
+        bool pushed = false;
+        ~ScopedDefaultBinding()
+        {
+            if (pushed)
+                context.popUserData(HW::USER_DATA_BINDING_CONTEXT);
+        }
+    } defaultBinding{ context };
     if (!getResourceBindingContext(context))
     {
         auto bindingCtx = WgslResourceBindingContext::create(0);
         context.pushUserData(HW::USER_DATA_BINDING_CONTEXT, std::static_pointer_cast<HwResourceBindingContext>(bindingCtx));
+        defaultBinding.pushed = true;
     }
     if (HwResourceBindingContextPtr binding = getResourceBindingContext(context))
     {

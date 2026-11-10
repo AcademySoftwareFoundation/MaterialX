@@ -28,5 +28,5 @@
   <outer_position name="outer1" type="color3">
     <input name="scale" type="float" value="0.5" />
   </outer_position>
-  <output name="out" type="color3" nodename="outer1" />
+  <output name="outer_out" type="color3" nodename="outer1" />
 </materialx>
