@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRenderOsl/OslRenderer.h>
+#include <MaterialXRender/Util.h>
 
 #include <MaterialXGenOsl/OslShaderGenerator.h>
 
@@ -146,16 +147,16 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
                                    " does not include proper tokens for rendering");
     }
 
-    // Set the working directory for rendering.
+    // Only the child shell changes directory; the caller may have other jobs running.
     FileSearchPath searchPath = getDefaultDataSearchPath();
     FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
-    FilePath origWorkingPath = FilePath::getCurrentPath();
-    rootPath.setCurrentPath();
 
     // Write scene file
     const string sceneFileName = (absDir / (shaderName + "_scene_template.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
+    if (!shaderFileStream)
+        throw ExceptionRenderError("Cannot write OSL scene: " + sceneFileName);
     if (shaderFileStream.is_open())
     {
         shaderFileStream << sceneString;
@@ -168,27 +169,29 @@ void OslRenderer::renderOSL(const FilePath& dirPath, const string& shaderName, c
     osoPaths += PATH_LIST_SEPARATOR + absDir.getParentPath().asString();
 
     // Build and run render command
-    string command(_oslTestRenderExecutable);
-    command += " " + sceneFileName;
-    command += " " + outputFileName;
+    removeStaleFile(outputFileName);
+    string command = quoteCommandArgument(_oslTestRenderExecutable.asString());
+    command += " " + quoteCommandArgument(sceneFileName);
+    command += " " + quoteCommandArgument(outputFileName);
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
-    command += " --path " + osoPaths;
+    command += " --path " + quoteCommandArgument(osoPaths);
+    command += " -t " + std::to_string(_threadCount);
     command += " -aa " + std::to_string(isColorClosure ? _aaLit : _aaUnlit);
-    command += " > " + errorFile + redirectString;
+    command += " > " + quoteCommandArgument(errorFile) + redirectString;
+
+    command = commandInDirectory(command, rootPath);
 
     // Repeat the render command to allow for sporadic errors.
     int returnValue = 0;
     for (int i = 0; i < 5; i++)
     {
+        removeStaleFile(outputFileName);
         returnValue = std::system(command.c_str());
         if (!returnValue)
         {
             break;
         }
     }
-
-    // Restore the working directory after rendering.
-    origWorkingPath.setCurrentPath();
 
     // Report errors on a non-zero return value.
     if (returnValue)
@@ -278,16 +281,16 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
                                    " does not include proper tokens for rendering");
     }
 
-    // Set the working directory for rendering.
+    // Only the child shell changes directory; the caller may have other jobs running.
     FileSearchPath searchPath = getDefaultDataSearchPath();
     FilePath rootPath = searchPath.isEmpty() ? FilePath() : searchPath[0];
-    FilePath origWorkingPath = FilePath::getCurrentPath();
-    rootPath.setCurrentPath();
 
     // Write scene file
     const string sceneFileName = (absDir / (shaderName + "_scene_template_oslcmd.xml")).asString();
     std::ofstream shaderFileStream;
     shaderFileStream.open(sceneFileName);
+    if (!shaderFileStream)
+        throw ExceptionRenderError("Cannot write OSL scene: " + sceneFileName);
 
     if (shaderFileStream.is_open())
     {
@@ -302,27 +305,29 @@ void OslRenderer::renderOSLNetwork(const FilePath& dirPath, const string& shader
     osoPaths += PATH_LIST_SEPARATOR + absDir.getParentPath().asString();
 
     // Build and run render command
-    string command(_oslTestRenderExecutable);
-    command += " " + sceneFileName;
-    command += " " + outputFileName;
+    removeStaleFile(outputFileName);
+    string command = quoteCommandArgument(_oslTestRenderExecutable.asString());
+    command += " " + quoteCommandArgument(sceneFileName);
+    command += " " + quoteCommandArgument(outputFileName);
     command += " -r " + std::to_string(_width) + " " + std::to_string(_height);
-    command += " --path " + osoPaths;
+    command += " --path " + quoteCommandArgument(osoPaths);
+    command += " -t " + std::to_string(_threadCount);
     command += " -aa " + std::to_string(_aaLit);
-    command += " > " + errorFile + redirectString;
+    command += " > " + quoteCommandArgument(errorFile) + redirectString;
+
+    command = commandInDirectory(command, rootPath);
 
     // Repeat the render command to allow for sporadic errors.
     int returnValue = 0;
     for (int i = 0; i < 5; i++)
     {
+        removeStaleFile(outputFileName);
         returnValue = std::system(command.c_str());
         if (!returnValue)
         {
             break;
         }
     }
-
-    // Restore the working directory after rendering.
-    origWorkingPath.setCurrentPath();
 
     // Report errors on a non-zero return value.
     if (returnValue)
@@ -376,7 +381,7 @@ void OslRenderer::shadeOSL(const FilePath& dirPath, const string& shaderName, co
     command += " " + shaderPath;
     command += " -o " + outputName + " " + outputFileName;
     command += " -g 256 256";
-    command += " > " + errorFile + redirectString;
+    command += " > " + quoteCommandArgument(errorFile) + redirectString;
 
     int returnValue = std::system(command.c_str());
 
@@ -442,12 +447,15 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     const string redirectString(" 2>&1");
 
     // Run the command and get back the result. If non-empty string throw exception with error
-    string command = _oslCompilerExecutable.asString() + " -q ";
+    removeStaleFile(osoFilePath);
+    string command = quoteCommandArgument(_oslCompilerExecutable.asString()) + " -q ";
     for (FilePath p : _oslIncludePath)
     {
-        command += " -I\"" + p.asString() + "\" ";
+        command += " -I" + quoteCommandArgument(p.asString()) + " ";
     }
-    command += oslFilePath.asString() + " -o " + osoFilePath.asString() + " > " + errorFile + redirectString;
+    command += quoteCommandArgument(oslFilePath.asString()) + " -o " +
+               quoteCommandArgument(osoFilePath.asString()) + " > " +
+               quoteCommandArgument(errorFile) + redirectString;
 
     int returnValue = std::system(command.c_str());
 
@@ -456,7 +464,7 @@ void OslRenderer::compileOSL(const FilePath& oslFilePath)
     result.assign(std::istreambuf_iterator<char>(errorStream),
                   std::istreambuf_iterator<char>());
 
-    if (!result.empty())
+    if (returnValue || !result.empty() || !osoFilePath.exists())
     {
         StringVec errors;
         errors.push_back("Command string: " + command);
@@ -511,6 +519,8 @@ void OslRenderer::createProgram(const StageMap& stages)
     file.open(fileName);
     file << oslCode;
     file.close();
+    if (!file)
+        throw ExceptionRenderError("Cannot write OSL source: " + fileName);
 
     // Try compiling the code
     compileOSL(fileName);

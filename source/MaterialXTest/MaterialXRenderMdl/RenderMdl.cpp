@@ -8,6 +8,7 @@
 #include <MaterialXTest/MaterialXGenMdl/GenMdl.h>
 
 #include <MaterialXRender/ShaderRenderer.h>
+#include <MaterialXRender/Util.h>
 #include <MaterialXRender/StbImageLoader.h>
 #if defined(MATERIALX_BUILD_OIIO)
     #include <MaterialXRender/OiioImageLoader.h>
@@ -38,6 +39,11 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& /*log*/) override { };
 
+    unsigned int getRenderWorkerCount(const GenShaderUtil::TestSuiteOptions& options) const override
+    {
+        return static_cast<unsigned int>(options.mdlRenderWorkers);
+    }
+
     RenderUtil::RenderProfileResult runRenderer(
         const RenderUtil::RenderSession& session,
         const RenderUtil::RenderItem& item,
@@ -61,7 +67,6 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
 
     std::cout << "Validating MDL rendering for: " << doc->getSourceUri() << ", element: " << element->getNamePath() << std::endl;
 
-    mx::ScopedTimer totalMDLTime(&result.languageTimes.totalTime);
 
     mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -110,9 +115,13 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 result.success = false;
                 return result;
             }
-            CHECK(shader->getSourceCode().length() > 0);
-
-            std::string mdlCmdStr = shader->getSourceCode();
+            std::string source = shader->getSourceCode();
+            CHECK(!source.empty());
+            if (source.empty())
+            {
+                result.success = false;
+                continue;
+            }
 
             std::string shaderPath;
             mx::FilePath outputFilePath = item.outputPath;
@@ -122,30 +131,13 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 outputFilePath = outputFilePath / mx::FilePath("reduced");
             }
 
-            // Note: mkdir will fail if the directory already exists which is ok.
-            {
-                mx::ScopedTimer ioDir(&result.languageTimes.ioTime);
-                outputFilePath.createDirectory(true);
-            }
-
-            shaderPath = outputFilePath / mx::FilePath(shaderName);
-
-            // Write out mdl file
-            {
-                mx::ScopedTimer ioTimer(&result.languageTimes.ioTime);
-                std::ofstream file;
-                file.open(shaderPath + ".rendermdl.mdl");
-                file << shader->getSourceCode();
-                file.close();
-            }
-
-            // Render (and validate)
-            bool validated = false;
+            shaderPath = (outputFilePath / shaderName).asString();
             try
             {
-                // Executable
-                std::string command(MATERIALX_MDL_BINARY_TESTRENDER);
-                CHECK(!command.empty());
+                std::string executable(MATERIALX_MDL_BINARY_TESTRENDER);
+                if (executable.empty())
+                    throw mx::ExceptionRenderError("MDL renderer executable is not configured");
+                std::string command = mx::quoteCommandArgument(executable);
 
                 // Avoid picking up by accident MDL support files for MaterialX shipped with the
                 // example (the ones from this MaterialX installation should be used instead).
@@ -154,17 +146,17 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
                 // Set MDL search paths (same as for the resolver).
                 for (const auto& sp : resolver->getMdlSearchPaths())
                 {
-                    command += " --mdl_path \"" + sp.asString() + "\"";
+                    command += " --mdl_path " + mx::quoteCommandArgument(sp.asString());
                 }
 
                 // Set MDL search path for the module itself (directory containing the .mdl file).
-                command += " --mdl_path \"" + outputFilePath.asString() + "\"";
+                command += " --mdl_path " + mx::quoteCommandArgument(outputFilePath.asString());
 
                 // Set environment
                 mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
                 mx::FilePath rootPath = searchPath.isEmpty() ? mx::FilePath() : searchPath[0];
                 std::string iblFile = (rootPath / testOptions.radianceIBLPath).asString();
-                command += " --hdr \"" + iblFile + "\"";
+                command += " --hdr " + mx::quoteCommandArgument(iblFile);
                 command += " --hdr_rotate 90";
                 command += " --background 0.073239 0.073239 0.083535";
 
@@ -197,51 +189,50 @@ RenderUtil::RenderProfileResult MdlShaderRenderTester::runRenderer(
 #else
                 std::string ext = ".png";
 #endif
-                command += " -o " + shaderPath + "_mdl" + ext;
+                mx::FilePath imagePath = shaderPath + "_mdl" + ext;
+                command += " -o " + mx::quoteCommandArgument(imagePath.asString());
 
                 // Set the material
                 std::string mdlMaterialName = "::" + shaderName + ".rendermdl::" + shaderName;
-                command += " " + mdlMaterialName;
+                command += " " + mx::quoteCommandArgument(mdlMaterialName);
 
                 // Redirect output
                 std::string logFile(shaderPath + ".genmdl_render_log.txt");
-                command += " >" + logFile + " 2>&1";
+                command += " >" + mx::quoteCommandArgument(logFile) + " 2>&1";
 
-                // Run the renderer executable
-                int returnValue = std::system(command.c_str());
-                CHECK(returnValue == 0);
-
-                // Log command and return code
-                log << command << std::endl;
-                log << "\tReturn code: " << std::to_string(returnValue) << std::endl;
-
-                // Append output
-                std::ifstream logStream(logFile);
-                std::string line;
-                while (std::getline(logStream, line))
-                {
-                    log << "\tLog: " << line << std::endl;
-                }
-                validated = true;
+                std::string label = doc->getSourceUri() + ": " + element->getNamePath() +
+                    (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED ? " [reduced]" : " [complete]");
+                session.jobs.submit(label, shaderPath,
+                    [command, source, shaderPath, outputFilePath, imagePath, logFile](RenderUtil::RenderJobResult& job) {
+                        job.imagePath = imagePath;
+                        outputFilePath.createDirectory(true);
+                        std::ofstream file(shaderPath + ".rendermdl.mdl");
+                        file << source;
+                        file.close();
+                        if (!file)
+                            throw mx::ExceptionRenderError("Cannot write MDL source: " + shaderPath);
+                        mx::removeStaleFile(imagePath);
+                        int returnValue;
+                        {
+                            mx::ScopedTimer renderTimer(&job.renderTime);
+                            returnValue = std::system(command.c_str());
+                        }
+                        job.log = command + "\nReturn code: " + std::to_string(returnValue) + "\n";
+                        std::ifstream logStream(logFile);
+                        job.log.append(std::istreambuf_iterator<char>(logStream), std::istreambuf_iterator<char>());
+                        job.success = returnValue == 0;
+                    });
             }
-            catch (mx::ExceptionRenderError& e)
+            catch (std::exception& e)
             {
-                for (const auto& error : e.errorLog())
-                {
-                    log << e.what() << " " << error << std::endl;
-                }
-                log << ">> Refer to shader code in dump file: " << shaderPath << ".rendermdl.mdl file" << std::endl;
-            }
-            catch (mx::Exception& e)
-            {
-                log << e.what() << "\n";
-            }
-            CHECK(validated);
-            if (!validated)
+                log << e.what() << std::endl;
+                FAIL_CHECK(e.what());
                 result.success = false;
+            }
         }
     }
 
+    result.languageTimes.totalTime = result.languageTimes.generationTime + result.languageTimes.ioTime;
     return result;
 }
 
