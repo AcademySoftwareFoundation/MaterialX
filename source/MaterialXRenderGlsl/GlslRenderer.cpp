@@ -12,8 +12,53 @@
 #include <MaterialXRenderHw/SimpleWindow.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXGenHw/HwConstants.h>
+#include <MaterialXTrace/Tracing.h>
 
 MATERIALX_NAMESPACE_BEGIN
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+namespace
+{
+
+/// RAII wrapper around a GL_TIME_ELAPSED query. On destruction, reads the
+/// result (blocking until the GPU is done) and emits an async trace event.
+class GpuTimerScope
+{
+  public:
+    GpuTimerScope()
+    {
+        // Timer queries require OpenGL 3.3, while macOS may fall back to a 3.2 core profile.
+        if (GLAD_GL_VERSION_3_3 && Tracing::Dispatcher::getInstance().isEnabled())
+        {
+            glGenQueries(1, &_query);
+            glBeginQuery(GL_TIME_ELAPSED, _query);
+        }
+    }
+
+    ~GpuTimerScope()
+    {
+        if (!_query)
+            return;
+
+        glEndQuery(GL_TIME_ELAPSED);
+        // Reading GL_QUERY_RESULT blocks until the GPU work is done,
+        // so the GPU slice can safely end "now".
+        GLuint64 gpuDurationNs = 0;
+        glGetQueryObjectui64v(_query, GL_QUERY_RESULT, &gpuDurationNs);
+        glDeleteQueries(1, &_query);
+        MX_TRACE_ASYNC_ENDING_NOW(Tracing::GPU_ASYNC_TRACK, Tracing::Category::Render,
+                                  "GPU Frame", gpuDurationNs);
+    }
+
+    GpuTimerScope(const GpuTimerScope&) = delete;
+    GpuTimerScope& operator=(const GpuTimerScope&) = delete;
+
+  private:
+    GLuint _query = 0;
+};
+
+} // anonymous namespace
+#endif
 
 //
 // GlslRenderer methods
@@ -160,6 +205,10 @@ void GlslRenderer::render()
     glEnable(GL_FRAMEBUFFER_SRGB);
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+#ifdef MATERIALX_BUILD_PERFETTO_TRACING
+    GpuTimerScope gpuTimer;
+#endif
 
     try
     {
