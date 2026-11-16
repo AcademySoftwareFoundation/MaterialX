@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<materialx version="1.39">
+  <nodedef name="ND_mixedoutput" node="mixedoutput">
+    <output name="surface" type="surfaceshader" />
+    <output name="weight" type="float" />
+  </nodedef>
+  <nodegraph name="NG_mixedoutput" nodedef="ND_mixedoutput">
+    <standard_surface name="surface_node" type="surfaceshader">
+      <input name="base_color" type="color3" value="1, 0, 0" />
+    </standard_surface>
+    <sin name="weight_node" type="float">
+      <input name="in" type="float" value="0.5" />
+    </sin>
+    <output name="surface" type="surfaceshader" nodename="surface_node" />
+    <output name="weight" type="float" nodename="weight_node" />
+  </nodegraph>
+  <mixedoutput name="source" type="multioutput" />
+  <standard_surface name="background" type="surfaceshader">
+    <input name="base_color" type="color3" value="0, 0, 1" />
+  </standard_surface>
+  <mix name="result" type="surfaceshader">
+    <input name="fg" type="surfaceshader" nodename="source" output="surface" />
+    <input name="bg" type="surfaceshader" nodename="background" />
+    <input name="mix" type="float" nodename="source" output="weight" />
+  </mix>
+  <surfacematerial name="mixedoutput_material" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="result" />
+  </surfacematerial>
+</materialx>
