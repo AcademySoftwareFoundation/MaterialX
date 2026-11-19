@@ -22,7 +22,7 @@
     <oren_nayar_diffuse_bsdf name="diffuse_brdf1" type="BSDF">
       <input name="color" type="color3" value="0.96, 0.1, 0.1" />
       <input name="roughness" type="float" value="0.0" />
-      <input name="normal" type="vector3" value="0.0, 0.0, 0.0" />
+      <input name="normal" type="vector3" value="0.0, 0.0, 1.0" />
     </oren_nayar_diffuse_bsdf>
     <dielectric_bsdf name="dielectric_brdf1" type="BSDF">
       <input name="tint" type="color3" value="1.0, 1.0, 1.0" />
