@@ -131,6 +131,7 @@ class MX_GENSHADER_API ShaderGraph : public ShaderNode
     ConstDocumentPtr getDocument() const { return _document; }
 
     /// Create a new node in the graph from a node definition.
+    /// @throws ExceptionShaderGenError if the graph already contains a node with the given unique identifier.
     ShaderNode* createNode(const string& name, const string& uniqueId, ConstNodeDefPtr nodeDef, GenContext& context);
 
     /// Bypass a node for a particular input and output,
