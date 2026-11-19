@@ -379,13 +379,11 @@ ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const Nod
         throw ExceptionShaderGenError("NodeGraph '" + nodegraph.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
-
-    ShaderNodeImplPtr impl;
-    // Use a compound implementation.
-    if (outputType.isClosure())
+    // Any closure output requires the emitter that handles mixed output types.
+    for (OutputPtr output : outputs)
     {
-        return ClosureCompoundNodeMdl::create();
+        if (_typeSystem->getType(output->getType()).isClosure())
+            return ClosureCompoundNodeMdl::create();
     }
     return CompoundNodeMdl::create();
 }
