@@ -1331,12 +1331,14 @@ Transform the incoming vector3 coordinate from one specified space to another; c
 ### `transformnormal`
 Transform the incoming vector3 normal from one specified space to another; cannot be used on any other stream type.
 
+The normal is transformed using the inverse transpose of the transformation matrix, ignoring translation, and the result must be normalized to unit length. Normalization is also required when `fromspace` and `tospace` identify the same coordinate space. A zero-length transformed normal has no defined direction; its output is undefined.
+
 |Port       |Description                                                                                                                                           |Type   |Default      |
 |-----------|------------------------------------------------------------------------------------------------------------------------------------------------------|-------|-------------|
 |`in`       |The normal to be transformed                                                                                                                          |vector3|0.0, 0.0, 1.0|
 |`fromspace`|The name of a vector space understood by the rendering target to transform the `in` normal from; may be empty to specify the renderer's working space.|string |__empty__    |
 |`tospace`  |The name of a vector space understood by the rendering target for the space to transform the `in` normal to.                                          |string |__empty__    |
-|`out`      |Output: point transformed from `fromspace` to `tospace`                                                                                               |vector3|`in`         |
+|`out`      |Output: normalized normal transformed from `fromspace` to `tospace`                                                                                   |vector3|`normalize(in)`|
 
 <a id="node-transformmatrix"> </a>
 
