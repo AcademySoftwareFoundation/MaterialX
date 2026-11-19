@@ -189,14 +189,17 @@ export material mx_dielectric_bsdf(
 
     bsdf bsdf_T = df::weighted_layer(
         weight: mxp_weight,
-        layer: df::microfacet_ggx_smith_bsdf(
-            roughness_u: mxp_roughness.x,
-            roughness_v: mxp_roughness.y,
-            tint: mxp_tint * mxp_top_weight,
-            multiscatter_tint: mxp_tint * mxp_top_weight,
-            tangent_u: mxp_tangent,
-            mode: df::scatter_transmit,
-            backscatter: df::backscatter_none),
+        layer: df::thin_film(
+            thickness: mxp_thinfilm_thickness,
+            ior: color(coatIor),
+            base: df::microfacet_ggx_smith_bsdf(
+                roughness_u: mxp_roughness.x,
+                roughness_v: mxp_roughness.y,
+                tint: mxp_tint * mxp_top_weight,
+                multiscatter_tint: mxp_tint * mxp_top_weight,
+                tangent_u: mxp_tangent,
+                mode: df::scatter_transmit,
+                backscatter: df::backscatter_none)),
         normal: mxp_normal);
 
     bsdf bsdf_RT = df::weighted_layer(
