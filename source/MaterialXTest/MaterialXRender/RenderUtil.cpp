@@ -7,6 +7,10 @@
 #include <MaterialXTest/MaterialXRender/RenderUtil.h>
 
 #include <MaterialXFormat/Util.h>
+#include <MaterialXRender/StbImageLoader.h>
+#if defined(MATERIALX_BUILD_OIIO)
+#include <MaterialXRender/OiioImageLoader.h>
+#endif
 
 #ifdef MATERIALX_BUILD_OCIO
 #include <MaterialXGenShader/OcioColorManagementSystem.h>
@@ -100,7 +104,16 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
     // Create renderers and generators
     initializeGeneratorContext(runState, logger, profiler);
 
-    RenderSession session { runState.options, logger.renderLog() };
+    auto workerCount = getRenderWorkerCount(runState.options);
+    logger.profilingLog() << "Render workers: " << workerCount << std::endl;
+    if (target == "genosl" || target == "genoslnetwork")
+        logger.profilingLog() << "Effective OSL threads per worker (0 = renderer default): "
+                              << oslThreadCount(runState.options.oslRenderWorkers,
+                                                runState.options.oslThreadsPerWorker, availableCpuCount()) << std::endl;
+    if (target == "genmdl")
+        logger.profilingLog() << "MDL render time includes external compilation and rendering." << std::endl;
+    RenderJobDispatcher jobs(workerCount);
+    RenderSession session { runState.options, logger.renderLog(), jobs };
 
     bool allSucceeded = true;
     for (const mx::FilePath& filename : files)
@@ -108,7 +121,11 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
         DocumentInfo docInfo = loadAndValidateDocument(filename, runState, logger, profiler);
 
         if (!docInfo.doc || !docInfo.valid)
+        {
+            if (!_skipFiles.count(filename.getBaseName()))
+                allSucceeded = false;
             continue;
+        }
 
         for (const auto& element : docInfo.elements)
         {
@@ -119,6 +136,46 @@ bool ShaderRenderTester::validate(const mx::FilePath optionsFilePath)
             if (!result.success)
                 allSucceeded = false;
         }
+    }
+
+    // Join before replaying diagnostics or touching Catch/image-loader state.
+    auto completed = jobs.finish();
+    mx::ImageLoaderPtr imageLoader = mx::StbImageLoader::create();
+#if defined(MATERIALX_BUILD_OIIO)
+    imageLoader = mx::OiioImageLoader::create();
+#endif
+    for (auto& job : completed)
+    {
+        INFO(job.label);
+        logger.renderLog() << "------------ " << job.label << " ------------\n" << job.log;
+        if (job.success)
+        {
+            try
+            {
+                // Use the loader directly: ImageHandler substitutes a fallback
+                // image on failure, which must not make a render test pass.
+                mx::ScopedTimer validationTimer(&profiler.times().validateTime);
+                auto image = imageLoader->loadImage(job.imagePath);
+                job.success = image && image->getWidth() > 0 && image->getHeight() > 0;
+                if (!job.success)
+                    job.log += "Missing or unreadable rendered image: " + job.imagePath.asString();
+            }
+            catch (std::exception& e)
+            {
+                job.success = false;
+                job.log += e.what();
+            }
+        }
+        INFO(job.log);
+        CHECK(job.success);
+        if (!job.success)
+        {
+            logger.renderLog() << "Job failed: " << job.log << std::endl;
+            allSucceeded = false;
+        }
+        profiler.times().jobTime += job.totalTime;
+        profiler.times().languageTimes.compileTime += job.compileTime;
+        profiler.times().languageTimes.renderTime += job.renderTime;
     }
 
     // Print profiling summary on the normal path.
@@ -423,7 +480,7 @@ bool ShaderRenderTester::loadOptions(const mx::FilePath& optionsFilePath, TestRu
     runState.options = GenShaderUtil::TestSuiteOptions();
     if (!runState.options.readOptions(optionsFilePath))
     {
-        std::cerr << "Can't find options file. Skip test." << std::endl;
+        FAIL_CHECK("Cannot read render test options: " + optionsFilePath.asString());
         return false;
     }
     if (!runTest(runState.options))

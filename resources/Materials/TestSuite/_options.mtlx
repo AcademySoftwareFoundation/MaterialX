@@ -33,6 +33,15 @@
     -->
     <input name="shaderInterfaces" type="integer" value="2" />
 
+    <!-- Concurrent external material jobs. One preserves serial execution.
+         Each worker compiles/renders the next available material; shader generation stays serial. -->
+    <input name="oslRenderWorkers" type="integer" value="1" />
+    <input name="mdlRenderWorkers" type="integer" value="1" />
+
+    <!-- OSL renderer threads per job. Zero uses testrender's default for one worker,
+         or divides available CPUs among multiple workers (at least one thread each). -->
+    <input name="oslThreadsPerWorker" type="integer" value="0" />
+
     <!-- Rendered image size if render validation test enabled -->
     <input name="renderSize" type="vector2" value="512, 512" />
 

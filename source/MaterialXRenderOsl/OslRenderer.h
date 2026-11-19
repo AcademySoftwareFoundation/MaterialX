@@ -113,6 +113,12 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
         _oslIncludePath = dirPath;
     }
 
+    /// Set the number of testrender threads. Zero selects the renderer default.
+    void setThreadCount(unsigned int count) { _threadCount = count; }
+
+    /// Return the number of testrender threads, or zero for automatic selection.
+    unsigned int getThreadCount() const { return _threadCount; }
+
     /// Set the location where compiled OSL files will reside.
     /// @param dirPath Path to output location
     void setOslOutputFilePath(const FilePath& dirPath)
@@ -292,6 +298,7 @@ class MX_RENDEROSL_API OslRenderer : public ShaderRenderer
     bool _useOSLCmdStr;
     int _aaLit;
     int _aaUnlit;
+    unsigned int _threadCount = 0;
     string _oslCmdStr;
 };
 

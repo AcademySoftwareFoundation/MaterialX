@@ -88,6 +88,12 @@ class TestSuiteOptions
     // - 1 = run reduced only.
     int shaderInterfaces = 2;
 
+    // External render jobs are serial unless explicitly enabled.
+    int oslRenderWorkers = 1;
+    int mdlRenderWorkers = 1;
+    // Zero budgets available CPUs automatically across OSL workers.
+    int oslThreadsPerWorker = 0;
+
     // Render size
     mx::Vector2 renderSize = { 512, 512 };
 

@@ -103,6 +103,11 @@ class OslShaderRenderTester : public RenderUtil::ShaderRenderTester
 
     void createRenderer(std::ostream& log) override;
 
+    unsigned int getRenderWorkerCount(const GenShaderUtil::TestSuiteOptions& options) const override
+    {
+        return static_cast<unsigned int>(options.oslRenderWorkers);
+    }
+
     RenderUtil::RenderProfileResult runRenderer(
         const RenderUtil::RenderSession& session,
         const RenderUtil::RenderItem& item,
@@ -171,8 +176,6 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
 #endif
         _renderer->setImageHandler(imageHandler);
         _renderer->setLightHandler(nullptr);
-        initialized = true;
-
         // Pre-compile some required shaders for testrender
         if (!oslcExecutable.empty() && !testRenderExecutable.empty())
         {
@@ -189,6 +192,7 @@ void OslShaderRenderTester::createRenderer(std::ostream& log)
             // Set the search path for these compiled shaders.
             _renderer->setOslUtilityOSOPath(shaderPath);
         }
+        initialized = true;
     }
     catch (mx::ExceptionRenderError& e)
     {
@@ -214,8 +218,6 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
     std::ostream& log = session.log;
 
     std::cout << "Validating OSL rendering for: " << doc->getSourceUri() << std::endl;
-
-    mx::ScopedTimer totalOSLTime(&result.languageTimes.totalTime);
 
     mx::ShaderGenerator& shadergen = context.getShaderGenerator();
 
@@ -254,149 +256,102 @@ RenderUtil::RenderProfileResult OslShaderRenderTester::runRenderer(
                 result.success = false;
                 return result;
             }
-            CHECK(shader->getSourceCode().length() > 0);
-
-            std::string oslCmdStr = shader->getSourceCode();
-
-            std::string shaderPath;
-            mx::FilePath outputFilePath = item.outputPath;
-            
-            // Note: mkdir will fail if the directory already exists which is ok.
+            std::string source = shader->getSourceCode();
+            CHECK(!source.empty());
+            if (source.empty())
             {
-                mx::ScopedTimer ioDir(&result.languageTimes.ioTime);
-                outputFilePath.createDirectory(true);
-                
-                // Use separate directory for reduced output
-                if (options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED)
-                {
-                    outputFilePath = outputFilePath / mx::FilePath("reduced");
-                    outputFilePath.createDirectory();
-                }
+                result.success = false;
+                continue;
             }
 
-            shaderPath = mx::FilePath(outputFilePath) / mx::FilePath(shaderName);
-
-            // Write out osl file
-            if (testOptions.dumpGeneratedCode)
+            auto& outputs = shader->getStage(mx::Stage::PIXEL).getOutputBlock(mx::OSL::OUTPUTS);
+            CHECK(!outputs.empty());
+            if (outputs.empty())
             {
-                mx::ScopedTimer ioTimer(&result.languageTimes.ioTime);
-                std::ofstream file;
-                file.open(shaderPath + (_useOslCmdStr ? ".oslcmd" : ".osl"));
-                file << shader->getSourceCode();
-                file.close();
+                result.success = false;
+                continue;
             }
-
-            // Validate
-            bool validated = false;
+            auto output = outputs[0];
+            const auto& syntax = shadergen.getSyntax().getTypeSyntax(output->getType());
+            std::string outputName = output->getVariable();
+            std::string outputType = syntax.getTypeAlias().empty() ? syntax.getName() : syntax.getTypeAlias();
+            auto outputFilePath = item.outputPath;
+            bool reduced = options.shaderInterfaceType == mx::SHADER_INTERFACE_REDUCED;
+            if (reduced)
+                outputFilePath = outputFilePath / "reduced";
+            std::string shaderPath = (outputFilePath / shaderName).asString();
+            bool network = _useOslCmdStr;
+            auto osoPathAttr = shader->getAttribute("osoPath");
+            mx::FilePath dataOsoPath = osoPathAttr ? osoPathAttr->getValueString() : mx::EMPTY_STRING;
+            auto utilityPath = mx::getDefaultDataSearchPath().find("resources/Utilities");
+            auto settings = testOptions;
+            // testrender supports OBJ geometry; retain the sphere fallback
+            // for other formats and pass the resolved path to each private renderer.
+            auto renderGeometry = settings.renderGeometry;
+            if (renderGeometry.getExtension() != "obj")
+                renderGeometry = mx::FilePath();
+            auto geomPath = RenderUtil::findRenderGeometry(renderGeometry, mx::getDefaultDataSearchPath());
+            auto threadCount = RenderUtil::oslThreadCount(settings.oslRenderWorkers,
+                                                         settings.oslThreadsPerWorker,
+                                                         RenderUtil::availableCpuCount());
+            std::string label = doc->getSourceUri() + ": " + element->getNamePath() +
+                                (reduced ? " [reduced]" : " [complete]");
             try
             {
-                // Set renderer properties.
-                _renderer->setOslOutputFilePath(outputFilePath);
-                _renderer->setOslShaderName(shaderName);
-                // The antialiasing flag in testrender traces N*N samples per pixel,
-                // so these values are effectively squared.
-                _renderer->setAaLit(testOptions.enableReferenceQuality ? 16 : 2);
-                _renderer->setAaUnlit(testOptions.enableReferenceQuality ? 2 : 1);
-
-                // Validate compilation
-                if (!_useOslCmdStr)
-                {
-                    mx::ScopedTimer compileTimer(&result.languageTimes.compileTime);
-                    _renderer->createProgram(shader);
-                }
-
-                _renderer->setSize(static_cast<unsigned int>(testOptions.renderSize[0]), static_cast<unsigned int>(testOptions.renderSize[1]));
-
-                const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
-
-                // Bind IBL image name overrides.
-                mx::StringVec envOverrides;
-                std::string envmap_filename("string envmap_filename \"");
-                envmap_filename += testOptions.radianceIBLPath;
-                envmap_filename += "\";\n";
-                envOverrides.push_back(envmap_filename);
-
-                _renderer->setEnvShaderParameterOverrides(envOverrides);
-
-                const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
-                if (outputs.size() > 0)
-                {
-                    const mx::ShaderPort* output = outputs[0];
-                    const mx::TypeSyntax& typeSyntax = shadergen.getSyntax().getTypeSyntax(output->getType());
-
-                    const std::string& outputName = output->getVariable();
-                    const std::string& outputType = typeSyntax.getTypeAlias().empty() ? typeSyntax.getName() : typeSyntax.getTypeAlias();
-                    const std::string& sceneTemplateFile = (_useOslCmdStr ? "scene_template_oslcmd.xml" : "scene_template.xml");
-
-                    // Set shader output name and type to use
-                    _renderer->setOslShaderOutput(outputName, outputType);
-
-                    // Get oslcmdstr
-                    _renderer->setOSLCmdStr(oslCmdStr);
-                    _renderer->useOslCommandString(_useOslCmdStr);
-                    // Osl Network Shaders record the oso path in an attribute
-                    auto osoPathAttr = shader->getAttribute("osoPath");
-                    if (osoPathAttr)
-                    {
-                        _renderer->setDataLibraryOSOPath(osoPathAttr->getValueString());
-                    }
-
-                    // Set scene template file. For now we only have the constant color scene file
-                    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
-                    mx::FilePath sceneTemplatePath = searchPath.find("resources/Utilities/");
-                    sceneTemplatePath = sceneTemplatePath / sceneTemplateFile;
-                    _renderer->setOslTestRenderSceneTemplateFile(sceneTemplatePath.asString());
-
-                    // Set the render geometry. OSL testrender currently loads
-                    // only OBJ geometry, so fall back to the default sphere
-                    // for other formats.
-                    mx::FilePath renderGeometry = testOptions.renderGeometry;
-                    if (renderGeometry.getExtension() != "obj")
-                    {
-                        renderGeometry = mx::FilePath();
-                    }
-                    mx::FilePath geomPath = RenderUtil::findRenderGeometry(renderGeometry, searchPath);
-                    _renderer->setRenderGeometry(geomPath);
-
-                    // Validate rendering
-                    {
-                        mx::ScopedTimer renderTimer(&result.languageTimes.renderTime);
-                        _renderer->render();
-                        result.images.push_back(_renderer->captureImage());
-                    }
-                }
-                else
-                {
-                    CHECK(false);
-                    log << ">> Shader has no output to render from\n";
-                }
-
-                validated = true;
+                session.jobs.submit(label, shaderPath,
+                    [source, shaderName, shaderPath, outputFilePath, outputName, outputType,
+                     network, dataOsoPath, utilityPath, settings, threadCount, geomPath](RenderUtil::RenderJobResult& job) {
+                        outputFilePath.createDirectory(true);
+                        auto renderer = mx::OslRenderer::create();
+                        renderer->setOslCompilerExecutable(MATERIALX_OSL_BINARY_OSLC);
+                        renderer->setOslTestRenderExecutable(MATERIALX_OSL_BINARY_TESTRENDER);
+                        renderer->setOslIncludePath(mx::FileSearchPath(MATERIALX_OSL_INCLUDE_PATH));
+                        renderer->initialize();
+                        renderer->setOslUtilityOSOPath(utilityPath);
+                        renderer->setOslOutputFilePath(outputFilePath);
+                        renderer->setOslShaderName(shaderName);
+                        renderer->setOslShaderOutput(outputName, outputType);
+                        renderer->setSize(static_cast<unsigned int>(settings.renderSize[0]),
+                                          static_cast<unsigned int>(settings.renderSize[1]));
+                        renderer->setAaLit(settings.enableReferenceQuality ? 16 : 2);
+                        renderer->setAaUnlit(settings.enableReferenceQuality ? 2 : 1);
+                        renderer->setThreadCount(threadCount);
+                        renderer->setRenderGeometry(geomPath);
+                        renderer->setEnvShaderParameterOverrides({
+                            "string envmap_filename \"" + settings.radianceIBLPath.asString() + "\";\n" });
+                        renderer->setOSLCmdStr(source);
+                        renderer->useOslCommandString(network);
+                        renderer->setDataLibraryOSOPath(dataOsoPath);
+                        renderer->setOslTestRenderSceneTemplateFile(utilityPath /
+                            (network ? "scene_template_oslcmd.xml" : "scene_template.xml"));
+                        job.imagePath = shaderPath + (network ? "_oslcmd.png" : "_osl.png");
+                        if (network && settings.dumpGeneratedCode)
+                        {
+                            std::ofstream file(shaderPath + ".oslcmd");
+                            file << source;
+                            file.close();
+                            if (!file)
+                                throw mx::ExceptionRenderError("Cannot write OSL command source: " + shaderPath);
+                        }
+                        if (!network)
+                        {
+                            mx::ScopedTimer compileTimer(&job.compileTime);
+                            renderer->createProgram(mx::ShaderRenderer::StageMap { { mx::Stage::PIXEL, source } });
+                        }
+                        mx::ScopedTimer renderTimer(&job.renderTime);
+                        renderer->render();
+                    });
             }
-            catch (mx::ExceptionRenderError& e)
+            catch (std::exception& e)
             {
-                // Always dump shader on error
-                std::ofstream file;
-                file.open(shaderPath + ".osl");
-                file << shader->getSourceCode();
-                file.close();
-
-                for (const auto& error : e.errorLog())
-                {
-                    log << e.what() << " " << error << std::endl;
-                }
-                log << ">> Refer to shader code in dump file: " << shaderPath << ".osl file" << std::endl;
-            }
-            catch (mx::Exception& e)
-            {
-                log << e.what();
-            }
-            CHECK(validated);
-            if (!validated)
+                log << e.what() << std::endl;
+                FAIL_CHECK(e.what());
                 result.success = false;
+            }
         }
     }
 
+    result.languageTimes.totalTime = result.languageTimes.generationTime + result.languageTimes.ioTime;
     return result;
 }
 

@@ -11,6 +11,8 @@
 
 #include <MaterialXRender/Export.h>
 
+#include <MaterialXFormat/File.h>
+
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderGenerator.h>
 #include <MaterialXGenShader/Util.h>
@@ -118,6 +120,19 @@ MX_RENDER_API void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& 
                                           UIPropertyGroup& unnamedGroups, const string& pathSeparator);
 
 /// @}
+
+/// Quote a single argument for a platform-specific shell command.
+/// Throws Exception on Windows if the value contains a double quote, carriage
+/// return, newline, or percent sign.
+MX_RENDER_API string quoteCommandArgument(const string& value);
+
+/// Prefix a shell command with a change to the given working directory.
+/// Returns the command unchanged if the directory is empty.
+MX_RENDER_API string commandInDirectory(const string& command, const FilePath& directory);
+
+/// Remove an existing output file before running an external command.
+/// Does nothing if the file does not exist; throws Exception if removal fails.
+MX_RENDER_API void removeStaleFile(const FilePath& path);
 
 MATERIALX_NAMESPACE_END
 
