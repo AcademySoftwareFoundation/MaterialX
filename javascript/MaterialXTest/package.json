@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "playwright test --project=unit",
-    "test:browser": "playwright test --project=browser"
+    "test:browser": "playwright test --project=browser",
+    "test:webgpu-smoke": "playwright test --project=webgpu-smoke"
   },
   "keywords": [],
   "author": "",

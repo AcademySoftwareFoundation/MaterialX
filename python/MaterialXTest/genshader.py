@@ -3,7 +3,7 @@
 Unit tests for shader generation in MaterialX Python.
 '''
 
-import os, unittest
+import os, pathlib, unittest
 
 import MaterialX as mx
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
@@ -185,6 +185,22 @@ class TestGenShader(unittest.TestCase):
             self.assertEqual(ocioCms.getUserFacingName("lin_rec709_scene"), "Linear Rec.709 (sRGB)")
             self.assertEqual(ocioCms.getUserFacingName("pq_p3d65_display"), "ST2084-P3-D65 - Display")
             self.assertEqual(ocioCms.getUserFacingName("bogus_colorspace"), "bogus_colorspace")
+
+    def test_WgslLibraries(self):
+        # Transpiled genwgsl sources are only installed when MaterialX is built with WGSL support.
+        try:
+            import MaterialX.PyMaterialXGenWgsl
+        except ImportError:
+            self.skipTest("MaterialX was built without WGSL support")
+
+        libs = pathlib.Path(mx.__file__).parent / "libraries"
+        # bxdf is nodegraph-only (no genglsl to genwgsl transpile); see mxgenwgsl.py
+        minimums = {"stdlib": 30, "pbrlib": 8, "lights": 3}
+        for lib, need in minimums.items():
+            count = len(list((libs / lib / "genwgsl").rglob("*.wgsl")))
+            self.assertGreaterEqual(count, need, lib + "/genwgsl")
+        total = len(list(libs.rglob("genwgsl/**/*.wgsl")))
+        self.assertGreaterEqual(total, 50, "genwgsl total")
 
 if __name__ == '__main__':
     unittest.main()

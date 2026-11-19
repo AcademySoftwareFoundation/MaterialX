@@ -8,7 +8,15 @@ import { Viewer } from './viewer.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { dropHandler, dragOverHandler, setLoadingCallback, setSceneLoadingCallback } from './dropHandling.js';
 
+// Rendering backend, selected at build time per bundle (see webpack.config.js). The WebGL
+// bundle uses classic THREE.WebGLRenderer + RawShaderMaterial (ESSL); the WebGPU bundle
+// aliases `three` to three/webgpu and uses WebGPURenderer + NodeMaterial (WGSL via the
+// upstream WgslShaderGenerator). A toggle switches between the two HTML pages.
+const BACKEND = (typeof __BACKEND__ !== 'undefined') ? __BACKEND__ : 'webgl';
+let TSL = null; // three/tsl namespace, loaded for the WebGPU backend only
+
 let renderer, orbitControls;
+let webgpuSupported = null; // cached result of navigator.gpu probe
 
 // FPS overlay state
 let fpsOverlay = null;
@@ -50,8 +58,32 @@ function setFPSOverlayVisible(visible) {
 createFPSOverlay();
 setFPSOverlayVisible(showFPS);
 
-init();
-viewer.getEditor().updateProperties(0.9);
+probeWebGPU().then(() =>
+{
+    init();
+    viewer.getEditor().updateProperties(0.9);
+});
+
+/** Probe WebGPU availability once; used by the backend toggle and init fallback. */
+async function probeWebGPU()
+{
+    if (webgpuSupported !== null) return webgpuSupported;
+    if (!navigator.gpu)
+    {
+        webgpuSupported = false;
+        return false;
+    }
+    try
+    {
+        const adapter = await navigator.gpu.requestAdapter();
+        webgpuSupported = !!adapter;
+    }
+    catch
+    {
+        webgpuSupported = false;
+    }
+    return webgpuSupported;
+}
 
 // Capture the current frame and save an image file.
 function captureFrame()
@@ -94,11 +126,26 @@ function init()
     // Set up scene
     scene.initialize();
 
-    // Set up renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+    // Set up renderer for the selected backend.
+    if (BACKEND === 'webgpu')
+    {
+        if (!webgpuSupported)
+        {
+            showWebGPUFallbackBanner();
+            return;
+        }
+        renderer = new THREE.WebGPURenderer({ antialias: true, canvas });
+    }
+    else
+    {
+        renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+        renderer.debug.checkShaderErrors = false;
+    }
     renderer.setSize(window.innerWidth, window.innerHeight);
+    // WebGL encodes sRGB in the pixel shader; WebGPU outputs linear and relies on this conversion.
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.debug.checkShaderErrors = false;
+
+    addBackendToggle(webgpuSupported);
 
     window.addEventListener('resize', onWindowResize);
 
@@ -134,8 +181,17 @@ function init()
             .then(({ default: MaterialX }) => MaterialX())
     ]).then(async ([radianceTexture, irradianceTexture, lightRigXml, mxIn]) =>
     {
+        // WebGPU: load the TSL namespace (used by the WGSL→NodeMaterial bridge) and
+        // initialize the device before the first render.
+        if (BACKEND === 'webgpu')
+        {
+            TSL = await import('three/tsl');
+            await renderer.init();
+        }
+
         // Initialize viewer + lighting
-        await viewer.initialize(mxIn, renderer, radianceTexture, irradianceTexture, lightRigXml);
+        await viewer.initialize(mxIn, renderer, radianceTexture, irradianceTexture, lightRigXml,
+            { backend: BACKEND, TSL });
 
         // Load geometry  
         let scene = viewer.getScene();
@@ -154,7 +210,13 @@ function init()
         animate();
     }).catch(err =>
     {
-        console.error(Number.isInteger(err) ? this.getMx().getExceptionMessage(err) : err);
+        const mx = viewer.getMx();
+        const message = (Number.isInteger(err) && mx)
+            ? mx.getExceptionMessage(err)
+            : (err && err.message ? err.message : err);
+        console.error(message, err);
+        if (BACKEND === 'webgpu')
+            showWebGPUFallbackBanner('WebGPU initialization failed. Use the WebGL view instead.');
     })
 
     // allow dropping files and directories
@@ -185,6 +247,67 @@ function onWindowResize()
 {
     viewer.getScene().updateCamera();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Floating toggle to switch rendering backend. Each backend is a separate bundle/page
+// (different three build), so switching navigates between index.html and index-webgpu.html
+// while preserving the current ?file/?geom query so the comparison stays on the same content.
+function addBackendToggle(gpuAvailable)
+{
+    const search = window.location.search;
+    const wrap = document.createElement('div');
+    // Bottom-center: clear of the material/geometry selectors (top-left), the property
+    // editor (top-right), and the FPS overlay (bottom-left).
+    wrap.style.cssText = 'position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:1000;' +
+        'display:flex;gap:4px;flex-wrap:wrap;align-items:center;' +
+        'font-family:sans-serif;font-size:12px;background:rgba(0,0,0,0.5);padding:4px 6px;border-radius:4px;max-width:90vw;';
+    const label = document.createElement('span');
+    label.textContent = 'Renderer:';
+    label.style.cssText = 'color:#ccc;align-self:center;';
+    wrap.appendChild(label);
+
+    for (const [name, page] of [['WebGL', 'index.html'], ['WebGPU', 'index-webgpu.html']])
+    {
+        const isWebGPU = (name === 'WebGPU');
+        const active = (name.toLowerCase() === BACKEND);
+        const disabled = isWebGPU && gpuAvailable === false;
+        const btn = document.createElement('button');
+        btn.textContent = name;
+        btn.title = disabled
+            ? 'WebGPU is not available in this browser'
+            : (isWebGPU
+                ? 'WebGPU uses MaterialX WGSL + TSL NodeMaterial (same light rig and IBL as WebGL)'
+                : 'WebGL uses full MaterialX light rig + GLSL ES shaders');
+        btn.style.cssText = 'border:none;border-radius:3px;padding:3px 8px;' +
+            (active ? 'background:#4a9;color:#fff;font-weight:bold;' :
+                disabled ? 'background:#222;color:#666;cursor:not-allowed;' :
+                    'background:#333;color:#bbb;cursor:pointer;');
+        if (!active && !disabled)
+        {
+            btn.addEventListener('click', () =>
+            {
+                btn.textContent = '…';
+                btn.disabled = true;
+                window.location.href = page + search;
+            });
+        }
+        wrap.appendChild(btn);
+    }
+    document.body.appendChild(wrap);
+}
+
+function showWebGPUFallbackBanner(message)
+{
+    const search = window.location.search;
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
+        'background:rgba(0,0,0,0.85);color:#eee;font-family:sans-serif;font-size:14px;z-index:2000;padding:24px;text-align:center;';
+    const link = 'index.html' + search;
+    banner.innerHTML = '<div><p style="margin:0 0 12px;">' +
+        (message || 'WebGPU is not available in this browser.') +
+        '</p><a href="' + link + '" style="color:#4af;">Open WebGL view</a></div>';
+    document.body.appendChild(banner);
+    addBackendToggle(false);
 }
 
 function animate()

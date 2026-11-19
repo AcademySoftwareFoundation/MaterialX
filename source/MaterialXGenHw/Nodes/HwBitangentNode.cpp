@@ -83,19 +83,19 @@ void HwBitangentNode::emitFunctionCall(const ShaderNode& node, GenContext& conte
                     if (!normal->isEmitted())
                     {
                         normal->setEmitted();
-                        shadergen.emitLine(prefix + normal->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
+                        shadergen.emitLine(prefix + normal->getVariable() + " = normalize(" + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + HW::T_WORLD_INVERSE_TRANSPOSE_MATRIX + ", "+vec4+"(" + HW::T_IN_NORMAL + ", 0.0)).xyz)", stage);
                     }
                     ShaderPort* tangent = vertexData[HW::T_TANGENT_WORLD];
                     if (!tangent->isEmitted())
                     {
                         tangent->setEmitted();
-                        shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_MATRIX + ", "+vec4+"(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
+                        shadergen.emitLine(prefix + tangent->getVariable() + " = normalize(" + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + HW::T_WORLD_MATRIX + ", "+vec4+"(" + HW::T_IN_TANGENT + ", 0.0)).xyz)", stage);
                     }
                     shadergen.emitLine(prefix + bitangent->getVariable() + " = cross(" + prefix + normal->getVariable() + ", " + prefix + tangent->getVariable() + ")", stage);
                 }
                 else
                 {
-                    shadergen.emitLine(prefix + bitangent->getVariable() + " = normalize(mx_matrix_mul(" + HW::T_WORLD_MATRIX + ", "+vec4+"(" + HW::T_IN_BITANGENT + ", 0.0)).xyz)", stage);
+                    shadergen.emitLine(prefix + bitangent->getVariable() + " = normalize(" + syntax.getLibraryFunctionName("mx_matrix_mul", Type::MATRIX44, Type::VECTOR4) + "(" + HW::T_WORLD_MATRIX + ", "+vec4+"(" + HW::T_IN_BITANGENT + ", 0.0)).xyz)", stage);
                 }
             }
         }
