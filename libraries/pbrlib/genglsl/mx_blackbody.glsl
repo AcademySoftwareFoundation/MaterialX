@@ -1,8 +1,3 @@
-/// XYZ to Rec.709 RGB colorspace conversion
-const mat3 XYZ_to_RGB = mat3( 3.2406, -0.9689, 0.0557,
-                             -1.5372, 1.8758, -0.2040,
-                             -0.4986, 0.0415, 1.0570);
-
 void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
 {
     float xc, yc;
@@ -47,6 +42,6 @@ void mx_blackbody(float temperatureKelvin, out vec3 colorValue)
 
     vec3 XYZ = vec3(xc / yc, 1.0, (1.0 - xc - yc) / yc);
 
-    colorValue = mx_matrix_mul(XYZ_to_RGB, XYZ);
+    colorValue = mx_matrix_mul($xyzToWorkingSpace, XYZ);
     colorValue = max(colorValue, vec3(0.0));
 }
