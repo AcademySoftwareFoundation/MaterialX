@@ -76,6 +76,11 @@ class MX_CORE_API Value
     ///    if the conversion to the given data type cannot be performed.
     static ValuePtr createValueFromStrings(const string& value, const string& type, ConstTypeDefPtr typeDef = nullptr);
 
+    /// Return true if a built-in creator is registered for the given type name,
+    /// i.e. values of this type are created as TypedValue instances rather than
+    /// as aggregate values, regardless of any TypeDef with the same name.
+    static bool hasBuiltInCreator(const string& type);
+
     /// Create a deep copy of the value.
     virtual ValuePtr copy() const = 0;
 
