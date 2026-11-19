@@ -29,6 +29,13 @@ class MdlShaderRenderTester : public RenderUtil::ShaderRenderTester
     }
 
   protected:
+    void addSkipFiles() override
+    {
+        // ocio_color_management.mtlx uses color spaces which require OCIO and is not supported by MDL.
+        _skipFiles.insert("ocio_color_management.mtlx");
+        RenderUtil::ShaderRenderTester::addSkipFiles();
+    }
+
     void setTargetGenerationOptions(mx::GenOptions& /*options*/) override
     {
         // No texture coordinate flips are required for MDL, since MDL and
