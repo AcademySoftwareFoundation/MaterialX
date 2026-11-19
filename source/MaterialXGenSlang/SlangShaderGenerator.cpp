@@ -372,7 +372,7 @@ void SlangShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) c
             emitLine("struct " + vertexInputs.getName(), stage, false);
             emitScopeBegin(stage);
             emitVariableDeclarations(vertexInputs, _syntax->getInputQualifier(), Syntax::SEMICOLON, context, stage, false);
-            emitScopeEnd(stage);
+            emitScopeEnd(stage, true);
             emitLineBreak(stage);
 
             for (size_t i = 0; i < vertexInputs.size(); ++i)
@@ -398,7 +398,7 @@ void SlangShaderGenerator::emitInputs(GenContext& context, ShaderStage& stage) c
         {
             emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
         }
-        emitScopeEnd(stage, false, false);
+        emitScopeEnd(stage, true);
         emitLineBreak(stage);
         emitLine("static " + vertexData.getName() + " vd", stage);
     }
@@ -416,7 +416,7 @@ void SlangShaderGenerator::emitOutputs(GenContext& context, ShaderStage& stage) 
         {
             emitVariableDeclarations(vertexData, EMPTY_STRING, Syntax::SEMICOLON, context, stage, false);
         }
-        emitScopeEnd(stage);
+        emitScopeEnd(stage, true);
         emitLineBreak(stage);
         emitLineBreak(stage);
     }
