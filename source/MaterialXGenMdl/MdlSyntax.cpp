@@ -571,8 +571,8 @@ void MdlSyntax::makeValidName(string& name) const
 {
     Syntax::makeValidName(name);
 
-    // MDL variables are not allowed to begin with underscore.
-    if (!name.empty() && name[0] == '_')
+    // MDL identifiers must begin with a letter.
+    if (name.empty() || name[0] == '_' || (name[0] >= '0' && name[0] <= '9'))
     {
         name = "v" + name;
     }
