@@ -139,6 +139,38 @@ TEST_CASE("GenShader: Duplicate Output Color Transforms", "[genshader]")
 }
 #endif
 
+#ifdef MATERIALX_BUILD_GEN_GLSL
+TEST_CASE("GenShader: Duplicate Shader Node IDs", "[genshader]")
+{
+    mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+    mx::DocumentPtr libraries = mx::createDocument();
+    mx::loadLibraries({ "libraries" }, searchPath, libraries);
+
+    mx::ShaderGeneratorPtr shaderGenerator = mx::GlslShaderGenerator::create();
+    mx::GenContext context(shaderGenerator);
+    context.registerSourceCodeSearchPath(searchPath);
+
+    mx::NodeDefPtr nodeDef = libraries->getNodeDef("ND_add_float");
+    REQUIRE(nodeDef);
+
+    mx::ShaderGraph graph(nullptr, "graph", libraries, context);
+    mx::ShaderNode* firstNode = graph.createNode("add1", "add1", nodeDef, context);
+    REQUIRE(firstNode);
+    CHECK(graph.getNode("add1") == firstNode);
+    CHECK(graph.getNodes().size() == 1);
+
+    // The node name may be reused as long as its unique identifier is new.
+    REQUIRE_NOTHROW(graph.createNode("add1", "add2", nodeDef, context));
+    CHECK(graph.getNodes().size() == 2);
+    CHECK(graph.getNode("add2"));
+
+    // Reusing a unique identifier must throw and leave the graph unchanged.
+    CHECK_THROWS_AS(graph.createNode("duplicate", "add1", nodeDef, context), mx::ExceptionShaderGenError);
+    CHECK(graph.getNodes().size() == 2);
+    CHECK(graph.getNode("add1") == firstNode);
+}
+#endif
+
 TEST_CASE("GenShader: TypeDesc Check", "[genshader]")
 {
     mx::TypeSystemPtr ts = mx::TypeSystem::create();

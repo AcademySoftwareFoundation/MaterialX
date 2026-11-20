@@ -45,5 +45,6 @@ void bindPyGenOptions(py::module& mod)
         .def_readwrite("hwWriteAlbedoTable", &mx::GenOptions::hwWriteAlbedoTable)
         .def_readwrite("hwWriteEnvPrefilter", &mx::GenOptions::hwWriteEnvPrefilter)
         .def_readwrite("hwImplicitBitangents", &mx::GenOptions::hwImplicitBitangents)
+        .def_readwrite("oslConnectCiWrapper", &mx::GenOptions::oslConnectCiWrapper)
         .def(py::init<>());
 }

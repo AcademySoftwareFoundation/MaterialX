@@ -363,6 +363,10 @@ bool Output::validate(string* message) const
 
 InputPtr InterfaceElement::getActiveInput(const string& name) const
 {
+    if (!hasInheritString())
+    {
+        return getInput(name);
+    }
     for (ConstElementPtr elem : traverseInheritance())
     {
         InputPtr input = elem->asA<InterfaceElement>()->getInput(name);
@@ -376,6 +380,11 @@ InputPtr InterfaceElement::getActiveInput(const string& name) const
 
 vector<InputPtr> InterfaceElement::getActiveInputs() const
 {
+    // Documents can have duplicate child names through an attached data library.
+    if (!hasInheritString() && !isA<Document>())
+    {
+        return getInputs();
+    }
     vector<InputPtr> activeInputs;
     StringSet activeInputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
@@ -394,6 +403,10 @@ vector<InputPtr> InterfaceElement::getActiveInputs() const
 
 OutputPtr InterfaceElement::getActiveOutput(const string& name) const
 {
+    if (!hasInheritString())
+    {
+        return getOutput(name);
+    }
     for (ConstElementPtr elem : traverseInheritance())
     {
         OutputPtr output = elem->asA<InterfaceElement>()->getOutput(name);
@@ -407,6 +420,10 @@ OutputPtr InterfaceElement::getActiveOutput(const string& name) const
 
 vector<OutputPtr> InterfaceElement::getActiveOutputs() const
 {
+    if (!hasInheritString() && !isA<Document>())
+    {
+        return getOutputs();
+    }
     vector<OutputPtr> activeOutputs;
     StringSet activeOutputNamesSet;
     for (ConstElementPtr elem : traverseInheritance())
@@ -449,6 +466,10 @@ OutputPtr InterfaceElement::getConnectedOutput(const string& inputName) const
 
 TokenPtr InterfaceElement::getActiveToken(const string& name) const
 {
+    if (!hasInheritString())
+    {
+        return getToken(name);
+    }
     for (ConstElementPtr elem : traverseInheritance())
     {
         TokenPtr token = elem->asA<InterfaceElement>()->getToken(name);
@@ -462,6 +483,10 @@ TokenPtr InterfaceElement::getActiveToken(const string& name) const
 
 vector<TokenPtr> InterfaceElement::getActiveTokens() const
 {
+    if (!hasInheritString())
+    {
+        return getTokens();
+    }
     vector<TokenPtr> activeTokens;
     for (ConstElementPtr elem : traverseInheritance())
     {
@@ -473,6 +498,10 @@ vector<TokenPtr> InterfaceElement::getActiveTokens() const
 
 ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) const
 {
+    if (!hasInheritString())
+    {
+        return getChildOfType<ValueElement>(name);
+    }
     for (ConstElementPtr interface : traverseInheritance())
     {
         ValueElementPtr valueElem = interface->getChildOfType<ValueElement>(name);
@@ -486,6 +515,10 @@ ValueElementPtr InterfaceElement::getActiveValueElement(const string& name) cons
 
 vector<ValueElementPtr> InterfaceElement::getActiveValueElements() const
 {
+    if (!hasInheritString() && !isA<Document>())
+    {
+        return getChildrenOfType<ValueElement>();
+    }
     vector<ValueElementPtr> activeValueElems;
     StringSet activeValueElemNamesSet;
     for (ConstElementPtr interface : traverseInheritance())
