@@ -727,8 +727,7 @@ ShaderNode* ShaderGraph::createNode(const string& name, const string& uniqueId, 
     // Create this node in the graph.
     ShaderNodePtr newNode = ShaderNode::create(this, name, *nodeDef, context);
     newNode->_uniqueId = uniqueId;
-    _nodeMap[uniqueId] = newNode;
-    _nodeOrder.push_back(newNode.get());
+    addNode(newNode);
 
     return newNode.get();
 }
