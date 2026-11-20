@@ -101,6 +101,7 @@ void ClosureCompoundNodeMdl::emitFunctionDefinition(const ShaderNode& node, GenC
                 {
                     const string result = shadergen.getUpstreamResult(outputSocket, context);
                     shadergen.emitLine("return " + result, stage);
+                    shadergen.emitScopeEnd(stage);
                 }
                 shadergen.emitLineBreak(stage);
 

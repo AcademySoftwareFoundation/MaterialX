@@ -334,6 +334,98 @@ TEST_CASE("Inheritance", "[nodedef]")
         nodedefSpecularInput->getAttribute(mx::ValueElement::VALUE_ATTRIBUTE));
 }
 
+TEST_CASE("Active interface inheritance", "[nodedef]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::NodeGraphPtr base = doc->addNodeGraph("base");
+    mx::InputPtr baseInput = base->addInput("in", "float");
+    mx::OutputPtr baseOutput = base->addOutput("out", "float");
+    mx::TokenPtr baseToken = base->addToken("token");
+
+    REQUIRE(base->getActiveInput("in") == baseInput);
+    REQUIRE(base->getActiveOutput("out") == baseOutput);
+    REQUIRE(base->getActiveToken("token") == baseToken);
+    REQUIRE(base->getActiveValueElement("token") == baseToken);
+    REQUIRE(base->getActiveInputs() == std::vector<mx::InputPtr>{ baseInput });
+    REQUIRE(base->getActiveOutputs() == std::vector<mx::OutputPtr>{ baseOutput });
+    REQUIRE(base->getActiveTokens() == std::vector<mx::TokenPtr>{ baseToken });
+    REQUIRE(base->getActiveValueElements() == std::vector<mx::ValueElementPtr>{ baseInput, baseOutput, baseToken });
+    REQUIRE(!base->getActiveInput("missing"));
+    REQUIRE(!base->getActiveOutput("missing"));
+    REQUIRE(!base->getActiveToken("missing"));
+    REQUIRE(!base->getActiveValueElement("missing"));
+    REQUIRE(!base->hasInheritanceCycle());
+
+    mx::NodeGraphPtr derived = doc->addNodeGraph("derived");
+    derived->setInheritsFrom(base);
+    mx::InputPtr localInput = derived->addInput("in", "float");
+    mx::TokenPtr localToken = derived->addToken("token");
+    REQUIRE(derived->getActiveInput("in") == localInput);
+    REQUIRE(derived->getActiveOutput("out") == baseOutput);
+    REQUIRE(derived->getActiveToken("token") == localToken);
+    REQUIRE(derived->getActiveInputs() == std::vector<mx::InputPtr>{ localInput });
+    REQUIRE(derived->getActiveOutputs() == std::vector<mx::OutputPtr>{ baseOutput });
+    // Token enumeration retains inherited tokens, including duplicate names.
+    REQUIRE(derived->getActiveTokens() == std::vector<mx::TokenPtr>{ localToken, baseToken });
+    REQUIRE(derived->getActiveValueElements() == std::vector<mx::ValueElementPtr>{ localInput, localToken, baseOutput });
+
+    derived->removeInput("in");
+    REQUIRE(derived->getActiveInput("in") == baseInput);
+    derived->setInheritsFrom(nullptr);
+    REQUIRE(!derived->getActiveInput("in"));
+    REQUIRE(derived->getActiveInputs().empty());
+    REQUIRE(derived->getActiveOutputs().empty());
+    REQUIRE(derived->getActiveValueElements() == std::vector<mx::ValueElementPtr>{ localToken });
+
+    derived->setInheritsFrom(base);
+    base->setInheritsFrom(derived);
+    REQUIRE(base->hasInheritanceCycle());
+    REQUIRE_THROWS_AS(derived->getActiveInputs(), mx::ExceptionFoundCycle);
+    REQUIRE_THROWS_AS(derived->getActiveOutputs(), mx::ExceptionFoundCycle);
+    REQUIRE_THROWS_AS(derived->getActiveTokens(), mx::ExceptionFoundCycle);
+    REQUIRE_THROWS_AS(derived->getActiveValueElements(), mx::ExceptionFoundCycle);
+    base->setInheritsFrom(nullptr);
+    REQUIRE(!derived->hasInheritanceCycle());
+
+    // Documents enumerate data-library children before local children, and
+    // active input/output/value enumeration must still remove duplicate names.
+    mx::DocumentPtr library = mx::createDocument();
+    mx::InputPtr libraryInput = library->addInput("in", "float");
+    mx::OutputPtr libraryOutput = library->addOutput("out", "float");
+    doc->addInput("in", "float");
+    doc->addOutput("out", "float");
+    doc->setDataLibrary(library);
+    REQUIRE(doc->getActiveInputs() == std::vector<mx::InputPtr>{ libraryInput });
+    REQUIRE(doc->getActiveOutputs() == std::vector<mx::OutputPtr>{ libraryOutput });
+    REQUIRE(doc->getActiveValueElements() == std::vector<mx::ValueElementPtr>{ libraryInput, libraryOutput });
+}
+
+TEST_CASE("Nodegraph implementation lookup", "[nodegraph]")
+{
+    mx::DocumentPtr library = mx::createDocument();
+    mx::NodeDefPtr first = library->addNodeDef("first", "float");
+    mx::NodeDefPtr second = library->addNodeDef("second", "float");
+    mx::ImplementationPtr impl = library->addImplementation("impl");
+    impl->setNodeGraph("test:graph");
+    impl->setNodeDef(first);
+
+    mx::DocumentPtr doc = mx::createDocument();
+    doc->setDataLibrary(library);
+    mx::NodeGraphPtr graph = doc->addNodeGraph("graph");
+    REQUIRE(!graph->getNodeDef());
+    graph->setNamespace("test");
+    REQUIRE(graph->getNodeDef() == first);
+    mx::ImplementationPtr localImpl = doc->addImplementation("local_impl");
+    localImpl->setNodeGraph("test:graph");
+    localImpl->setNodeDef(second);
+    REQUIRE(graph->getNodeDef() == second);
+    graph->setNodeDef(first);
+    REQUIRE(graph->getNodeDef() == first);
+    graph->removeAttribute(mx::InterfaceElement::NODE_DEF_ATTRIBUTE);
+    graph->setNamespace("other");
+    REQUIRE(!graph->getNodeDef());
+}
+
 TEST_CASE("Topological sort", "[nodegraph]")
 {
     // Create a document.
