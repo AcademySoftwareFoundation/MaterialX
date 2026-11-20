@@ -9,6 +9,10 @@
 
 #include <iostream>
 
+#if !__has_feature(objc_arc)
+#error "MaterialXRenderMsl must be compiled with ARC enabled"
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 MetalTextureHandler::MetalTextureHandler(id<MTLDevice> device, ImageLoaderPtr imageLoader) :
@@ -17,6 +21,7 @@ MetalTextureHandler::MetalTextureHandler(id<MTLDevice> device, ImageLoaderPtr im
     int maxTextureUnits = 31;
     _boundTextureLocations.resize(maxTextureUnits, MslProgram::UNDEFINED_METAL_RESOURCE_ID);
     _device = device;
+    _commandQueue = [device newCommandQueue];
 }
 
 bool MetalTextureHandler::bindImage(ImagePtr image, const ImageSamplingProperties& samplingProperties)
@@ -145,26 +150,12 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texDesc.usage = MTLTextureUsageShaderRead |
                         (useAsRenderTarget ? MTLTextureUsageRenderTarget : 0);
         texDesc.resourceOptions = MTLResourceStorageModePrivate;
+
+        // Use the pixel format for the image's native channel count.  Channels beyond
+        // those in the image are sampled as zero, aside from alpha, which is sampled
+        // as one, matching the channel promotion rule for image nodes.
         texDesc.pixelFormat = pixelFormat;
-        if (generateMipMaps)
-        {
-            if (image->getChannelCount() == 1)
-            {
-                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleRed);
-            }
-            else if (image->getChannelCount() == 2)
-            {
-                texDesc.swizzle = MTLTextureSwizzleChannelsMake(
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleGreen,
-                    MTLTextureSwizzleRed,
-                    MTLTextureSwizzleGreen);
-            }
-        }
+
         texture = [_device newTextureWithDescriptor:texDesc];
         _metalTextureMap[resourceId] = texture;
         image->setResourceId(resourceId);
@@ -177,8 +168,7 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
         texture = _metalTextureMap[image->getResourceId()];
     }
 
-    id<MTLCommandQueue> cmdQueue = [_device newCommandQueue];
-    id<MTLCommandBuffer> cmdBuffer = [cmdQueue commandBuffer];
+    id<MTLCommandBuffer> cmdBuffer = [_commandQueue commandBuffer];
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
 
@@ -266,9 +256,6 @@ bool MetalTextureHandler::createRenderResources(ImagePtr image, bool generateMip
     [cmdBuffer commit];
     [cmdBuffer waitUntilCompleted];
 
-    if (buffer)
-        [buffer release];
-
     return true;
 }
 
@@ -293,11 +280,6 @@ void MetalTextureHandler::releaseRenderResources(ImagePtr image)
 
     unbindImage(image);
     unsigned int resourceId = image->getResourceId();
-    auto tex = _metalTextureMap.find(resourceId);
-    if (tex != _metalTextureMap.end())
-    {
-        [tex->second release];
-    }
     _metalTextureMap.erase(resourceId);
     image->setResourceId(MslProgram::UNDEFINED_METAL_RESOURCE_ID);
 }

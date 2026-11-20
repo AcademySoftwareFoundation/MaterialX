@@ -82,4 +82,33 @@
     <input name="surfaceshader" type="surfaceshader" nodename="N_surface_4" />
   </surfacematerial>
 
+  <!-- Unbound legacy frame values should use the default geometric properties. -->
+  <normalmap name="N_normalmap_4" type="vector3">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+    <input name="normal" type="vector3" value="0, 0, 0" />
+    <input name="tangent" type="vector3" value="0, 0, 0" />
+  </normalmap>
+  <standard_surface name="N_surface_5" type="surfaceshader">
+    <input name="normal" type="vector3" nodename="N_normalmap_4" />
+  </standard_surface>
+  <surfacematerial name="N_material_5" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_5" />
+  </surfacematerial>
+
+  <!-- Preserve a connected normal while using geometric defaults for the rest of the frame. -->
+  <normal name="N_frame_normal" type="vector3">
+    <input name="space" type="string" value="world" />
+  </normal>
+  <normalmap name="N_normalmap_5" type="vector3">
+    <input name="in" type="vector3" nodename="N_tiledimage" />
+    <input name="normal" type="vector3" nodename="N_frame_normal" />
+    <input name="tangent" type="vector3" value="0, 0, 0" />
+  </normalmap>
+  <standard_surface name="N_surface_6" type="surfaceshader">
+    <input name="normal" type="vector3" nodename="N_normalmap_5" />
+  </standard_surface>
+  <surfacematerial name="N_material_6" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="N_surface_6" />
+  </surfacematerial>
+
 </materialx>

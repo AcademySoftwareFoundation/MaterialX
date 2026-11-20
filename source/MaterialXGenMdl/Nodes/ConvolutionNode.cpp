@@ -9,8 +9,6 @@
 #include <MaterialXGenShader/GenContext.h>
 #include <MaterialXGenShader/ShaderNode.h>
 #include <MaterialXGenShader/ShaderStage.h>
-#include <MaterialXGenShader/Shader.h>
-#include <MaterialXGenShader/Util.h>
 
 MATERIALX_NAMESPACE_BEGIN
 
@@ -26,56 +24,30 @@ ConvolutionNode::ConvolutionNode()
 {
 }
 
-void ConvolutionNode::createVariables(const ShaderNode&, GenContext&, Shader& shader) const
+bool ConvolutionNode::isInputSampled(const ShaderInput&) const
 {
-    ShaderStage& stage = shader.getStage(Stage::PIXEL);
-    VariableBlock& constants = stage.getConstantBlock();
+    return false;
+}
 
-    // Create constant for box weights
-    const float boxWeight3x3 = 1.0f / 9.0f;
-    const float boxWeight5x5 = 1.0f / 25.0f;
-    const float boxWeight7x7 = 1.0f / 49.0f;
-    vector<float> boxWeightArray;
-    boxWeightArray.push_back(1.0f);
-    for (unsigned int i = 0; i < 9; i++)
+const ShaderInput* ConvolutionNode::getInputSamplingCoordinates(const ShaderInput& input,
+                                                               unsigned int sampleCount) const
+{
+    const ShaderOutput* connection = input.getConnection();
+    if (input.getName() != "in" || sampleCount <= 1 ||
+        !connection || !acceptsInputType(connection->getType()))
     {
-        boxWeightArray.push_back(boxWeight3x3);
+        return nullptr;
     }
-    for (unsigned int i = 0; i < 25; i++)
-    {
-        boxWeightArray.push_back(boxWeight5x5);
-    }
-    for (unsigned int i = 0; i < 49; i++)
-    {
-        boxWeightArray.push_back(boxWeight7x7);
-    }
-    constants.add(Type::FLOATARRAY, "c_box_filter_weights", Value::createValue<vector<float>>(boxWeightArray));
 
-    // Create constant for Gaussian weights
-    vector<float> gaussianWeightArray;
-    gaussianWeightArray.push_back(1.0f);
-    for (unsigned int y = 0; y < 3; y++)
+    const ShaderNode* upstreamNode = connection->getNode();
+    if (!upstreamNode || !upstreamNode->hasClassification(ShaderNode::Classification::SAMPLE2D) ||
+        !upstreamNode->getOutput())
     {
-        for (unsigned int x = 0; x < 3; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_3[y] * GAUSSIAN_KERNEL_3[x]);
-        }
+        return nullptr;
     }
-    for (unsigned int y = 0; y < 5; y++)
-    {
-        for (unsigned int x = 0; x < 5; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_5[y] * GAUSSIAN_KERNEL_5[x]);
-        }
-    }
-    for (unsigned int y = 0; y < 7; y++)
-    {
-        for (unsigned int x = 0; x < 7; x++)
-        {
-            gaussianWeightArray.push_back(GAUSSIAN_KERNEL_7[y] * GAUSSIAN_KERNEL_7[x]);
-        }
-    }
-    constants.add(Type::FLOATARRAY, "c_gaussian_filter_weights", Value::createValue<vector<float>>(gaussianWeightArray));
+
+    const ShaderInput* samplingInput = getSamplingInput(*upstreamNode);
+    return samplingInput && samplingInput->getType() == Type::VECTOR2 ? samplingInput : nullptr;
 }
 
 /// Get input which is used for sampling. If there is none
@@ -122,13 +94,7 @@ void ConvolutionNode::emitInputSamplesUV(const ShaderNode& node,
             {
                 // Find out which input needs to be sampled multiple times
                 // If the sample count is 1 then the sample code has already been emitted
-                const ShaderInput* samplingInput = (sampleCount > 1) ? getSamplingInput(*upstreamNode) : nullptr;
-
-                // TODO: For now we only support uv space sampling
-                if (samplingInput && samplingInput->getType() != Type::VECTOR2)
-                {
-                    samplingInput = nullptr;
-                }
+                const ShaderInput* samplingInput = getInputSamplingCoordinates(*inInput, sampleCount);
 
                 if (samplingInput)
                 {

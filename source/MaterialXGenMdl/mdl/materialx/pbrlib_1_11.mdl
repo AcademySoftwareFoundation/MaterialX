@@ -98,7 +98,9 @@ export material mx_conductor_bsdf(
     uniform core::mx_distribution_type mxp_distribution
         = core::mx_distribution_type_ggx [[ anno::unused() ]],
     float mxp_thinfilm_thickness     = 0.0,
-    float mxp_thinfilm_ior           = 1.0
+    float mxp_thinfilm_ior           = 1.0,
+    material mxp_base                = material() [[ anno::usage( "materialx:bsdf") ]], // layering
+    float mxp_top_weight             = 1.0 // layering for cases where top is scaled using a mix
 ) [[
     anno::usage( "materialx:bsdf")
 ]]
@@ -124,13 +126,17 @@ export material mx_conductor_bsdf(
         base: conductor);
 } in material(
     surface: material_surface(
+        // as an opaque BSDF, occlude the base over the fraction of the surface covered by the weight
         scattering: df::weighted_layer(
-            weight: mxp_weight,
+            weight: mxp_weight * mxp_top_weight,
             layer: thin_film_conductor,
+            base: mxp_base.surface.scattering,
             normal: mxp_normal
         )
     ),
-    ior: mxp_ior,
+    // we need to carry volume properties along for SSS
+    ior:    mxp_base.ior,
+    volume: mxp_base.volume
 );
 
 export material mx_dielectric_bsdf(

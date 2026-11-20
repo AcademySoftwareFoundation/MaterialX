@@ -14,6 +14,10 @@
 
 #include <MaterialXRenderMsl/MetalState.h>
 
+#if !__has_feature(objc_arc)
+#error "MaterialXRenderMsl must be compiled with ARC enabled"
+#endif
+
 MATERIALX_NAMESPACE_BEGIN
 
 const std::string DISTANCE_UNIT_TARGET_NAME = "u_distanceUnitTarget";

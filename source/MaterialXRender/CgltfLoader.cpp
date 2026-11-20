@@ -128,7 +128,7 @@ void decodeVec4Tangents(MeshStreamPtr vec4TangentStream, MeshStreamPtr normalStr
 
 } // anonymous namespace
 
-bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoordVerticalFlip)
+bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList)
 {
     const string input_filename = filePath.asString();
     const string ext = stringToLower(filePath.getExtension());
@@ -398,13 +398,12 @@ bool CgltfLoader::load(const FilePath& filePath, MeshList& meshList, bool texcoo
                                 for (cgltf_size v = 0; v < desiredVectorSize; v++)
                                 {
                                     float floatValue = (v < vectorSize) ? input[v] : 0.0f;
-                                    // Perform v-flip
+                                    // Convert texture coordinates from the glTF convention, with the
+                                    // origin at the upper left, to the MaterialX convention, with the
+                                    // origin at the lower left.
                                     if (isTexCoordStream && v == 1)
                                     {
-                                        if (!texcoordVerticalFlip)
-                                        {
-                                            floatValue = 1.0f - floatValue;
-                                        }
+                                        floatValue = 1.0f - floatValue;
                                     }
                                     buffer.push_back(floatValue);
                                 }

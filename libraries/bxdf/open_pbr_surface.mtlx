@@ -3,7 +3,7 @@
   <!--
     OpenPBR Surface node definition
   -->
-  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="1.1.1" isdefaultversion="true"
+  <nodedef name="ND_open_pbr_surface_surfaceshader" node="open_pbr_surface" nodegroup="pbr" version="1.1.2" isdefaultversion="true"
            doc="OpenPBR Surface Shading Model" uiname="OpenPBR Surface">
     <input name="base_weight" type="float" value="1.0" uimin="0.0" uimax="1.0" uiname="Base Weight" uifolder="Base"
            doc="Multiplier on the intensity of the reflection from the diffuse and metallic base." />
@@ -31,7 +31,7 @@
            doc="Specifies the distance light travels inside the transparent base before it becomes exactly the transmission_color according to Beer's law." />
     <input name="transmission_scatter" type="color3" value="0, 0, 0" uimin="0,0,0" uimax="1,1,1" uiname="Transmission Scatter" uifolder="Transmission" uiadvanced="true"
            doc="Controls the color of light volumetrically scattered inside the transparent base. Suitable for materials with visually significant scattering such as honey, fruit juice, murky water, opalescent glass, or milky glass." />
-    <input name="transmission_scatter_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Transmission Anisotropy" uifolder="Transmission" uiadvanced="true"
+    <input name="transmission_scatter_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Transmission Scatter Anisotropy" uifolder="Transmission" uiadvanced="true"
            doc="The amount of directional bias, or anisotropy, of the volumetric scattering in the transparent base." />
     <input name="transmission_dispersion_scale" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Transmission Dispersion Scale" uifolder="Transmission" uiadvanced="true"
            doc="Linearly scales the amount of dispersion." />
@@ -45,7 +45,7 @@
            doc="Length scale of the subsurface scattering mean free path." />
     <input name="subsurface_radius_scale" type="color3" value="1.0, 0.5, 0.25" uimin="0,0,0" uimax="1,1,1" uiname="Subsurface Radius Scale" uifolder="Subsurface" uiadvanced="true"
            doc="RGB multiplier to subsurface_radius, giving the per-channel scattering mean-free-paths." />
-    <input name="subsurface_scatter_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Subsurface Anisotropy" uifolder="Subsurface" uiadvanced="true"
+    <input name="subsurface_scatter_anisotropy" type="float" value="0.0" uimin="-1.0" uimax="1.0" uiname="Subsurface Scatter Anisotropy" uifolder="Subsurface" uiadvanced="true"
            doc="Controls the phase-function of subsurface scattering, where zero scatters light evenly, positive values scatter forwards, and negative values scatter backwards." />
     <input name="fuzz_weight" type="float" value="0.0" uimin="0.0" uimax="1.0" uiname="Fuzz Weight" uifolder="Fuzz" uiadvanced="true"
            doc="The presence weight of a fuzz layer that can be used to approximate microfibers, for fabrics such as velvet and satin as well as dust grains." />
@@ -142,38 +142,22 @@
       <input name="roughness" type="float" interfacename="base_diffuse_roughness" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </oren_nayar_diffuse_bsdf>
-    <subtract name="one_minus_subsurface_scatter_anisotropy" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
-    </subtract>
-    <multiply name="subsurface_thin_walled_brdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_minus_subsurface_scatter_anisotropy" />
-    </multiply>
-    <multiply name="subsurface_thin_walled_reflection" type="BSDF">
-      <input name="in1" type="BSDF" nodename="subsurface_thin_walled_reflection_bsdf" />
-      <input name="in2" type="color3" nodename="subsurface_thin_walled_brdf_factor" />
-    </multiply>
     <translucent_bsdf name="subsurface_thin_walled_transmission_bsdf" type="BSDF">
       <input name="color" type="color3" nodename="subsurface_color_nonnegative" />
       <input name="normal" type="vector3" interfacename="geometry_normal" />
     </translucent_bsdf>
-    <add name="one_plus_subsurface_scatter_anisotropy" type="float">
-      <input name="in1" type="float" value="1.0" />
-      <input name="in2" type="float" interfacename="subsurface_scatter_anisotropy" />
+    <multiply name="subsurface_scatter_anisotropy_half" type="float">
+      <input name="in1" type="float" interfacename="subsurface_scatter_anisotropy" />
+      <input name="in2" type="float" value="0.5" />
+    </multiply>
+    <add name="subsurface_thin_walled_mix" type="float">
+      <input name="in1" type="float" value="0.5" />
+      <input name="in2" type="float" nodename="subsurface_scatter_anisotropy_half" />
     </add>
-    <multiply name="subsurface_thin_walled_btdf_factor" type="color3">
-      <input name="in1" type="color3" interfacename="subsurface_color" />
-      <input name="in2" type="float" nodename="one_plus_subsurface_scatter_anisotropy" />
-    </multiply>
-    <multiply name="subsurface_thin_walled_transmission" type="BSDF">
-      <input name="in1" type="BSDF" nodename="subsurface_thin_walled_transmission_bsdf" />
-      <input name="in2" type="color3" nodename="subsurface_thin_walled_btdf_factor" />
-    </multiply>
     <mix name="subsurface_thin_walled" type="BSDF">
-      <input name="fg" type="BSDF" nodename="subsurface_thin_walled_reflection" />
-      <input name="bg" type="BSDF" nodename="subsurface_thin_walled_transmission" />
-      <input name="mix" type="float" value="0.5" />
+      <input name="fg" type="BSDF" nodename="subsurface_thin_walled_transmission_bsdf" />
+      <input name="bg" type="BSDF" nodename="subsurface_thin_walled_reflection_bsdf" />
+      <input name="mix" type="float" nodename="subsurface_thin_walled_mix" />
     </mix>
 
     <!-- Subsurface (non-thin-walled) -->

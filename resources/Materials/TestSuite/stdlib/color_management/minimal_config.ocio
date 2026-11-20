@@ -1,0 +1,53 @@
+ocio_profile_version: 2.0
+
+# This is a minimal OCIO config that is different from the cg-config that is built into
+# the OCIO library that is used in the MaterialXTest/MaterialXGenShader/GenShader.cpp tests.
+
+roles:
+  aces_interchange: ACES2065-1
+  default: ACES2065-1
+
+displays:
+  sRGB - Display:
+    - !<View> {name: Raw, colorspace: Raw}
+
+colorspaces:
+  - !<ColorSpace>
+    name: ACES2065-1
+    isdata: false
+
+  - !<ColorSpace>
+    name: sRGB (Scene-referred)
+    aliases: [srgb_texture, srgb_rec709_scene]
+    description: This is in both the cg-config and the DefaultColorManagementSystem, but has a different name.
+    isdata: false
+    from_scene_reference: !<GroupTransform>
+      name: AP0 to sRGB Encoded Rec.709 (sRGB)
+      children:
+        - !<MatrixTransform> {matrix: [2.52168618674388, -1.13413098823972, -0.387555198504164, 0, -0.276479914229922, 1.37271908766826, -0.096239173438334, 0, -0.0153780649660342, -0.152975335867399, 1.16835340083343, 0, 0, 0, 0, 1]}
+        - !<ExponentWithLinearTransform> {gamma: 2.4, offset: 0.055, direction: inverse}
+
+  - !<ColorSpace>
+    name: sRGB AP1
+    description: This is in both the cg-config and the DefaultColorManagementSystem, but the srgb_ap1_scene alias is missing.
+    isdata: false
+    from_scene_reference: !<GroupTransform>
+      name: AP0 to sRGB Encoded AP1
+      children:
+        - !<MatrixTransform> {matrix: [1.45143931614567, -0.23651074689374, -0.214928569251925, 0, -0.0765537733960206, 1.17622969983357, -0.0996759264375522, 0, 0.00831614842569772, -0.00603244979102102, 0.997716301365323, 0, 0, 0, 0, 1]}
+        - !<ExponentWithLinearTransform> {gamma: 2.4, offset: 0.055, direction: inverse}
+
+  - !<ColorSpace>
+    name: ARRI camera LogC4
+    aliases: [arri_logc4, ocio:arrilogc4_awg4_scene]
+    description: This color space is not in either the cg-config or the DefaultColorManagementSystem.
+    isdata: false
+    to_scene_reference: !<GroupTransform>
+      name: ARRI LogC4 to ACES2065-1
+      children:
+        - !<LogCameraTransform> {log_side_slope: 0.0647954196341293, log_side_offset: -0.295908392682586, lin_side_slope: 2231.82630906769, lin_side_offset: 64, lin_side_break: -0.0180569961199113, direction: inverse}
+        - !<MatrixTransform> {matrix: [0.750957362824734, 0.144422786709757, 0.104619850465509, 0, 0.000821837079380207, 1.007397584885, -0.00821942196438358, 0, -0.000499952143533471, -0.000854177231436971, 1.00135412937497, 0, 0, 0, 0, 1]}
+
+  - !<ColorSpace>
+    name: Raw
+    isdata: true

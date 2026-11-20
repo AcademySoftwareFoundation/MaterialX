@@ -26,7 +26,7 @@
   <implementation name="IM_chiang_hair_bsdf_genosl" nodedef="ND_chiang_hair_bsdf" file="mx_chiang_hair_bsdf.osl" function="mx_chiang_hair_bsdf" target="genosl" />
 
   <!-- <sheen_bsdf> -->
-  <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" sourcecode="{{weight}} * sheen_bsdf({{normal}}, {{color}}, {{roughness}})" target="genosl" />
+  <implementation name="IM_sheen_bsdf_genosl" nodedef="ND_sheen_bsdf" file="mx_sheen_bsdf.osl" function="mx_sheen_bsdf" target="genosl" />
 
   <!-- <anisotropic_vdf> -->
   <implementation name="IM_anisotropic_vdf_genosl" nodedef="ND_anisotropic_vdf" file="mx_anisotropic_vdf.osl" function="mx_anisotropic_vdf" target="genosl" />

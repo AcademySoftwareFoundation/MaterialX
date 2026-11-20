@@ -27,7 +27,7 @@ TEST_CASE("Element", "[element]")
 
     // Set hierarchical properties
     doc->setFilePrefix("folder/");
-    doc->setColorSpace("lin_rec709");
+    doc->setColorSpace("lin_rec709_scene");
     REQUIRE(elem1->getActiveFilePrefix() == doc->getFilePrefix());
     REQUIRE(elem2->getActiveColorSpace() == doc->getColorSpace());
 

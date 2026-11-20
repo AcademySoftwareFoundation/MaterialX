@@ -118,6 +118,21 @@ MdlShaderGenerator::MdlShaderGenerator(TypeSystemPtr typeSystem) :
     // <!-- <sheen_bsdf> -->
     registerImplementation("IM_sheen_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
 
+    // <!-- <oren_nayar_diffuse_bsdf> -->
+    registerImplementation("IM_oren_nayar_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <burley_diffuse_bsdf> -->
+    registerImplementation("IM_burley_diffuse_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <conductor_bsdf> -->
+    registerImplementation("IM_conductor_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <translucent_bsdf> -->
+    registerImplementation("IM_translucent_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
+    // <!-- <subsurface_bsdf> -->
+    registerImplementation("IM_subsurface_bsdf_" + MdlShaderGenerator::TARGET, LayerableNodeMdl::create);
+
     // <!-- <image> -->
     registerImplementation("IM_image_float_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
     registerImplementation("IM_image_color3_" + MdlShaderGenerator::TARGET, ImageNodeMdl::create);
@@ -135,6 +150,15 @@ void MdlShaderGenerator::applyDefaultOptions(GenOptions& options) const
 
 ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, GenContext& context) const
 {
+    // Reject invalid names to avoid generating invalid MDL code.
+    string validName = name;
+    _syntax->makeValidName(validName);
+    if (validName != name)
+    {
+        throw ExceptionShaderGenError("Invalid MDL shader name '" + name +
+                                      "'. MdlSyntax::makeValidName() can be used to generate a valid name.");
+    }
+
     // For MDL we cannot cache node implementations between generation calls,
     // because this generator needs to do edits to subgraphs implementations
     // depending on the context in which a node is used.
@@ -194,7 +218,7 @@ ShaderPtr MdlShaderGenerator::generate(const string& name, ElementPtr element, G
     const ShaderGraphOutputSocket* outputSocket = graph.getOutputSocket(0);
     emitString("export material ", stage);
 
-    // Begin shader signature. Note that the function name is already sanitized.
+    // Begin shader signature. The function name was validated above.
     string functionName = shader->getName();
     setFunctionName(functionName, stage);
     emitLine(functionName, stage, false);
@@ -355,13 +379,11 @@ ShaderNodeImplPtr MdlShaderGenerator::createShaderNodeImplForNodeGraph(const Nod
         throw ExceptionShaderGenError("NodeGraph '" + nodegraph.getName() + "' has no outputs defined");
     }
 
-    const TypeDesc outputType = _typeSystem->getType(outputs[0]->getType());
-
-    ShaderNodeImplPtr impl;
-    // Use a compound implementation.
-    if (outputType.isClosure())
+    // Any closure output requires the emitter that handles mixed output types.
+    for (OutputPtr output : outputs)
     {
-        return ClosureCompoundNodeMdl::create();
+        if (_typeSystem->getType(output->getType()).isClosure())
+            return ClosureCompoundNodeMdl::create();
     }
     return CompoundNodeMdl::create();
 }
@@ -568,6 +590,25 @@ void disconnectTransmissionIor(ShaderGraph* g)
 
 } // anonymous namespace
 
+bool MdlShaderGenerator::isInputUsed(const ShaderGraphInputSocket& input) const
+{
+    for (const ShaderInput* connection : input.getConnections())
+    {
+        const ShaderNode* node = connection->getNode();
+        if (node->isAGraph())
+        {
+            return true;
+        }
+
+        const SourceCodeNodeMdl* implementation = dynamic_cast<const SourceCodeNodeMdl*>(&node->getImplementation());
+        if (!implementation || implementation->isInputUsed(*connection))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 ShaderPtr MdlShaderGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     // Create the root shader graph
@@ -675,7 +716,7 @@ void emitInputAnnotations(const MdlShaderGenerator& _this, const ShaderPort* var
     _this.emitString(_this.getSyntax().getIndentation() + mtlxParameterPathAnno, stage);
     const ShaderGraphInputSocket* input = static_cast<const ShaderGraphInputSocket*>(variable);
 
-    if (input->getConnections().empty())
+    if (!_this.isInputUsed(*input))
     {
         _this.emitString(",", stage);
         _this.emitLineEnd(stage, false);

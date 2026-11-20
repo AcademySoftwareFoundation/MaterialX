@@ -107,4 +107,46 @@
     <output name="out" type="color4" />
   </nodedef>
 
+  <!-- New color spaces introduced in 1.39.6 -->
+
+  <nodedef name="ND_lin_ap0_scene_to_lin_rec709_color3" node="lin_ap0_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ap0_scene_to_lin_rec709_color4" node="lin_ap0_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_lin_rec2020_scene_to_lin_rec709_color3" node="lin_rec2020_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_rec2020_scene_to_lin_rec709_color4" node="lin_rec2020_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ciexyzd65_scene_to_lin_rec709_color3" node="lin_ciexyzd65_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_lin_ciexyzd65_scene_to_lin_rec709_color4" node="lin_ciexyzd65_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_ap1_scene_to_lin_rec709_color3" node="srgb_ap1_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color3" value="0.0, 0.0, 0.0" />
+    <output name="out" type="color3" />
+  </nodedef>
+
+  <nodedef name="ND_srgb_ap1_scene_to_lin_rec709_color4" node="srgb_ap1_scene_to_lin_rec709" nodegroup="colortransform">
+    <input name="in" type="color4" value="0.0, 0.0, 0.0, 1.0" />
+    <output name="out" type="color4" />
+  </nodedef>
+
 </materialx>

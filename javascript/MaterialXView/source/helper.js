@@ -87,7 +87,7 @@ function fromMatrix(matrix, dimension)
  * @param {mx.Uniforms} uniforms
  * @param {THREE.textureLoader} textureLoader
  */
-function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, flipY)
+function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath)
 {
     let outValue = null;
     switch (type)
@@ -164,7 +164,7 @@ function toThreeUniform(type, value, name, uniforms, textureLoader, searchPath, 
 
                     // Set address & filtering mode
                     if (outValue)
-                        setTextureParameters(outValue, name, uniforms, flipY);
+                        setTextureParameters(outValue, name, uniforms);
                 }
             }
             break;
@@ -227,7 +227,7 @@ function getMinFilter(type, generateMipmaps)
  * @param {mx.Uniforms} uniforms
  * @param {mx.TextureFilter.generateMipmaps} generateMipmaps
  */
-function setTextureParameters(texture, name, uniforms, flipY = true, generateMipmaps = true)
+function setTextureParameters(texture, name, uniforms, generateMipmaps = true)
 {
     const idx = name.lastIndexOf(IMAGE_PROPERTY_SEPARATOR);
     const base = name.substring(0, idx) || name;
@@ -236,7 +236,10 @@ function setTextureParameters(texture, name, uniforms, flipY = true, generateMip
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.magFilter = THREE.LinearFilter;
-    texture.flipY = flipY;
+
+    // Flip textures vertically on upload, compensating for the lower-left
+    // origin of texture space in MaterialX.
+    texture.flipY = true;
 
     if (uniforms.find(base + UADDRESS_MODE_SUFFIX))
     {
@@ -328,7 +331,7 @@ export function registerLights(mx, lights, genContext)
  * @param {mx.shaderStage} shaderStage
  * @param {THREE.TextureLoader} textureLoader
  */
-export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
+export function getUniformValues(shaderStage, textureLoader, searchPath)
 {
     let threeUniforms = {};
 
@@ -343,7 +346,7 @@ export function getUniformValues(shaderStage, textureLoader, searchPath, flipY)
                 const value = variable.getValue()?.getData();
                 const name = variable.getVariable();
                 threeUniforms[name] = new THREE.Uniform(toThreeUniform(variable.getType().getName(), value, name, uniforms,
-                    textureLoader, searchPath, flipY));
+                    textureLoader, searchPath));
             }
         }
     });

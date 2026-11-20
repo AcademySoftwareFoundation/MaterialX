@@ -166,7 +166,7 @@ Thus the base requirement for a definition is to encapsulate the nodes into a &l
 For individual inputs it is recommended to add the following additional attributes as required:
 
 1. Real World Units : If an input value depends on scene / geometry size then a unit attribute should always be added. For example if the graph represents floor tile, then to place it properly the size of the tile. A preset set of “distance” units is provided as part of the standard library.
-2. Colorspace: If an input value is represented in a given color space then to support proper transformation into rendering color space this attribute should be set. A preset set of colorspace names conforming to the AcesCg 1.2 configuration is provided as part of the standard library.
+2. Colorspace: If an input value is represented in a given color space then to support proper transformation into the rendering color space this attribute should be set.
 
 Though not strictly required it is very useful to have appropriate default values as without these the defaults will be zero values. Thus for example a “scale” attribute for a texture node should not be left to default to zero.
 

@@ -824,7 +824,7 @@ The value of the specified uniform geometric property (defined by a &lt;geomprop
 
 ### Geometric Node Notes
 
-A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "none" for no colorspace declaration (and hence no colorspace conversion).
+A `colorspace` attribute may be specified for color3/color4-type properties of &lt;geomcolor> and &lt;geompropvalue> nodes to declare what colorspace the color property value is in; the default is "data" for no colorspace declaration (and hence no colorspace conversion).
 
 
 
@@ -1621,16 +1621,16 @@ Linearly remap incoming values from one range of values [`inlow`, `inhigh`] to a
 ### `range`
 Remap incoming values from one range of values to another, optionally applying a gamma correction "in the middle". 
 
-|Port     |Description                                             |Type                  |Default |
-|---------|--------------------------------------------------------|----------------------|--------|
-|`in`     |The input stream to be adjusted                         |float, colorN, vectorN|__zero__|
-|`inlow`  |Low value for the input range                           |Same as `in` or float |__zero__|
-|`inhigh` |High value for the input range                          |Same as `inlow`       |__one__ |
-|`gamma`  |Reciprocal of the exponent applied to the remapped input|Same as `inlow`       |__one__ |
-|`outlow` |Low value for the output range                          |Same as `inlow`       |__zero__|
-|`outhigh`|High value for the output range                         |Same as `inlow`       |__one__ |
-|`doclamp`|If true, the output is clamped to [`outlow`, `outhigh`] |boolean               |false   |
-|`out`    |Output: the adjusted value                              |Same as `in`          |`in`    |
+|Port     |Description                                                                                 |Type                  |Default |
+|---------|--------------------------------------------------------------------------------------------|----------------------|--------|
+|`in`     |The input stream to be adjusted                                                             |float, colorN, vectorN|__zero__|
+|`inlow`  |Low value for the input range                                                               |Same as `in` or float |__zero__|
+|`inhigh` |High value for the input range                                                              |Same as `inlow`       |__one__ |
+|`gamma`  |Reciprocal of the exponent applied to the remapped input                                    |Same as `inlow`       |__one__ |
+|`outlow` |Low value for the output range                                                              |Same as `inlow`       |__zero__|
+|`outhigh`|High value for the output range                                                             |Same as `inlow`       |__one__ |
+|`doclamp`|If true, the output is clamped between `outlow` and `outhigh`, regardless of which is larger|boolean               |false   |
+|`out`    |Output: the adjusted value                                                                  |Same as `in`          |`in`    |
 
 <a id="node-smoothstep"> </a>
 

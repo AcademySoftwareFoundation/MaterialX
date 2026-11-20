@@ -39,6 +39,7 @@ const std::string argOptions =
     "    --path [FILEPATH]              Specify an additional data search path location (e.g. '/projects/MaterialX').  This absolute path will be queried when locating data libraries, XInclude references, and referenced images.\n"
     "    --library [FILEPATH]           Specify an additional data library folder (e.g. 'vendorlib', 'studiolib').  This relative path will be appended to each location in the data search path when loading data libraries.\n"
     "    --osoNameStrategy [STRING]      TODO - either 'implementation' or 'nodedef' (default:'implementation')\n"
+    "    --texVerticalFlip [BOOLEAN]     Specify whether file texture lookups in the generated modules are flipped vertically, compensating for hosts that sample images with their origin at the upper left (defaults to true)\n"
     "    --help                          Display the complete list of command-line options\n";
 
 class ExceptionCompileError : public mx::Exception
@@ -205,6 +206,7 @@ int main(int argc, char* const argv[])
     bool argSkipWritingSource = false;
     bool argSkipWritingMtlxDoc = false;
     bool argUseOslC = false;
+    bool argTexVerticalFlip = true;
 
     // Loop over the provided arguments, and store their associated values.
     for (size_t i = 0; i < tokens.size(); i++)
@@ -243,6 +245,18 @@ int main(int argc, char* const argv[])
         else if (token == "--osoNameStrategy")
         {
             argOsoNameStrategy = nextToken;
+        }
+        else if (token == "--texVerticalFlip")
+        {
+            mx::ValuePtr value = mx::Value::createValueFromStrings(nextToken, "boolean");
+            if (value)
+            {
+                argTexVerticalFlip = value->asA<bool>();
+            }
+            else
+            {
+                std::cout << "Unable to parse boolean value for --texVerticalFlip: " << nextToken << std::endl;
+            }
         }
         else if (token == "--skipWritingOSLSource")
         {
@@ -371,12 +385,14 @@ int main(int argc, char* const argv[])
     // Register types from the libraries on the OSL shader generator.
     oslShaderGen->registerTypeDefs(librariesDoc);
 
-    // Setup the context of the OSL shader generator.
+    // Setup the context of the OSL shader generator, with the vertical flip
+    // of file texture lookups controlled by the --texVerticalFlip option.
+    // TODO: Consider generating modules for both image orientations, allowing
+    // the orientation to be selected at network generation time.
     mx::GenContext context(oslShaderGen);
     context.registerSourceCodeSearchPath(argSearchPath);
-    // TODO: It might be good to find a way to not hardcode these options, especially the texture flip.
     context.getOptions().addUpstreamDependencies = false;
-    context.getOptions().fileTextureVerticalFlip = false;
+    context.getOptions().fileTextureVerticalFlip = argTexVerticalFlip;
     context.getOptions().oslImplicitSurfaceShaderConversion = false;
 
     OslCompileOptions options;
@@ -503,7 +519,22 @@ int main(int argc, char* const argv[])
     {
         // We only write the MaterialX document containing the implementations out if requested.
         mx::FilePath implMtlxDocFilePath = outputMtlxPath / "genoslnetwork_impl.mtlx";
-        mx::writeToXmlFile(implMtlxDoc, implMtlxDocFilePath);
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.createDirectories = true;
+        try
+        {
+            mx::writeToXmlFile(implMtlxDoc, implMtlxDocFilePath, &writeOptions);
+        }
+        // Catch any file writing related exceptions.
+        catch (mx::Exception& exc)
+        {
+            std::cerr << "Encountered an exception while writing the implementation document to the "
+                         "following path: "
+                      << implMtlxDocFilePath.asString() << std::endl;
+            std::cerr << exc.what() << std::endl;
+
+            hasFailed = true;
+        }
     }
 
     // If something went wrong, return an appropriate error code.

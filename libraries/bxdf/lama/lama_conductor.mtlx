@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<materialx version="1.39" colorspace="acescg">
+<materialx version="1.39" colorspace="lin_ap1_scene">
   <nodedef name="ND_lama_conductor" node="LamaConductor" nodegroup="pbr" doc="Lama conductor" version="1.0" isdefaultversion="true">
     <input name="tint" type="color3" value="1, 1, 1" uiname="Tint" uifolder="Main"
            doc="Overall color multiplier. It should be used with parsimony, as a non-white value breaks physicality. The preferred way to define the color of a conductor is through the Fresnel attributes right below." />

@@ -60,6 +60,31 @@ class MX_GENSHADER_API ColorManagementSystem
     /// Returns whether this color management system supports a provided transform
     bool supportsTransform(const ColorSpaceTransform& transform) const;
 
+    /// Returns true if the given color space name is one of the no-op color spaces
+    /// ("none" and "data") reserved by the MaterialX specification, independent of
+    /// any particular color management system.
+    static bool isReservedNoOpColorSpace(const string& colorSpace);
+
+    /// Returns true if no color transformation is required between the given source
+    /// and target color spaces. This is the case when the two names refer to the same
+    /// color space, or when either name is a no-op color space such as the reserved
+    /// "none" and "data" names. The base implementation compares the names directly
+    /// and consults isReservedNoOpColorSpace(). Subclasses may extend this to
+    /// recognize aliases of the same color space, such as a legacy name and its color
+    /// interop equivalent, or additional no-op color spaces known to the color
+    /// management system, and should call the base implementation as well.
+    virtual bool isNoOpTransform(const string& sourceColorSpace, const string& targetColorSpace) const
+    {
+        return sourceColorSpace == targetColorSpace ||
+               isReservedNoOpColorSpace(sourceColorSpace) ||
+               isReservedNoOpColorSpace(targetColorSpace);
+    }
+
+    /// The colorSpace strings should not be shown directly in a user interface. This function
+    /// converts a colorSpace into a user-facing name. For example, "lin_rec709_scene" becomes
+    /// "Linear Rec.709 (sRGB)". If the colorSpace is not recognized, it is returned unchanged.
+    virtual string getUserFacingName(const string& colorSpace) const { return colorSpace; }
+
     /// Create a node to use to perform the given color space transformation.
     ShaderNodePtr createNode(const ShaderGraph* parent, const ColorSpaceTransform& transform, const string& name,
                              GenContext& context) const;

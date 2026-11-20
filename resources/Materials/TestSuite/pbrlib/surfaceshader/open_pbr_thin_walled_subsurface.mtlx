@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="M_open_pbr_thin_walled_subsurface" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_open_pbr_thin_walled_subsurface" />
+  </surfacematerial>
+  <open_pbr_surface name="SR_open_pbr_thin_walled_subsurface" type="surfaceshader">
+    <input name="geometry_thin_walled" type="boolean" value="true" />
+    <input name="subsurface_weight" type="float" value="1.0" />
+    <input name="subsurface_color" type="color3" value="0.816, 0.140, 0.124" />
+    <input name="subsurface_scatter_anisotropy" type="float" value="0.5" />
+  </open_pbr_surface>
+</materialx>
