@@ -201,6 +201,43 @@ TEST_CASE("GenShader: MDL Syntax", "[genmdl]")
                       mx::ExceptionShaderGenError);
 }
 
+TEST_CASE("GenShader: TypeDef Shadowing Rejection", "[genmdl]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::readFromXmlString(doc, R"(<materialx version="1.39">
+      <typedef name="float"><member name="x" type="float"/></typedef>
+    </materialx>)");
+    REQUIRE(doc->validate());
+
+    mx::ShaderGeneratorPtr generator = mx::MdlShaderGenerator::create();
+    REQUIRE_THROWS_AS(generator->registerTypeDefs(doc), mx::ExceptionShaderGenError);
+
+    // "booleanarray" has a built-in value creator but is not registered in the
+    // type system, so a name-only collision check would miss it.
+    mx::DocumentPtr arrayDoc = mx::createDocument();
+    mx::readFromXmlString(arrayDoc, R"(<materialx version="1.39">
+      <typedef name="booleanarray"><member name="x" type="boolean"/></typedef>
+    </materialx>)");
+    REQUIRE(arrayDoc->validate());
+    REQUIRE_THROWS_AS(generator->registerTypeDefs(arrayDoc), mx::ExceptionShaderGenError);
+
+    // A struct TypeDef with a unique name must still be accepted.
+    mx::DocumentPtr structDoc = mx::createDocument();
+    mx::readFromXmlString(structDoc, R"(<materialx version="1.39">
+      <typedef name="unique_struct_name"><member name="x" type="float"/></typedef>
+    </materialx>)");
+    REQUIRE(structDoc->validate());
+    REQUIRE_NOTHROW(generator->registerTypeDefs(structDoc));
+    REQUIRE(generator->getTypeSystem()->getType("unique_struct_name").isStruct());
+
+    // The syntax sinks must throw on a non-aggregate value rather than
+    // static_cast'ing it to AggregateValue (heap OOB read / fake std::vector).
+    mx::TypeSystemPtr ts = mx::TypeSystem::create();
+    mx::SyntaxPtr syntax = mx::MdlSyntax::create(ts);
+    mx::StructTypeSyntaxPtr structSyntax = syntax->createStructSyntax("unique_struct_name", "", "", "", "");
+    mx::ValuePtr floatValue = mx::Value::createValue<float>(1.5f);
+    REQUIRE_THROWS_AS(structSyntax->getValue(*floatValue, false), mx::ExceptionTypeError);
+}
 
 TEST_CASE("GenShader: MDL Implementation Check", "[genmdl]")
 {

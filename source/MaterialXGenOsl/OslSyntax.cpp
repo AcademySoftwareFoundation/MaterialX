@@ -230,7 +230,9 @@ public:
 
     string getValue(const Value& value, bool /* uniform */) const override
     {
-        const AggregateValue& aggValue = static_cast<const AggregateValue&>(value);
+        // Throws ExceptionTypeError if the value is not an aggregate, e.g. when a
+        // TypeDef shadows a built-in type name and the port carries a TypedValue<T>.
+        const AggregateValue& aggValue = value.asA<AggregateValue>();
 
         string result = aggValue.getTypeString() + "(";
 

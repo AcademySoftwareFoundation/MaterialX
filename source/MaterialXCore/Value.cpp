@@ -281,6 +281,11 @@ ValuePtr Value::createValueFromStrings(const string& value, const string& type, 
     return TypedValue<string>::createFromString(value);
 }
 
+bool Value::hasBuiltInCreator(const string& type)
+{
+    return _creatorMap.find(type) != _creatorMap.end();
+}
+
 template <class T> bool Value::isA() const
 {
     return dynamic_cast<const TypedValue<T>*>(this) != nullptr;

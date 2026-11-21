@@ -381,6 +381,13 @@ void ShaderGenerator::registerTypeDefs(const DocumentPtr& doc)
             continue;
         }
 
+        // Reject TypeDefs that shadow an already-registered type
+        const TypeDesc existingType = _typeSystem->getType(typeName);
+        if ((existingType != Type::NONE && !existingType.isStruct()) || Value::hasBuiltInCreator(typeName))
+        {
+            throw ExceptionShaderGenError("TypeDef '" + typeName + "' collides with a built-in or already-registered type and cannot be registered as a struct");
+        }
+
         auto structMembers = std::make_shared<StructMemberDescVec>();
         for (const auto& member : members)
         {
