@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+Test that a color space declared on the filename input of UsdUVTexture is applied to the sampled texture, ahead of its scale and bias.
+ -->
+<materialx version="1.39" colorspace="lin_rec709_scene">
+  <nodegraph name="ng1">
+    <UsdUVTexture name="texture" type="multioutput">
+      <input name="file" type="filename" value="resources/Images/grid.png" colorspace="srgb_rec709_scene" />
+      <input name="scale" type="color4" value="0.5, 0.5, 0.5, 1.0" />
+      <input name="bias" type="color4" value="0.25, 0.0, 0.0, 0.0" />
+    </UsdUVTexture>
+    <standard_surface name="usd_uv_texture_standard_surface" type="surfaceshader">
+      <input name="base_color" type="color3" nodename="texture" output="rgb" />
+    </standard_surface>
+    <output name="usd_uv_texture_out" type="surfaceshader" nodename="usd_uv_texture_standard_surface" />
+  </nodegraph>
+</materialx>
