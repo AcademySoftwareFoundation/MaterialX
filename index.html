@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>MaterialX Web Viewer</title>
+    <link rel="icon" type="image/x-icon" href="public/favicon.ico" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+        font-size: 12px;
+      }
+
+      /* Responsive select menus */
+      select {
+        max-width: 40vw;
+        width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        background: #000;
+        color: #fff;
+        border: 1px solid #444;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      select option {
+        background: #000;
+        color: #fff;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      .select-row {
+        color: rgb(255, 255, 255);
+        background: rgba(0,0,0,0.4);
+        position: absolute;
+        margin: 1em;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+      }
+
+
+      /* Property editor item color */
+      .peditoritem {
+        background-color: #334444;
+      }
+      /* Property editor folder color */
+      .peditorfolder {
+        background-color: #333333;
+      }
+
+      /* Move property editor down to align with Material row */
+      .lil-gui {
+        top: 1.0em !important;
+      }
+
+     .peditor_material_assigned {
+        background-color: #006cb8;
+      }
+      .peditor_material_assigned:hover {
+        background-color: #32adff;
+      }
+
+      .fps-overlay {
+        position: fixed;
+        left: 10px;
+        bottom: 10px;
+        padding: 4px 10px;
+        background: rgba(0,0,0,0.4);
+        color: rgb(255, 255, 255);
+        font-family: inherit;
+        font-size: inherit;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+    </style>
+  <script defer src="main.js"></script></head>
+  <body style="margin: 0px; overflow: hidden;">
+    <div id="container">
+      <div class="select-row" style="top: 0em;">
+        <label for="materials" style="margin: 0; padding: 0 0.2em; font-family: inherit; font-size: inherit;">Material:</label>
+        <select name="materials" id="materials" style="flex: 1 1 0; min-width: 0;">
+          
+            <option value="Materials/Examples/StandardSurface/standard_surface_brass_tiled.mtlx">
+               Standard  Surface  Brass  Tiled
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_brick_procedural.mtlx">
+               Standard  Surface  Brick  Procedural
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_carpaint.mtlx">
+               Standard  Surface  Carpaint
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_chess_set.mtlx">
+               Standard  Surface  Chess  Set
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_chrome.mtlx">
+               Standard  Surface  Chrome
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_copper.mtlx">
+               Standard  Surface  Copper
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_default.mtlx">
+               Standard  Surface  Default
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_glass.mtlx">
+               Standard  Surface  Glass
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_glass_tinted.mtlx">
+               Standard  Surface  Glass  Tinted
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_gold.mtlx">
+               Standard  Surface  Gold
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_greysphere.mtlx">
+               Standard  Surface  Greysphere
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_greysphere_calibration.mtlx">
+               Standard  Surface  Greysphere  Calibration
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_jade.mtlx">
+               Standard  Surface  Jade
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_look_brass_tiled.mtlx">
+               Standard  Surface  Look  Brass  Tiled
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_look_wood_tiled.mtlx">
+               Standard  Surface  Look  Wood  Tiled
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_marble_solid.mtlx">
+               Standard  Surface  Marble  Solid
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_metal_brushed.mtlx">
+               Standard  Surface  Metal  Brushed
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_onyx_hextiled.mtlx">
+               Standard  Surface  Onyx  Hextiled
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_plastic.mtlx">
+               Standard  Surface  Plastic
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_thin_film.mtlx">
+               Standard  Surface  Thin  Film
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_velvet.mtlx">
+               Standard  Surface  Velvet
+            </option>
+            
+            <option value="Materials/Examples/StandardSurface/standard_surface_wood_tiled.mtlx">
+               Standard  Surface  Wood  Tiled
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_brass_tiled.mtlx">
+               Usd  Preview  Surface  Brass  Tiled
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_carpaint.mtlx">
+               Usd  Preview  Surface  Carpaint
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_default.mtlx">
+               Usd  Preview  Surface  Default
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_glass.mtlx">
+               Usd  Preview  Surface  Glass
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_gold.mtlx">
+               Usd  Preview  Surface  Gold
+            </option>
+            
+            <option value="Materials/Examples/UsdPreviewSurface/usd_preview_surface_plastic.mtlx">
+               Usd  Preview  Surface  Plastic
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_boombox.mtlx">
+               Gltf  Pbr  Boombox
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_carpaint.mtlx">
+               Gltf  Pbr  Carpaint
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_default.mtlx">
+               Gltf  Pbr  Default
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_glass.mtlx">
+               Gltf  Pbr  Glass
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_gold.mtlx">
+               Gltf  Pbr  Gold
+            </option>
+            
+            <option value="Materials/Examples/GltfPbr/gltf_pbr_plastic.mtlx">
+               Gltf  Pbr  Plastic
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_aluminum_brushed.mtlx">
+               Open  Pbr  Aluminum  Brushed
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_carpaint.mtlx">
+               Open  Pbr  Carpaint
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_default.mtlx">
+               Open  Pbr  Default
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_glass.mtlx">
+               Open  Pbr  Glass
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_honey.mtlx">
+               Open  Pbr  Honey
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_ketchup.mtlx">
+               Open  Pbr  Ketchup
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_lightbulb.mtlx">
+               Open  Pbr  Lightbulb
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_pearl.mtlx">
+               Open  Pbr  Pearl
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_soapbubble.mtlx">
+               Open  Pbr  Soapbubble
+            </option>
+            
+            <option value="Materials/Examples/OpenPbr/open_pbr_velvet.mtlx">
+               Open  Pbr  Velvet
+            </option>
+            
+        </select>
+      </div>
+      <div class="select-row" style="top: 1.5em;">
+        <label for="geometry" style="margin: 0; padding: 0 0.2em; font-family: inherit; font-size: inherit;">Geometry:</label>
+        <select name="geometry" id="geometry" style="flex: 1 1 0; min-width: 0;">
+          
+            <option value="Geometry/boombox.glb">
+               Boombox
+            </option>
+            
+            <option value="Geometry/chess_set.glb">
+               Chess  Set
+            </option>
+            
+            <option value="Geometry/shaderball.glb">
+               Shaderball
+            </option>
+            
+        </select>
+      </div>
+      <canvas id="webglcanvas" tabindex="1" style="outline: none;"></canvas>
+    </div>
+  </body>
+</html>
