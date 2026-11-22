@@ -8,7 +8,7 @@
 
 #include <MaterialXGraphEditor/FileDialog.h>
 #include <MaterialXGraphEditor/Layout.h>
-#include <MaterialXGraphEditor/RenderViewBase.h>
+#include <MaterialXGraphEditor/RenderView.h>
 #include <MaterialXGraphEditor/UiNode.h>
 
 #include <MaterialXRender/Util.h>
@@ -120,12 +120,12 @@ class Graph
     mx::DocumentPtr loadDocument(const mx::FilePath& filename);
     void drawGraph(ImVec2 mousePos);
 
-    RenderViewBasePtr getRenderer()
+    RenderViewPtr getRenderer()
     {
-        return _renderer;
+        return _renderView;
     }
 
-    // Set the active render backend, re-creating the render view as needed.
+    // Set the active render backend, creating or reusing its pipeline as needed.
     void setRenderBackend(const std::string& backendName);
 
     // Set the render pass displayed by the active backend (e.g. "combined",
@@ -326,12 +326,12 @@ class Graph
     void saveGraphToFile();
     void loadGeometry();
 
-    // Create a render view for the given backend name.
+    // Create the render view or activate the requested backend.
     void createRenderView(const std::string& backendName);
 
-    // Propagate the current document to every cached render view, so inactive
+    // Propagate the current document to every cached pipeline, so inactive
     // backends do not render a stale document when they are reactivated.
-    void setDocumentForAllRenderViews();
+    void setDocumentForRenderPipelines();
 
     // Initialize the graph state from the current document.
     void initializeGraph();
@@ -373,15 +373,7 @@ class Graph
     mx::StringVec _mtlxFilter;
     mx::StringVec _imageFilter;
 
-    RenderViewBasePtr _renderer;
-
-    // Render views by backend name, kept alive across backend switches so that
-    // OpenGL resources are not torn down and rebuilt on every switch.
-    std::unordered_map<std::string, RenderViewBasePtr> _renderViews;
-
-    // The document most recently given to each cached render view, so a view
-    // that was inactive while a new file was loaded can be re-synchronized.
-    std::unordered_map<std::string, mx::DocumentPtr> _renderViewDocs;
+    RenderViewPtr _renderView;
 
     // document and initializing information
     mx::FilePath _materialFilename;
@@ -393,16 +385,6 @@ class Graph
     mx::FilePath _envRadianceFilename;
     int _viewWidth = 0;
     int _viewHeight = 0;
-    std::string _renderPass = "combined";
-
-    // Denoising and sampling settings applied to the active render backend.
-    bool _denoise = true;
-    int _denoiseStartSample = 16;
-    bool _adaptiveSampling = false;
-    float _adaptiveThreshold = 0.01f;
-    int _adaptiveMinSamples = 0;
-    int _maxSamples = 4096;
-    float _lightIntensity = 0.75f;
     bool _fixedSizeRendering = false;
 
     mx::FileSearchPath _searchPath;

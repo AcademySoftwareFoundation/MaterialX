@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include <MaterialXGraphEditor/GlslRenderView.h>
+#include <MaterialXGraphEditor/GlslRenderPipeline.h>
 
 #include "MaterialXRenderGlsl/GLTextureHandler.h"
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
@@ -22,7 +22,6 @@
 
 #include <MaterialXFormat/Util.h>
 
-#include <imgui_impl_glfw.h>
 
 #include <iostream>
 
@@ -43,21 +42,6 @@ const std::string IRRADIANCE_MAP_FOLDER = "irradiance";
 const float IDEAL_MESH_SPHERE_RADIUS = 2.0f;
 
 const float PI = std::acos(-1.0f);
-
-namespace
-{
-
-void enableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glEnable(GL_FRAMEBUFFER_SRGB);
-}
-
-void disableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glDisable(GL_FRAMEBUFFER_SRGB);
-}
-
-} // anonymous namespace
 
 // this is mostly taken from MaterialXView Viewer.cpp but only a subset of the functions with some changes and additions
 
@@ -116,7 +100,7 @@ void applyModifiers(mx::DocumentPtr doc, const DocumentModifiers& modifiers)
     }
 }
 
-void GlslRenderView::setDocument(mx::DocumentPtr document)
+void GlslRenderPipeline::setDocument(mx::DocumentPtr document)
 {
     // Set new current document
     _document = document;
@@ -125,17 +109,7 @@ void GlslRenderView::setDocument(mx::DocumentPtr document)
     initContext(_genContext);
 }
 
-void GlslRenderView::beginFrameDisplay()
-{
-    ImGui::GetWindowDrawList()->AddCallback(enableSRGBCallback, nullptr);
-}
-
-void GlslRenderView::endFrameDisplay()
-{
-    ImGui::GetWindowDrawList()->AddCallback(disableSRGBCallback, nullptr);
-}
-
-bool GlslRenderView::isNodeDefSupported(const mx::NodeDefPtr& nodeDef)
+bool GlslRenderPipeline::isNodeDefSupported(const mx::NodeDefPtr& nodeDef)
 {
     if (!nodeDef)
     {
@@ -144,7 +118,7 @@ bool GlslRenderView::isNodeDefSupported(const mx::NodeDefPtr& nodeDef)
     return _genContext.getShaderGenerator().getImplementation(*nodeDef, _genContext) != nullptr;
 }
 
-void GlslRenderView::modifyUniform(const std::string& name, mx::ValuePtr value)
+void GlslRenderPipeline::modifyUniform(const std::string& name, mx::ValuePtr value)
 {
     if (!_materials.empty())
     {
@@ -152,7 +126,7 @@ void GlslRenderView::modifyUniform(const std::string& name, mx::ValuePtr value)
     }
 }
 
-GlslRenderView::GlslRenderView(mx::DocumentPtr doc,
+GlslRenderPipeline::GlslRenderPipeline(mx::DocumentPtr doc,
                        mx::DocumentPtr stdLib,
                        const std::string& meshFilename,
                        const std::string& envRadianceFilename,
@@ -185,8 +159,7 @@ GlslRenderView::GlslRenderView(mx::DocumentPtr doc,
     _splitByUdims(true),
     _renderTransparency(true),
     _renderDoubleSided(true),
-    _captureRequested(false),
-    _exitRequested(false)
+    _captureRequested(false)
 {
     _viewWidth = viewWidth;
     _viewHeight = viewHeight;
@@ -211,7 +184,7 @@ GlslRenderView::GlslRenderView(mx::DocumentPtr doc,
     _stdLib = stdLib;
 }
 
-void GlslRenderView::initialize()
+void GlslRenderPipeline::initialize()
 {
     // Initialize image handler.
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
@@ -240,7 +213,7 @@ void GlslRenderView::initialize()
     _pixelRatio = 1.f;
 }
 
-void GlslRenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material)
+void GlslRenderPipeline::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material)
 {
     if (!geometry || _geometryHandler->getMeshes().empty())
     {
@@ -261,7 +234,7 @@ void GlslRenderView::assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMater
     }
 }
 
-void GlslRenderView::updateGeometrySelections()
+void GlslRenderPipeline::updateGeometrySelections()
 {
     _geometryList.clear();
     if (_geometryHandler->getMeshes().empty())
@@ -292,7 +265,7 @@ void GlslRenderView::updateGeometrySelections()
     _selectedGeom = 0;
 }
 
-void GlslRenderView::loadMesh(const mx::FilePath& filename)
+void GlslRenderPipeline::loadMesh(const mx::FilePath& filename)
 {
     _geometryHandler->clearGeometry();
     if (_geometryHandler->loadGeometry(filename))
@@ -343,70 +316,7 @@ void GlslRenderView::loadMesh(const mx::FilePath& filename)
     }
 }
 
-void GlslRenderView::setScrollEvent(float scrollY)
-{
-    _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
-}
-
-void GlslRenderView::setKeyEvent(int key)
-{
-    if (key == ImGuiKey_KeypadAdd)
-    {
-        _cameraZoom *= 1.1f;
-    }
-    if (key == ImGuiKey_KeypadSubtract)
-    {
-        _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
-    }
-}
-
-void GlslRenderView::setMouseMotionEvent(mx::Vector2 pos)
-{
-    if (_viewCamera->applyArcballMotion(pos))
-    {
-        return;
-    }
-    if (_userTranslationActive)
-    {
-        updateCameras();
-
-        mx::Vector3 boxMin = _geometryHandler->getMinimumBounds();
-        mx::Vector3 boxMax = _geometryHandler->getMaximumBounds();
-        mx::Vector3 sphereCenter = (boxMax + boxMin) / 2.0f;
-
-        float viewZ = _viewCamera->projectToViewport(sphereCenter)[2];
-        mx::Vector3 pos1 = _viewCamera->unprojectFromViewport(
-            mx::Vector3(pos[0], (float) _viewWidth - pos[1], viewZ));
-        mx::Vector3 pos0 = _viewCamera->unprojectFromViewport(
-            mx::Vector3(_userTranslationPixel[0], (float) _viewWidth - _userTranslationPixel[1], viewZ));
-        _userTranslation = _userTranslationStart + (pos1 - pos0);
-    }
-}
-
-void GlslRenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
-{
-
-    if ((button == 0) && !ImGui::IsKeyPressed(ImGuiKey_RightShift) && !ImGui::IsKeyPressed(ImGuiKey_LeftShift))
-    {
-        _viewCamera->arcballButtonEvent(pos, down);
-    }
-    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_RightShift)) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_LeftShift)))
-    {
-        _userTranslationStart = _userTranslation;
-        _userTranslationActive = true;
-        _userTranslationPixel = pos;
-    }
-    if ((button == 0) && !down)
-    {
-        _viewCamera->arcballButtonEvent(pos, false);
-    }
-    if (!down)
-    {
-        _userTranslationActive = false;
-    }
-}
-
-void GlslRenderView::setMaterial(mx::TypedElementPtr elem)
+void GlslRenderPipeline::setMaterial(mx::TypedElementPtr elem)
 {
     // compare graph element to material in order to assign correct one
     for (mx::GlslMaterialPtr mat : _materials)
@@ -419,7 +329,7 @@ void GlslRenderView::setMaterial(mx::TypedElementPtr elem)
     }
 }
 
-void GlslRenderView::updateMaterials(mx::TypedElementPtr typedElem)
+void GlslRenderPipeline::updateMaterials(mx::TypedElementPtr typedElem)
 {
     // Clear user data on the generator.
     _genContext.clearUserData();
@@ -605,7 +515,7 @@ void GlslRenderView::updateMaterials(mx::TypedElementPtr typedElem)
     }
 }
 
-void GlslRenderView::reloadShaders()
+void GlslRenderPipeline::reloadShaders()
 {
     try
     {
@@ -636,7 +546,7 @@ void GlslRenderView::reloadShaders()
     _materials.clear();
 }
 
-void GlslRenderView::initContext(mx::GenContext& context)
+void GlslRenderPipeline::initContext(mx::GenContext& context)
 {
     // Initialize search path
     context.registerSourceCodeSearchPath(_searchPath);
@@ -688,7 +598,7 @@ void GlslRenderView::initContext(mx::GenContext& context)
     context.getShaderGenerator().registerTypeDefs(_document);
 }
 
-void GlslRenderView::drawContents()
+void GlslRenderPipeline::drawContents()
 {
     // Drain any OpenGL errors left over from another render backend or from
     // tearing down a previous render view, so that they are not
@@ -726,7 +636,7 @@ void GlslRenderView::drawContents()
     }
 }
 
-void GlslRenderView::applyDirectLights(mx::DocumentPtr doc)
+void GlslRenderPipeline::applyDirectLights(mx::DocumentPtr doc)
 {
     if (_lightRigDoc)
     {
@@ -747,7 +657,7 @@ void GlslRenderView::applyDirectLights(mx::DocumentPtr doc)
     }
 }
 
-void GlslRenderView::loadEnvironmentLight()
+void GlslRenderPipeline::loadEnvironmentLight()
 {
     // Load the requested radiance map.
     mx::ImagePtr envRadianceMap = _imageHandler->acquireImage(_envRadianceFilename);
@@ -790,7 +700,7 @@ void GlslRenderView::loadEnvironmentLight()
     }
 }
 
-void GlslRenderView::renderFrame()
+void GlslRenderPipeline::renderFrame()
 {
     // Initialize OpenGL state
     glDisable(GL_BLEND);
@@ -910,7 +820,7 @@ void GlslRenderView::renderFrame()
     _textureID = _renderFrame->getColorTexture();
 }
 
-void GlslRenderView::initCamera()
+void GlslRenderPipeline::initCamera()
 {
     _viewCamera->setViewportSize(mx::Vector2((float) _viewWidth, (float) _viewHeight));
 
@@ -930,7 +840,7 @@ void GlslRenderView::initCamera()
     _meshScale = IDEAL_MESH_SPHERE_RADIUS / (sphereCenter - boxMin).getMagnitude();
 }
 
-void GlslRenderView::updateCameras()
+void GlslRenderPipeline::updateCameras()
 {
     mx::Matrix44 viewMatrix, projectionMatrix;
     float aspectRatio = (float) _viewHeight / _viewHeight;
@@ -980,7 +890,7 @@ void GlslRenderView::updateCameras()
     }
 }
 
-void GlslRenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
+void GlslRenderPipeline::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
 {
     if (!_quadMesh)
         _quadMesh = mx::GeometryHandler::createQuadMesh();
@@ -989,7 +899,7 @@ void GlslRenderView::renderScreenSpaceQuad(mx::GlslMaterialPtr material)
     material->drawPartition(_quadMesh->getPartition(0));
 }
 
-mx::ImagePtr GlslRenderView::getShadowMap()
+mx::ImagePtr GlslRenderPipeline::getShadowMap()
 {
     if (!_shadowMap)
     {

@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_CYCLESRENDERVIEW_H
-#define MATERIALX_CYCLESRENDERVIEW_H
+#ifndef MATERIALX_CYCLESRENDERPIPELINE_H
+#define MATERIALX_CYCLESRENDERPIPELINE_H
 
 #ifdef MATERIALX_BUILD_RENDER_CYCLES
 
-#include <MaterialXGraphEditor/RenderViewBase.h>
+#include <MaterialXGraphEditor/RenderPipeline.h>
 
 #include <MaterialXRender/GeometryHandler.h>
 
@@ -22,8 +22,8 @@
 
 namespace mx = MaterialX;
 
-class CyclesRenderView;
-using CyclesRenderViewPtr = std::shared_ptr<CyclesRenderView>;
+class CyclesRenderPipeline;
+using CyclesRenderPipelinePtr = std::shared_ptr<CyclesRenderPipeline>;
 
 class CyclesCaptureDisplayDriver;
 
@@ -37,16 +37,15 @@ class SessionParams;
 class SceneParams;
 } // namespace ccl
 
-/// @class CyclesRenderView
-/// Cycles render view embedded in the graph editor.
+/// @class CyclesRenderPipeline
+/// Cycles render pipeline embedded in the graph editor.
 ///
-/// Renders an interactive path-traced preview using the Cycles renderer,
-/// capturing the rendered frame and presenting it to the graph editor as an
-/// OpenGL texture.
-class CyclesRenderView : public RenderViewBase
+/// Renders an interactive path-traced preview using the Cycles renderer and
+/// exposes the result to RenderView as an OpenGL texture.
+class CyclesRenderPipeline : public RenderPipeline
 {
   public:
-    CyclesRenderView(mx::DocumentPtr doc,
+    CyclesRenderPipeline(mx::DocumentPtr doc,
                      mx::DocumentPtr stdLib,
                      const std::string& meshFilename,
                      const std::string& envRadianceFilename,
@@ -54,119 +53,147 @@ class CyclesRenderView : public RenderViewBase
                      int viewWidth,
                      int viewHeight,
                      const std::string& renderPass = "combined");
-    ~CyclesRenderView() override;
+    ~CyclesRenderPipeline();
 
     // Return the name of this render backend.
-    std::string getBackendName() const override
+    std::string getBackendName() const
     {
         return "Cycles";
+    }
+
+    std::string getName() const override
+    {
+        return getBackendName();
+    }
+
+    RenderCapabilities getCapabilities() const override
+    {
+        RenderCapabilities caps;
+        caps.passes = { { "combined", "Combined" }, { "albedo", "Albedo" } };
+        caps.denoising = true;
+        caps.adaptiveSampling = true;
+        caps.lightIntensity = true;
+        caps.asynchronous = true;
+        return caps;
     }
 
     // Initialize the viewer for rendering.
     void initialize() override;
 
-    void setDocument(mx::DocumentPtr document) override;
-    void updateMaterials(mx::TypedElementPtr typedElem) override;
-    void loadMesh(const mx::FilePath& filename) override;
-    void drawContents() override;
+    void setSettings(const RenderSettings& settings) override
+    {
+        setRenderPass(settings.renderPass);
+        setDenoise(settings.denoise);
+        setDenoiseStartSample(settings.denoiseStartSample);
+        setAdaptiveSampling(settings.adaptiveSampling);
+        setAdaptiveThreshold(settings.adaptiveThreshold);
+        setAdaptiveMinSamples(settings.adaptiveMinSamples);
+        setMaxSamples(settings.maxSamples);
+        setLightIntensity(settings.lightIntensity);
+    }
+
+    void resize(int width, int height) override
+    {
+        _viewWidth = width;
+        _viewHeight = height;
+    }
+
+    void setCamera(mx::CameraPtr camera, const RenderCameraState& state) override
+    {
+        if (state.revision != _cameraRevision)
+        {
+            _cameraRevision = state.revision;
+            _cameraDirty = true;
+        }
+        _viewCamera = camera;
+        _cameraPosition = state.position;
+        _cameraTarget = state.target;
+        _cameraUp = state.up;
+        _cameraFov = state.viewAngle;
+        _cameraZoom = state.zoom;
+        _userTranslation = state.userTranslation;
+    }
+
+    void render() override
+    {
+        drawContents();
+    }
+
+    unsigned int getColorTexture() const override
+    {
+        return getRenderTextureId();
+    }
+
+    void setDocument(mx::DocumentPtr document);
+    void updateMaterials(mx::TypedElementPtr typedElem);
+    void loadMesh(const mx::FilePath& filename);
+    void drawContents();
 
     // Return the OpenGL texture ID of the most recently rendered frame.
-    unsigned int getRenderTextureId() const override
+    unsigned int getRenderTextureId() const
     {
         return _textureID;
     }
 
-    // Return the camera used to view the rendered scene.
-    mx::CameraPtr getViewCamera() override
-    {
-        return _viewCamera;
-    }
-
-    // Return the pixel ratio of the render view.
-    float getPixelRatio() const override
-    {
-        return 1.0f;
-    }
-
-    // Toggle sRGB encoding while the render view is drawn by ImGui, so the
-    // linear display texture is encoded like the captured images. Mirrors
-    // GlslRenderView::beginFrameDisplay.
-    void beginFrameDisplay() override;
-
-    void endFrameDisplay() override;
-
-    // Camera interaction: left-drag orbits, right/shift-left-drag pans and
-    // scroll or keypad +/- zoom. Camera changes restart the progressive render.
-    void setMouseButtonEvent(int button, bool down, mx::Vector2 pos) override;
-    void setMouseMotionEvent(mx::Vector2 pos) override;
-    void setKeyEvent(int key) override;
-    void setScrollEvent(float scrollY) override;
-
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath& filename) override;
+    void requestFrameCapture(const mx::FilePath& filename);
 
     // Return true once the requested frame capture has been written.
-    bool isFrameCaptureComplete() const override
+    bool isFrameCaptureComplete() const
     {
         return !_captureRequested;
     }
 
-    // Request that the viewer be closed after the next frame is rendered.
-    void requestExit() override
-    {
-        _exitRequested = true;
-    }
-
     // Return the active image handler.
-    mx::ImageHandlerPtr getImageHandler() const override
+    mx::ImageHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }
 
     // Return the set of files referenced by XInclude.
-    const mx::StringSet& getXincludeFiles() const override
+    const mx::StringSet& getXincludeFiles() const
     {
         return _xincludeFiles;
     }
 
     // Return true if the given node definition is supported by this backend.
-    bool isNodeDefSupported(const mx::NodeDefPtr& nodeDef) override;
+    bool isNodeDefSupported(const mx::NodeDefPtr& nodeDef);
 
     // Update a uniform in the currently selected material.
-    void modifyUniform(const std::string& name, mx::ValuePtr value) override;
+    void modifyUniform(const std::string& name, mx::ValuePtr value);
 
     // Set the render pass to display (e.g. "combined", "albedo").
-    void setRenderPass(const std::string& name) override;
+    void setRenderPass(const std::string& name);
 
     // Return the render pass currently being displayed.
-    std::string getRenderPass() const override
+    std::string getRenderPass() const
     {
         return _renderPass;
     }
 
     // Enable or disable the OpenImageDenoise (CPU) denoiser.
-    void setDenoise(bool enabled) override;
+    void setDenoise(bool enabled);
 
     // Set the number of samples to render before denoising begins.
-    void setDenoiseStartSample(int samples) override;
+    void setDenoiseStartSample(int samples);
 
     // Enable or disable adaptive (noise-threshold) sampling.
-    void setAdaptiveSampling(bool enabled) override;
+    void setAdaptiveSampling(bool enabled);
 
     // Set the adaptive sampling noise threshold (lower is stricter).
-    void setAdaptiveThreshold(float threshold) override;
+    void setAdaptiveThreshold(float threshold);
 
     // Set the minimum number of samples rendered with adaptive sampling.
-    void setAdaptiveMinSamples(int samples) override;
+    void setAdaptiveMinSamples(int samples);
 
     // Set the maximum number of samples rendered.
-    void setMaxSamples(int samples) override;
+    void setMaxSamples(int samples);
 
     // Set a multiplier for the environment lighting intensity.
-    void setLightIntensity(float intensity) override;
+    void setLightIntensity(float intensity);
 
     // Pause/resume the Cycles session when this backend is deactivated/activated.
-    void setActive(bool active) override;
+    void setActive(bool active);
 
   private:
     void initContext(mx::GenContext& context);
@@ -249,20 +276,18 @@ class CyclesRenderView : public RenderViewBase
     float _cameraFov = 45.0f;
     float _cameraZoom = 1.0f;
     mx::Vector3 _userTranslation;
-    mx::Vector3 _userTranslationStart;
-    bool _userTranslationActive = false;
-    mx::Vector2 _userTranslationPixel;
     bool _cameraDirty = false;
-    bool _cameraInteracting = false;
-    double _lastCameraChangeTime = 0.0;
+    unsigned int _cameraRevision = 0;
 
     // Frame capture.
     bool _captureRequested = false;
     double _captureRequestTime = 0.0;
     mx::FilePath _captureFilename;
-    bool _exitRequested = false;
 
-    // Size of the render buffer the session was last configured with.
+    // Size requested by the render view and the size the session was last
+    // configured with.
+    int _viewWidth = 0;
+    int _viewHeight = 0;
     int _sessionWidth = 0;
     int _sessionHeight = 0;
 

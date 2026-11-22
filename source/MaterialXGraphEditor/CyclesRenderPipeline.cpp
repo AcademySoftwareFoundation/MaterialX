@@ -5,7 +5,7 @@
 
 #ifdef MATERIALX_BUILD_RENDER_CYCLES
 
-#include <MaterialXGraphEditor/CyclesRenderView.h>
+#include <MaterialXGraphEditor/CyclesRenderPipeline.h>
 
 #include <MaterialXRenderGlsl/GLTextureHandler.h>
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
@@ -19,8 +19,6 @@
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXFormat/Util.h>
-
-#include <imgui.h>
 
 #include "device/device.h"
 #include "scene/attribute.h"
@@ -262,21 +260,6 @@ ccl::float3 toFloat3(const mx::Color3& c)
     return ccl::make_float3(c[0], c[1], c[2]);
 }
 
-// ImGui draw-list callbacks that toggle sRGB encoding while the render view is
-// drawn, mirroring GlslRenderView::beginFrameDisplay. The Cycles display
-// texture holds linear scene-referred data (GL_RGBA32F), so without this the
-// preview is written to the default framebuffer without the linear-to-sRGB
-// encode and appears far darker than the captured images.
-void enableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glEnable(GL_FRAMEBUFFER_SRGB);
-}
-
-void disableSRGBCallback(const ImDrawList*, const ImDrawCmd*)
-{
-    glDisable(GL_FRAMEBUFFER_SRGB);
-}
-
 ccl::PassType passTypeFromName(const std::string& name)
 {
     if (name == "albedo" || name == "diffuse_color")
@@ -323,20 +306,10 @@ mx::FilePath findCyclesShaderDir()
 } // anonymous namespace
 
 //
-// CyclesRenderView methods
+// CyclesRenderPipeline methods
 //
 
-void CyclesRenderView::beginFrameDisplay()
-{
-    ImGui::GetWindowDrawList()->AddCallback(enableSRGBCallback, nullptr);
-}
-
-void CyclesRenderView::endFrameDisplay()
-{
-    ImGui::GetWindowDrawList()->AddCallback(disableSRGBCallback, nullptr);
-}
-
-CyclesRenderView::CyclesRenderView(mx::DocumentPtr doc,
+CyclesRenderPipeline::CyclesRenderPipeline(mx::DocumentPtr doc,
                                    mx::DocumentPtr stdLib,
                                    const std::string& meshFilename,
                                    const std::string& envRadianceFilename,
@@ -371,7 +344,7 @@ CyclesRenderView::CyclesRenderView(mx::DocumentPtr doc,
     setDocument(doc);
 }
 
-CyclesRenderView::~CyclesRenderView()
+CyclesRenderPipeline::~CyclesRenderPipeline()
 {
     if (_session)
     {
@@ -384,7 +357,7 @@ CyclesRenderView::~CyclesRenderView()
     }
 }
 
-void CyclesRenderView::initialize()
+void CyclesRenderPipeline::initialize()
 {
     _imageHandler = mx::GLTextureHandler::create(mx::StbImageLoader::create());
     _imageHandler->setSearchPath(_searchPath);
@@ -392,7 +365,7 @@ void CyclesRenderView::initialize()
     buildScene();
 }
 
-void CyclesRenderView::buildScene()
+void CyclesRenderPipeline::buildScene()
 {
 #ifdef CYCLES_SHADER_DIR
     // Cycles locates its OSL node shaders and stdcycles.h through
@@ -513,7 +486,7 @@ void CyclesRenderView::buildScene()
     _active = true;
 }
 
-bool CyclesRenderView::buildMesh(ccl::Scene* scene)
+bool CyclesRenderPipeline::buildMesh(ccl::Scene* scene)
 {
     if (_meshFilename.isEmpty() || !_meshFilename.exists())
     {
@@ -670,7 +643,7 @@ bool CyclesRenderView::buildMesh(ccl::Scene* scene)
     return true;
 }
 
-void CyclesRenderView::buildFallbackSphere(ccl::Scene* scene)
+void CyclesRenderPipeline::buildFallbackSphere(ccl::Scene* scene)
 {
     ccl::Mesh* mesh = scene->create_node<ccl::Mesh>();
 
@@ -728,7 +701,7 @@ void CyclesRenderView::buildFallbackSphere(ccl::Scene* scene)
     _object = object;
 }
 
-bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
+bool CyclesRenderPipeline::buildEnvironment(ccl::Scene* scene)
 {
     // The GLSL render view clears the viewport to a constant screen color and
     // uses the environment only for lighting. Replicate that: the background
@@ -819,7 +792,7 @@ bool CyclesRenderView::buildEnvironment(ccl::Scene* scene)
     return hasEnvironment;
 }
 
-void CyclesRenderView::applyLightIntensity()
+void CyclesRenderPipeline::applyLightIntensity()
 {
     if (!_session)
     {
@@ -840,7 +813,7 @@ void CyclesRenderView::applyLightIntensity()
     restartRender();
 }
 
-void CyclesRenderView::setLightIntensity(float intensity)
+void CyclesRenderPipeline::setLightIntensity(float intensity)
 {
     if (intensity == _lightIntensity)
     {
@@ -850,7 +823,7 @@ void CyclesRenderView::setLightIntensity(float intensity)
     applyLightIntensity();
 }
 
-void CyclesRenderView::applyDisplayPass(ccl::Scene* scene)
+void CyclesRenderPipeline::applyDisplayPass(ccl::Scene* scene)
 {
     // The UV pass is always present so that custom OSL shaders can read
     // getattribute("geom:uv"); the display pass selects which result is shown.
@@ -858,7 +831,7 @@ void CyclesRenderView::applyDisplayPass(ccl::Scene* scene)
     scene->film->tag_modified();
 }
 
-void CyclesRenderView::applyRenderSettings(ccl::Scene* scene)
+void CyclesRenderPipeline::applyRenderSettings(ccl::Scene* scene)
 {
     ccl::Integrator* integrator = scene->integrator;
 
@@ -886,12 +859,12 @@ void CyclesRenderView::applyRenderSettings(ccl::Scene* scene)
     integrator->tag_update(scene, ccl::Integrator::UPDATE_ALL);
 }
 
-bool CyclesRenderView::isDenoiseActive() const
+bool CyclesRenderPipeline::isDenoiseActive() const
 {
     return _denoise && _denoiseSupported && _renderPass == "combined";
 }
 
-void CyclesRenderView::setDenoise(bool enabled)
+void CyclesRenderPipeline::setDenoise(bool enabled)
 {
     if (enabled == _denoise)
     {
@@ -905,7 +878,7 @@ void CyclesRenderView::setDenoise(bool enabled)
     }
 }
 
-void CyclesRenderView::setDenoiseStartSample(int samples)
+void CyclesRenderPipeline::setDenoiseStartSample(int samples)
 {
     if (samples == _denoiseStartSample)
     {
@@ -919,7 +892,7 @@ void CyclesRenderView::setDenoiseStartSample(int samples)
     }
 }
 
-void CyclesRenderView::setAdaptiveSampling(bool enabled)
+void CyclesRenderPipeline::setAdaptiveSampling(bool enabled)
 {
     if (enabled == _adaptiveSampling)
     {
@@ -933,7 +906,7 @@ void CyclesRenderView::setAdaptiveSampling(bool enabled)
     }
 }
 
-void CyclesRenderView::setAdaptiveThreshold(float threshold)
+void CyclesRenderPipeline::setAdaptiveThreshold(float threshold)
 {
     if (threshold == _adaptiveThreshold)
     {
@@ -947,7 +920,7 @@ void CyclesRenderView::setAdaptiveThreshold(float threshold)
     }
 }
 
-void CyclesRenderView::setAdaptiveMinSamples(int samples)
+void CyclesRenderPipeline::setAdaptiveMinSamples(int samples)
 {
     if (samples == _adaptiveMinSamples)
     {
@@ -961,7 +934,7 @@ void CyclesRenderView::setAdaptiveMinSamples(int samples)
     }
 }
 
-void CyclesRenderView::setMaxSamples(int samples)
+void CyclesRenderPipeline::setMaxSamples(int samples)
 {
     if (samples == _maxSamples)
     {
@@ -975,7 +948,7 @@ void CyclesRenderView::setMaxSamples(int samples)
     }
 }
 
-void CyclesRenderView::setRenderPass(const std::string& name)
+void CyclesRenderPipeline::setRenderPass(const std::string& name)
 {
     if (name == _renderPass)
     {
@@ -992,7 +965,7 @@ void CyclesRenderView::setRenderPass(const std::string& name)
     }
 }
 
-void CyclesRenderView::setActive(bool active)
+void CyclesRenderPipeline::setActive(bool active)
 {
     if (active == _active)
     {
@@ -1017,7 +990,7 @@ void CyclesRenderView::setActive(bool active)
     }
 }
 
-void CyclesRenderView::updateCamera()
+void CyclesRenderPipeline::updateCamera()
 {
     if (!_session)
     {
@@ -1060,7 +1033,7 @@ void CyclesRenderView::updateCamera()
     }
 }
 
-void CyclesRenderView::restartRender()
+void CyclesRenderPipeline::restartRender()
 {
     if (!_session)
     {
@@ -1080,7 +1053,7 @@ void CyclesRenderView::restartRender()
     _sessionHeight = _viewHeight;
 }
 
-void CyclesRenderView::uploadFrame(const std::vector<ccl::half4>& pixels, int width, int height)
+void CyclesRenderPipeline::uploadFrame(const std::vector<ccl::half4>& pixels, int width, int height)
 {
     if (!_imageHandler || width <= 0 || height <= 0)
     {
@@ -1136,20 +1109,11 @@ void CyclesRenderView::uploadFrame(const std::vector<ccl::half4>& pixels, int wi
     }
 }
 
-void CyclesRenderView::drawContents()
+void CyclesRenderPipeline::drawContents()
 {
     if (!_session || !_displayDriver)
     {
         return;
-    }
-
-    // Clear the interaction flag if the release event was missed (e.g. the
-    // button was released outside the viewport).
-    if (_cameraInteracting && !ImGui::IsMouseDown(0) && !ImGui::IsMouseDown(1))
-    {
-        _cameraInteracting = false;
-        _userTranslationActive = false;
-        _viewCamera->arcballButtonEvent(mx::Vector2(), false);
     }
 
     // Rebuild the surface shader if the selected material or a property
@@ -1256,13 +1220,9 @@ void CyclesRenderView::drawContents()
         }
     }
 
-    if (_exitRequested)
-    {
-        _exitRequested = false;
-    }
 }
 
-void CyclesRenderView::setDocument(mx::DocumentPtr document)
+void CyclesRenderPipeline::setDocument(mx::DocumentPtr document)
 {
     _document = document;
     _currentElement = nullptr;
@@ -1272,7 +1232,7 @@ void CyclesRenderView::setDocument(mx::DocumentPtr document)
     _materialDirtyTime = currentTimeSeconds();
 }
 
-void CyclesRenderView::updateMaterials(mx::TypedElementPtr typedElem)
+void CyclesRenderPipeline::updateMaterials(mx::TypedElementPtr typedElem)
 {
     if (!typedElem && _document)
     {
@@ -1292,7 +1252,7 @@ void CyclesRenderView::updateMaterials(mx::TypedElementPtr typedElem)
     _materialDirtyTime = currentTimeSeconds();
 }
 
-void CyclesRenderView::initContext(mx::GenContext& context)
+void CyclesRenderPipeline::initContext(mx::GenContext& context)
 {
     if (!_document)
     {
@@ -1342,7 +1302,7 @@ void CyclesRenderView::initContext(mx::GenContext& context)
     context.getShaderGenerator().registerTypeDefs(_document);
 }
 
-void CyclesRenderView::generateOsl(mx::TypedElementPtr typedElem)
+void CyclesRenderPipeline::generateOsl(mx::TypedElementPtr typedElem)
 {
     _oslSource.clear();
     _oslOutputName.clear();
@@ -1415,7 +1375,7 @@ void CyclesRenderView::generateOsl(mx::TypedElementPtr typedElem)
     }
 }
 
-void CyclesRenderView::rebuildMaterial()
+void CyclesRenderPipeline::rebuildMaterial()
 {
     if (!_session)
     {
@@ -1433,7 +1393,7 @@ void CyclesRenderView::rebuildMaterial()
     // Write the generated OSL to a file that Cycles can compile. A fresh
     // filename is used for each revision so that Cycles' shader cache does not
     // return a stale result.
-    const mx::FilePath outputDir = mx::FilePath::getCurrentPath() / "CyclesRenderView";
+    const mx::FilePath outputDir = mx::FilePath::getCurrentPath() / "CyclesRenderPipeline";
     outputDir.createDirectory(true);
 
     // Remove generated shaders from previous revisions.
@@ -1486,17 +1446,17 @@ void CyclesRenderView::rebuildMaterial()
     restartRender();
 }
 
-void CyclesRenderView::loadMesh(const mx::FilePath& /*filename*/)
+void CyclesRenderPipeline::loadMesh(const mx::FilePath& /*filename*/)
 {
-    // The Cycles render view renders the geometry configured at construction.
+    // The Cycles pipeline renders the geometry configured at construction.
 }
 
-bool CyclesRenderView::isNodeDefSupported(const mx::NodeDefPtr& /*nodeDef*/)
+bool CyclesRenderPipeline::isNodeDefSupported(const mx::NodeDefPtr& /*nodeDef*/)
 {
     return true;
 }
 
-void CyclesRenderView::modifyUniform(const std::string& /*name*/, mx::ValuePtr /*value*/)
+void CyclesRenderPipeline::modifyUniform(const std::string& /*name*/, mx::ValuePtr /*value*/)
 {
     // The graph editor has already written the new value into the document, so
     // schedule a regeneration of the OSL shader. Regeneration is debounced so
@@ -1506,7 +1466,7 @@ void CyclesRenderView::modifyUniform(const std::string& /*name*/, mx::ValuePtr /
     _materialDirtyTime = currentTimeSeconds();
 }
 
-void CyclesRenderView::requestFrameCapture(const mx::FilePath& filename)
+void CyclesRenderPipeline::requestFrameCapture(const mx::FilePath& filename)
 {
     _captureRequested = true;
     _captureFilename = filename;
@@ -1515,7 +1475,7 @@ void CyclesRenderView::requestFrameCapture(const mx::FilePath& filename)
                               .count();
 }
 
-mx::Vector3 CyclesRenderView::computeCameraEye() const
+mx::Vector3 CyclesRenderPipeline::computeCameraEye() const
 {
     mx::Matrix44 invArcball = _viewCamera->arcballMatrix().getInverse();
     mx::Vector3 offset = invArcball.transformVector(_cameraPosition - _cameraTarget);
@@ -1523,82 +1483,10 @@ mx::Vector3 CyclesRenderView::computeCameraEye() const
     return _cameraTarget + offset;
 }
 
-mx::Vector3 CyclesRenderView::computeCameraUp() const
+mx::Vector3 CyclesRenderPipeline::computeCameraUp() const
 {
     mx::Matrix44 invArcball = _viewCamera->arcballMatrix().getInverse();
     return invArcball.transformVector(_cameraUp);
-}
-
-void CyclesRenderView::setMouseButtonEvent(int button, bool down, mx::Vector2 pos)
-{
-    if ((button == 0) && !ImGui::IsKeyPressed(ImGuiKey_RightShift) && !ImGui::IsKeyPressed(ImGuiKey_LeftShift))
-    {
-        _viewCamera->arcballButtonEvent(pos, down);
-        _cameraInteracting = down;
-    }
-    else if ((button == 1) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_RightShift)) || ((button == 0) && ImGui::IsKeyDown(ImGuiKey_LeftShift)))
-    {
-        _userTranslationStart = _userTranslation;
-        _userTranslationActive = true;
-        _userTranslationPixel = pos;
-        _cameraInteracting = down;
-    }
-    if ((button == 0) && !down)
-    {
-        _viewCamera->arcballButtonEvent(pos, false);
-    }
-    if (!down)
-    {
-        _userTranslationActive = false;
-        _cameraInteracting = false;
-        _cameraDirty = true;
-    }
-}
-
-void CyclesRenderView::setMouseMotionEvent(mx::Vector2 pos)
-{
-    if (_viewCamera->applyArcballMotion(pos))
-    {
-        _cameraDirty = true;
-        return;
-    }
-
-    if (_userTranslationActive)
-    {
-        mx::Vector3 eye = computeCameraEye();
-        mx::Vector3 lookAt = _cameraTarget;
-        mx::Vector3 forward = (lookAt - eye).getNormalized();
-        mx::Vector3 right = forward.cross(computeCameraUp()).getNormalized();
-        mx::Vector3 camUp = right.cross(forward).getNormalized();
-
-        float distance = (eye - lookAt).getMagnitude();
-        float panScale = 2.0f * distance * std::tan(_cameraFov * (float) PI / 360.0f) /
-                         std::max(1.0f, (float) _viewHeight);
-        float dx = pos[0] - _userTranslationPixel[0];
-        float dy = pos[1] - _userTranslationPixel[1];
-        _userTranslation = _userTranslationStart + (right * dx - camUp * dy) * panScale;
-        _cameraDirty = true;
-    }
-}
-
-void CyclesRenderView::setScrollEvent(float scrollY)
-{
-    _cameraZoom = std::max(0.1f, _cameraZoom * ((scrollY > 0) ? 1.1f : 0.9f));
-    _cameraDirty = true;
-}
-
-void CyclesRenderView::setKeyEvent(int key)
-{
-    if (key == ImGuiKey_KeypadAdd)
-    {
-        _cameraZoom *= 1.1f;
-        _cameraDirty = true;
-    }
-    if (key == ImGuiKey_KeypadSubtract)
-    {
-        _cameraZoom = std::max(0.1f, _cameraZoom * 0.9f);
-        _cameraDirty = true;
-    }
 }
 
 #endif // MATERIALX_BUILD_RENDER_CYCLES

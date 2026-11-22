@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#ifndef MATERIALX_GLSLRENDERVIEW_H
-#define MATERIALX_GLSLRENDERVIEW_H
+#ifndef MATERIALX_GLSLRENDERPIPELINE_H
+#define MATERIALX_GLSLRENDERPIPELINE_H
 
-#include <MaterialXGraphEditor/RenderViewBase.h>
+#include <MaterialXGraphEditor/RenderPipeline.h>
 
 #include <MaterialXRenderGlsl/GLFramebuffer.h>
 #include <MaterialXRenderGlsl/GlslMaterial.h>
@@ -17,8 +17,8 @@
 
 namespace mx = MaterialX;
 
-class GlslRenderView;
-using GlslRenderViewPtr = std::shared_ptr<GlslRenderView>;
+class GlslRenderPipeline;
+using GlslRenderPipelinePtr = std::shared_ptr<GlslRenderPipeline>;
 
 class DocumentModifiers
 {
@@ -28,26 +28,74 @@ class DocumentModifiers
     std::string filePrefixTerminator;
 };
 
-class GlslRenderView : public RenderViewBase
+class GlslRenderPipeline : public RenderPipeline
 {
   public:
-    GlslRenderView(mx::DocumentPtr doc,
+    GlslRenderPipeline(mx::DocumentPtr doc,
                    mx::DocumentPtr stdLib,
                    const std::string& meshFilename,
                    const std::string& envRadianceFilename,
                    const mx::FileSearchPath& searchPath,
                    int viewWidth,
                    int viewHeight);
-    ~GlslRenderView() = default;
+    ~GlslRenderPipeline() = default;
 
     // Return the name of this render backend.
-    std::string getBackendName() const override
+    std::string getBackendName() const
     {
         return "GLSL";
     }
 
+    std::string getName() const override
+    {
+        return getBackendName();
+    }
+
+    RenderCapabilities getCapabilities() const override
+    {
+        return RenderCapabilities();
+    }
+
     // Initialize the viewer for rendering.
     void initialize() override;
+
+    // Apply backend-neutral render settings.  The GLSL backend has no
+    // configurable render passes, denoiser, or sampling controls.
+    void setSettings(const RenderSettings& /*settings*/) override
+    {
+    }
+
+    void resize(int width, int height) override
+    {
+        _viewWidth = width;
+        _viewHeight = height;
+    }
+
+    void setCamera(mx::CameraPtr camera, const RenderCameraState& state) override
+    {
+        _viewCamera = camera;
+        _cameraPosition = state.position;
+        _cameraTarget = state.target;
+        _cameraUp = state.up;
+        _cameraViewAngle = state.viewAngle;
+        _cameraZoom = state.zoom;
+        _userTranslation = state.userTranslation;
+    }
+
+    void setFrame(unsigned int frame) override
+    {
+        _frame = frame;
+    }
+
+    void render() override
+    {
+        drawContents();
+    }
+
+    unsigned int getColorTexture() const override
+    {
+        return getRenderTextureId();
+    }
 
     // Set the method for specular environment rendering.
     void setSpecularEnvironmentMethod(mx::HwSpecularEnvironmentMethod method)
@@ -89,14 +137,8 @@ class GlslRenderView : public RenderViewBase
         return _materialSearchPath;
     }
 
-    // Return the pixel ratio.
-    float getPixelRatio() const override
-    {
-        return _pixelRatio;
-    }
-
     // Return the active image handler.
-    mx::ImageHandlerPtr getImageHandler() const override
+    mx::ImageHandlerPtr getImageHandler() const
     {
         return _imageHandler;
     }
@@ -136,33 +178,22 @@ class GlslRenderView : public RenderViewBase
         return _materials;
     }
 
-    mx::CameraPtr getViewCamera() override
-    {
-        return _viewCamera;
-    }
-
-    const mx::StringSet& getXincludeFiles() const override
+    const mx::StringSet& getXincludeFiles() const
     {
         return _xincludeFiles;
     }
 
     // Request a capture of the current frame, writing it to the given filename.
-    void requestFrameCapture(const mx::FilePath& filename) override
+    void requestFrameCapture(const mx::FilePath& filename)
     {
         _captureRequested = true;
         _captureFilename = filename;
     }
 
     // Return true once the requested frame capture has been written.
-    bool isFrameCaptureComplete() const override
+    bool isFrameCaptureComplete() const
     {
         return !_captureRequested;
-    }
-
-    // Request that the viewer be closed after the next frame is rendered.
-    void requestExit() override
-    {
-        _exitRequested = true;
     }
 
     float getCameraZoom()
@@ -176,36 +207,26 @@ class GlslRenderView : public RenderViewBase
     }
 
     // Return the OpenGL texture ID of the most recently rendered frame.
-    unsigned int getRenderTextureId() const override
+    unsigned int getRenderTextureId() const
     {
         return _textureID;
     }
 
-    // Called before the rendered frame is drawn by ImGui.
-    void beginFrameDisplay() override;
-
-    // Called after the rendered frame is drawn by ImGui.
-    void endFrameDisplay() override;
-
     // Return true if the given node definition is supported by the GLSL backend.
-    bool isNodeDefSupported(const mx::NodeDefPtr& nodeDef) override;
+    bool isNodeDefSupported(const mx::NodeDefPtr& nodeDef);
 
     // Update a uniform in the currently selected material.
-    void modifyUniform(const std::string& name, mx::ValuePtr value) override;
+    void modifyUniform(const std::string& name, mx::ValuePtr value);
 
-    void drawContents() override;
+    void drawContents();
     void reloadShaders();
 
-    void setDocument(mx::DocumentPtr document) override;
+    void setDocument(mx::DocumentPtr document);
     void assignMaterial(mx::MeshPartitionPtr geometry, mx::GlslMaterialPtr material);
-    void updateMaterials(mx::TypedElementPtr typedElem) override;
-    void setMouseButtonEvent(int button, bool down, mx::Vector2 pos) override;
-    void setMouseMotionEvent(mx::Vector2 pos) override;
-    void setKeyEvent(int key) override;
-    void setScrollEvent(float scrollY) override;
+    void updateMaterials(mx::TypedElementPtr typedElem);
     void setMaterial(mx::TypedElementPtr elem);
 
-    void loadMesh(const mx::FilePath& filename) override;
+    void loadMesh(const mx::FilePath& filename);
 
   private:
     void initContext(mx::GenContext& context);
@@ -254,6 +275,9 @@ class GlslRenderView : public RenderViewBase
     float _cameraZoom;
 
     float _pixelRatio;
+    int _viewWidth = 0;
+    int _viewHeight = 0;
+    unsigned int _frame = 0;
     mx::GLFramebufferPtr _renderFrame;
     unsigned int _textureID;
 
@@ -325,7 +349,6 @@ class GlslRenderView : public RenderViewBase
     // Frame capture
     bool _captureRequested;
     mx::FilePath _captureFilename;
-    bool _exitRequested;
 
     // Time and frame
     mx::ScopedTimer _timer;

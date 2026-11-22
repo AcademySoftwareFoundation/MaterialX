@@ -4,10 +4,6 @@
 //
 
 #include <MaterialXGraphEditor/Graph.h>
-#include <MaterialXGraphEditor/GlslRenderView.h>
-#ifdef MATERIALX_BUILD_RENDER_CYCLES
-#include <MaterialXGraphEditor/CyclesRenderView.h>
-#endif
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 #include <MaterialXFormat/Util.h>
@@ -118,14 +114,6 @@ static float getUiScaleFromFont()
     return (fontSize > 0.0f) ? (fontSize / BASE_UI_FONT_SIZE) : 1.0f;
 }
 
-// The set of render backends that can be selected from the Viewer menu.
-const std::vector<std::string> RENDER_BACKENDS = {
-    "GLSL"
-#ifdef MATERIALX_BUILD_RENDER_CYCLES
-    , "Cycles"
-#endif
-};
-
 } // anonymous namespace
 
 //
@@ -192,7 +180,7 @@ Graph::Graph(const std::string& materialFilename,
 
 void Graph::setRenderBackend(const std::string& backendName)
 {
-    if (_renderer && backendName == _renderer->getBackendName())
+    if (_renderView && backendName == _renderView->getBackendName())
     {
         return;
     }
@@ -201,162 +189,103 @@ void Graph::setRenderBackend(const std::string& backendName)
 
 void Graph::setRenderPass(const std::string& passName)
 {
-    _renderPass = passName;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setRenderPass(passName);
+        _renderView->setRenderPass(passName);
     }
 }
 
 void Graph::setDenoise(bool enabled)
 {
-    _denoise = enabled;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setDenoise(enabled);
+        _renderView->setDenoise(enabled);
     }
 }
 
 void Graph::setDenoiseStartSample(int samples)
 {
-    _denoiseStartSample = samples;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setDenoiseStartSample(samples);
+        _renderView->setDenoiseStartSample(samples);
     }
 }
 
 void Graph::setAdaptiveSampling(bool enabled)
 {
-    _adaptiveSampling = enabled;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setAdaptiveSampling(enabled);
+        _renderView->setAdaptiveSampling(enabled);
     }
 }
 
 void Graph::setAdaptiveThreshold(float threshold)
 {
-    _adaptiveThreshold = threshold;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setAdaptiveThreshold(threshold);
+        _renderView->setAdaptiveThreshold(threshold);
     }
 }
 
 void Graph::setAdaptiveMinSamples(int samples)
 {
-    _adaptiveMinSamples = samples;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setAdaptiveMinSamples(samples);
+        _renderView->setAdaptiveMinSamples(samples);
     }
 }
 
 void Graph::setMaxSamples(int samples)
 {
-    _maxSamples = samples;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setMaxSamples(samples);
+        _renderView->setMaxSamples(samples);
     }
 }
 
 void Graph::setLightIntensity(float intensity)
 {
-    _lightIntensity = intensity;
-    if (_renderer)
+    if (_renderView)
     {
-        _renderer->setLightIntensity(intensity);
+        _renderView->setLightIntensity(intensity);
     }
 }
 
 void Graph::createRenderView(const std::string& backendName)
 {
-    // Reuse an existing render view for this backend when available, so that
-    // OpenGL resources are not torn down and rebuilt on every backend switch.
-    auto renderViewIt = _renderViews.find(backendName);
-    if (renderViewIt == _renderViews.end())
+    if (!_renderView)
     {
-        // Create a render view for the requested backend.
-        RenderViewBasePtr renderView;
-        if (backendName == "GLSL")
-        {
-            renderView = std::make_shared<GlslRenderView>(_graphDoc, _stdLib, _meshFilename.asString(),
-                                                          _envRadianceFilename.asString(), _searchPath,
-                                                          _viewWidth, _viewHeight);
-        }
-#ifdef MATERIALX_BUILD_RENDER_CYCLES
-        else if (backendName == "Cycles")
-        {
-            renderView = std::make_shared<CyclesRenderView>(_graphDoc, _stdLib, _meshFilename.asString(),
-                                                            _envRadianceFilename.asString(), _searchPath,
-                                                            _viewWidth, _viewHeight, _renderPass);
-        }
-#endif
-        else
-        {
-            std::cerr << "Unsupported render backend: " << backendName << std::endl;
-            return;
-        }
-
-        renderView->initialize();
-
-        _imageFilter.clear();
-        for (const std::string& ext : renderView->getImageHandler()->supportedExtensions())
-        {
-            _imageFilter.emplace_back("." + ext);
-        }
-
-        _renderViews[backendName] = renderView;
-        _renderViewDocs[backendName] = _graphDoc;
+        _renderView = std::make_shared<RenderView>(_graphDoc, _stdLib, _meshFilename.asString(),
+                                                 _envRadianceFilename.asString(), _searchPath,
+                                                 _viewWidth, _viewHeight);
     }
 
-    // Deactivate the outgoing backend before switching, so asynchronous
-    // backends (e.g. Cycles) pause their render threads while not displayed.
-    if (_renderer && _renderer != _renderViews[backendName])
-    {
-        _renderer->setActive(false);
-    }
-
-    _renderer = _renderViews[backendName];
-
-    // Re-synchronize a cached view with the current document if a different
-    // file was loaded while this backend was inactive.
-    if (_renderViewDocs[backendName] != _graphDoc)
-    {
-        _renderer->setDocument(_graphDoc);
-        _renderViewDocs[backendName] = _graphDoc;
-    }
-
-    // Keep the render pass in sync when a cached render view is reused.
-    _renderer->setRenderPass(_renderPass);
-    _renderer->setDenoise(_denoise);
-    _renderer->setDenoiseStartSample(_denoiseStartSample);
-    _renderer->setAdaptiveSampling(_adaptiveSampling);
-    _renderer->setAdaptiveThreshold(_adaptiveThreshold);
-    _renderer->setAdaptiveMinSamples(_adaptiveMinSamples);
-    _renderer->setMaxSamples(_maxSamples);
-    _renderer->setLightIntensity(_lightIntensity);
+    _renderView->setRenderBackend(backendName);
 
     // Refresh the materials for the newly active backend.
     updateMaterials();
 
-    // Activate the new backend, resuming/pausing asynchronous render threads.
-    _renderer->setActive(true);
+    mx::ImageHandlerPtr imageHandler = _renderView->getImageHandler();
+    if (imageHandler)
+    {
+        _imageFilter.clear();
+        for (const std::string& ext : imageHandler->supportedExtensions())
+        {
+            _imageFilter.emplace_back("." + ext);
+        }
+    }
 
-    for (const std::string& incl : _renderer->getXincludeFiles())
+    for (const std::string& incl : _renderView->getXincludeFiles())
     {
         _xincludeFiles.insert(incl);
     }
 }
 
-void Graph::setDocumentForAllRenderViews()
+void Graph::setDocumentForRenderPipelines()
 {
-    for (auto& entry : _renderViews)
+    if (_renderView)
     {
-        entry.second->setDocument(_graphDoc);
-        _renderViewDocs[entry.first] = _graphDoc;
+        _renderView->setDocument(_graphDoc);
     }
 }
 
@@ -789,7 +718,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
         {
             _currRenderNode = node;
             _frameCount = ImGui::GetFrameCount();
-            _renderer->setMaterialCompilation(true);
+            _renderView->setMaterialCompilation(true);
         }
     }
 
@@ -813,7 +742,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                 {
                     _currRenderNode = node;
                     _frameCount = ImGui::GetFrameCount();
-                    _renderer->setMaterialCompilation(true);
+                    _renderView->setMaterialCompilation(true);
                 }
                 return;
             }
@@ -919,7 +848,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
                     {
                         _currRenderNode = uiNode;
                         _frameCount = ImGui::GetFrameCount();
-                        _renderer->setMaterialCompilation(true);
+                        _renderView->setMaterialCompilation(true);
                     }
                     break;
                 }
@@ -929,7 +858,7 @@ void Graph::setRenderMaterial(UiNodePtr node)
         {
             _currRenderNode = nullptr;
             _frameCount = ImGui::GetFrameCount();
-            _renderer->setMaterialCompilation(true);
+            _renderView->setMaterialCompilation(true);
         }
     }
 }
@@ -951,7 +880,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
 
     if (renderablePath.empty())
     {
-        _renderer->updateMaterials(nullptr);
+        _renderView->updateMaterials(nullptr);
     }
     else
     {
@@ -959,7 +888,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
         {
             const mx::ElementPtr elem = _graphDoc->getDescendant(renderablePath);
             mx::TypedElementPtr typedElem = elem ? elem->asA<mx::TypedElement>() : nullptr;
-            _renderer->updateMaterials(typedElem);
+            _renderView->updateMaterials(typedElem);
         }
         else
         {
@@ -968,7 +897,7 @@ void Graph::updateMaterials(mx::InputPtr input /* = nullptr */, mx::ValuePtr val
             // Note that if there is a topogical change due to
             // this value change or a transparency change, then
             // this is not currently caught here.
-            _renderer->modifyUniform(name, value);
+            _renderView->modifyUniform(name, value);
         }
     }
 }
@@ -1202,7 +1131,7 @@ void Graph::showPropertyEditorValue(UiNodePtr node, mx::InputPtr input, const mx
                 // Show image preview if file exists and is an image
                 if (!temp.empty())
                 {
-                    mx::ImageHandlerPtr imageHandler = _renderer ? _renderer->getImageHandler() : nullptr;
+                    mx::ImageHandlerPtr imageHandler = _renderView ? _renderView->getImageHandler() : nullptr;
                     if (imageHandler)
                     {
                         unsigned int textureId = 0;
@@ -2758,7 +2687,7 @@ bool Graph::checkCanAddLink(ed::PinId startPinId, ed::PinId endPinId)
     }
     else if (uiUpNode->getNode())
     {
-        if (!_renderer->isNodeDefSupported(_state.nodes[upNode]->getNode()->getNodeDef()))
+        if (!_renderView->isNodeDefSupported(_state.nodes[upNode]->getNode()->getNodeDef()))
         {
             showLabel("Invalid Connection: Node does not have an implementation", ImColor(50, 50, 50, 255));
             return false;
@@ -2812,7 +2741,7 @@ void Graph::addLink(ed::PinId startPinId, ed::PinId endPinId)
     // Since we accepted new link, lets add one to our list of links.
     _state.links.push_back(Link(_state.nextUiId++, start_attr, end_attr));
     _frameCount = ImGui::GetFrameCount();
-    _renderer->setMaterialCompilation(true);
+    _renderView->setMaterialCompilation(true);
 
     inputPin->addConnection(outputPin);
     outputPin->addConnection(inputPin);
@@ -3071,7 +3000,7 @@ void Graph::deleteLinkInfo(int startAttr, int endAttr)
 
 void Graph::deleteLink(ed::LinkId deletedLinkId)
 {
-    _renderer->setMaterialCompilation(true);
+    _renderView->setMaterialCompilation(true);
     _frameCount = ImGui::GetFrameCount();
     int link_id = int(deletedLinkId.Get());
 
@@ -3255,8 +3184,8 @@ void Graph::clearGraph()
     _prevUiNode = nullptr;
     _currRenderNode = nullptr;
 
-    setDocumentForAllRenderViews();
-    _renderer->updateMaterials(nullptr);
+    setDocumentForRenderPipelines();
+    _renderView->updateMaterials(nullptr);
 }
 
 void Graph::initializeGraph()
@@ -3296,8 +3225,8 @@ void Graph::loadGraphFromFile(bool prompt)
     {
         _graphDoc = loadDocument(_materialFilename);
         initializeGraph();
-        setDocumentForAllRenderViews();
-        _renderer->updateMaterials(nullptr);
+        setDocumentForRenderPipelines();
+        _renderView->updateMaterials(nullptr);
     }
 }
 
@@ -3379,8 +3308,8 @@ void Graph::graphButtons()
             ImGui::Separator();
             if (ImGui::BeginMenu("Render Backend"))
             {
-                const std::string activeBackend = _renderer ? _renderer->getBackendName() : mx::EMPTY_STRING;
-                for (const std::string& backend : RENDER_BACKENDS)
+                const std::string activeBackend = _renderView ? _renderView->getBackendName() : mx::EMPTY_STRING;
+                for (const std::string& backend : RenderView::getAvailableBackends())
                 {
                     if (ImGui::MenuItem(backend.c_str(), nullptr, backend == activeBackend))
                     {
@@ -3389,63 +3318,75 @@ void Graph::graphButtons()
                 }
                 ImGui::EndMenu();
             }
+
+            const RenderCapabilities capabilities = _renderView ? _renderView->getCapabilities() : RenderCapabilities();
+            RenderSettings renderSettings = _renderView ? _renderView->getSettings() : RenderSettings();
+
             if (ImGui::BeginMenu("Render Pass"))
             {
-                const bool cyclesActive = _renderer && _renderer->getBackendName() == "Cycles";
-                for (const auto& pass : { std::make_pair("combined", "Combined"), std::make_pair("albedo", "Albedo") })
+                ImGui::BeginDisabled(capabilities.passes.empty());
+                if (capabilities.passes.empty())
                 {
-                    const bool selected = _renderPass == pass.first;
-                    if (ImGui::MenuItem(pass.second, nullptr, selected, cyclesActive))
+                    ImGui::MenuItem("Not supported", nullptr, false, false);
+                }
+                for (const RenderPassDesc& pass : capabilities.passes)
+                {
+                    const bool selected = renderSettings.renderPass == pass.id;
+                    if (ImGui::MenuItem(pass.label.c_str(), nullptr, selected))
                     {
-                        setRenderPass(pass.first);
+                        setRenderPass(pass.id);
                     }
                 }
+                ImGui::EndDisabled();
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Denoising"))
             {
-                const bool cyclesActive = _renderer && _renderer->getBackendName() == "Cycles";
-                ImGui::BeginDisabled(!cyclesActive);
+                ImGui::BeginDisabled(!capabilities.denoising && !capabilities.adaptiveSampling);
 
-                if (ImGui::Checkbox("Enable Denoiser", &_denoise))
+                ImGui::BeginDisabled(!capabilities.denoising);
+                if (ImGui::Checkbox("Enable Denoiser", &renderSettings.denoise))
                 {
-                    setDenoise(_denoise);
+                    setDenoise(renderSettings.denoise);
                 }
-                if (ImGui::InputInt("Start Sample", &_denoiseStartSample))
+                if (ImGui::InputInt("Start Sample", &renderSettings.denoiseStartSample))
                 {
-                    _denoiseStartSample = std::max(0, _denoiseStartSample);
-                    setDenoiseStartSample(_denoiseStartSample);
+                    renderSettings.denoiseStartSample = std::max(0, renderSettings.denoiseStartSample);
+                    setDenoiseStartSample(renderSettings.denoiseStartSample);
                 }
-                if (ImGui::Checkbox("Adaptive Sampling", &_adaptiveSampling))
+                ImGui::EndDisabled();
+
+                ImGui::BeginDisabled(!capabilities.adaptiveSampling);
+                if (ImGui::Checkbox("Adaptive Sampling", &renderSettings.adaptiveSampling))
                 {
-                    setAdaptiveSampling(_adaptiveSampling);
+                    setAdaptiveSampling(renderSettings.adaptiveSampling);
                 }
-                if (ImGui::InputFloat("Noise Threshold", &_adaptiveThreshold, 0.001f, 0.01f, "%.4f"))
+                if (ImGui::InputFloat("Noise Threshold", &renderSettings.adaptiveThreshold, 0.001f, 0.01f, "%.4f"))
                 {
-                    _adaptiveThreshold = std::max(0.0f, _adaptiveThreshold);
-                    setAdaptiveThreshold(_adaptiveThreshold);
+                    renderSettings.adaptiveThreshold = std::max(0.0f, renderSettings.adaptiveThreshold);
+                    setAdaptiveThreshold(renderSettings.adaptiveThreshold);
                 }
-                if (ImGui::InputInt("Min Samples", &_adaptiveMinSamples))
+                if (ImGui::InputInt("Min Samples", &renderSettings.adaptiveMinSamples))
                 {
-                    _adaptiveMinSamples = std::max(0, _adaptiveMinSamples);
-                    setAdaptiveMinSamples(_adaptiveMinSamples);
+                    renderSettings.adaptiveMinSamples = std::max(0, renderSettings.adaptiveMinSamples);
+                    setAdaptiveMinSamples(renderSettings.adaptiveMinSamples);
                 }
-                if (ImGui::InputInt("Max Samples", &_maxSamples))
+                if (ImGui::InputInt("Max Samples", &renderSettings.maxSamples))
                 {
-                    _maxSamples = std::max(1, _maxSamples);
-                    setMaxSamples(_maxSamples);
+                    renderSettings.maxSamples = std::max(1, renderSettings.maxSamples);
+                    setMaxSamples(renderSettings.maxSamples);
                 }
+                ImGui::EndDisabled();
 
                 ImGui::EndDisabled();
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Lighting"))
             {
-                const bool cyclesActive = _renderer && _renderer->getBackendName() == "Cycles";
-                ImGui::BeginDisabled(!cyclesActive);
-                if (ImGui::SliderFloat("Intensity", &_lightIntensity, 0.0f, 3.0f, "%.2f"))
+                ImGui::BeginDisabled(!capabilities.lightIntensity);
+                if (ImGui::SliderFloat("Intensity", &renderSettings.lightIntensity, 0.0f, 3.0f, "%.2f"))
                 {
-                    setLightIntensity(_lightIntensity);
+                    setLightIntensity(renderSettings.lightIntensity);
                 }
                 ImGui::EndDisabled();
                 ImGui::EndMenu();
@@ -3533,7 +3474,7 @@ void Graph::graphButtons()
     // Create two windows using splitter
     float paneWidth = (leftPaneWidth - 2.0f);
 
-    float aspectRatio = _renderer->getPixelRatio();
+    float aspectRatio = _renderView->getPixelRatio();
     ImVec2 screenSize = ImVec2(paneWidth, paneWidth / aspectRatio);
 
     ImVec2 mousePos = ImGui::GetMousePos();
@@ -3561,25 +3502,25 @@ void Graph::graphButtons()
     cursorInRenderView &= hasScrollbar ? mousePos.y < (tempWindowPos.y + screenSize.y - ImGui::GetScrollY()) : true;
 
     // RenderView window
-    ImVec2 wsize = ImVec2((float) _renderer->getViewWidth(), (float) _renderer->getViewHeight());
+    ImVec2 wsize = ImVec2((float) _renderView->getViewWidth(), (float) _renderView->getViewHeight());
     if (!_fixedSizeRendering)
     {
-        _renderer->setViewWidth((int) screenSize[0]);
-        _renderer->setViewHeight((int) screenSize[1]);
+        _renderView->setViewWidth((int) screenSize[0]);
+        _renderView->setViewHeight((int) screenSize[1]);
     }
 
-    if (_renderer)
+    if (_renderView)
     {
         // Enable sRGB conversion for framebuffer ONLY when drawing material preview
-        _renderer->beginFrameDisplay();
+        _renderView->beginFrameDisplay();
 
-        _renderer->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
-        GLuint64 my_image_texture = _renderer->getRenderTextureId();
+        _renderView->getViewCamera()->setViewportSize(mx::Vector2(screenSize[0], screenSize[1]));
+        GLuint64 my_image_texture = _renderView->getRenderTextureId();
 
         ImGui::Image((ImTextureID) my_image_texture, screenSize, ImVec2(0, 1), ImVec2(1, 0));
 
         // Disable sRGB conversion for all other imgui ui components.
-        _renderer->endFrameDisplay();
+        _renderView->endFrameDisplay();
     }
 
     ImGui::Separator();
@@ -4459,16 +4400,16 @@ void Graph::readOnlyPopup()
 
 void Graph::shaderPopup()
 {
-    if (_renderer->getMaterialCompilation())
+    if (_renderView->getMaterialCompilation())
     {
-        ImGui::SetNextWindowPos(ImVec2((float) _renderer->getViewWidth() - 135, (float) _renderer->getViewHeight() + 5));
+        ImGui::SetNextWindowPos(ImVec2((float) _renderView->getViewWidth() - 135, (float) _renderView->getViewHeight() + 5));
         ImGui::SetNextWindowBgAlpha(80.f);
         ImGui::OpenPopup("Shaders");
     }
     if (ImGui::BeginPopup("Shaders"))
     {
         ImGui::Text("Compiling Shaders");
-        if (!_renderer->getMaterialCompilation())
+        if (!_renderView->getMaterialCompilation())
         {
             ImGui::CloseCurrentPopup();
         }
@@ -4485,43 +4426,43 @@ void Graph::handleRenderViewInputs()
     bool down = false;
     if (ImGui::IsMouseDragging(0) || ImGui::IsMouseDragging(1))
     {
-        _renderer->setMouseMotionEvent(mxMousePos);
+        _renderView->setMouseMotionEvent(mxMousePos);
     }
     if (ImGui::IsMouseClicked(0))
     {
         button = 0;
         down = true;
-        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+        _renderView->setMouseButtonEvent(button, down, mxMousePos);
     }
     else if (ImGui::IsMouseClicked(1))
     {
         button = 1;
         down = true;
-        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+        _renderView->setMouseButtonEvent(button, down, mxMousePos);
     }
     else if (ImGui::IsMouseReleased(0))
     {
         button = 0;
-        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+        _renderView->setMouseButtonEvent(button, down, mxMousePos);
     }
     else if (ImGui::IsMouseReleased(1))
     {
         button = 1;
-        _renderer->setMouseButtonEvent(button, down, mxMousePos);
+        _renderView->setMouseButtonEvent(button, down, mxMousePos);
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_KeypadAdd))
     {
-        _renderer->setKeyEvent(ImGuiKey_KeypadAdd);
+        _renderView->setKeyEvent(ImGuiKey_KeypadAdd);
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_KeypadSubtract))
     {
-        _renderer->setKeyEvent(ImGuiKey_KeypadSubtract);
+        _renderView->setKeyEvent(ImGuiKey_KeypadSubtract);
     }
 
     // Scrolling not possible if open or save file dialog is open
     if (scrollAmt != 0 && !_fileDialogSave.isOpened() && !_fileDialog.isOpened() && !_fileDialogGeom.isOpened())
     {
-        _renderer->setScrollEvent(scrollAmt);
+        _renderView->setScrollEvent(scrollAmt);
     }
 }
 
@@ -4849,7 +4790,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                 if (selectedNodes.size() > 0)
                 {
                     _frameCount = ImGui::GetFrameCount();
-                    _renderer->setMaterialCompilation(true);
+                    _renderView->setMaterialCompilation(true);
                     for (ed::NodeId id : selectedNodes)
                     {
 
@@ -4875,7 +4816,7 @@ void Graph::drawGraph(ImVec2 mousePos)
                 else if (selectedLinks.size() > 0)
                 {
                     _frameCount = ImGui::GetFrameCount();
-                    _renderer->setMaterialCompilation(true);
+                    _renderView->setMaterialCompilation(true);
                     for (ed::LinkId id : selectedLinks)
                     {
                         if (int(id.Get()) > 0 && !readOnly())
@@ -5044,7 +4985,7 @@ void Graph::drawGraph(ImVec2 mousePos)
     if (ImGui::GetFrameCount() == (_frameCount + 2))
     {
         updateMaterials();
-        _renderer->setMaterialCompilation(false);
+        _renderView->setMaterialCompilation(false);
     }
 
     ed::Suspend();
@@ -5191,8 +5132,8 @@ void Graph::drawGraph(ImVec2 mousePos)
         _fileDialog.clearSelected();
         _graphDoc = loadDocument(_materialFilename);
         initializeGraph();
-        setDocumentForAllRenderViews();
-        _renderer->updateMaterials(nullptr);
+        setDocumentForRenderPipelines();
+        _renderView->updateMaterials(nullptr);
     }
 
     _fileDialogGeom.display();
@@ -5200,8 +5141,8 @@ void Graph::drawGraph(ImVec2 mousePos)
     {
         mx::FilePath fileName = _fileDialogGeom.getSelected();
         _fileDialogGeom.clearSelected();
-        _renderer->loadMesh(fileName);
-        _renderer->updateMaterials(nullptr);
+        _renderView->loadMesh(fileName);
+        _renderView->updateMaterials(nullptr);
     }
 
     _fileDialogImage.display();

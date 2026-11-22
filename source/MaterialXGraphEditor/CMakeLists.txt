@@ -14,12 +14,36 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wno-format-truncation -Wno-use-after-free -Wno-comment -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-shadow)
 endif()
 
-file(GLOB materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h*")
+set(materialx_source
+    "${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Graph.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Layout.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Main.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RenderView.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/UiNode.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/GlslRenderPipeline.cpp")
+
+if(MATERIALX_BUILD_RENDER_CYCLES)
+    list(APPEND materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.cpp")
+endif()
 
 if (APPLE)
     list(APPEND materialx_source ${CMAKE_CURRENT_SOURCE_DIR}/FileDialog_Darwin.mm)
 endif ()
+
+set(materialx_headers
+    "${CMAKE_CURRENT_SOURCE_DIR}/FileDialog.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Graph.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/GlslRenderPipeline.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Layout.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RenderPipeline.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RenderTypes.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/RenderView.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/UiNode.h")
+
+if(MATERIALX_BUILD_RENDER_CYCLES)
+    list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.h")
+endif()
 
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
 file(GLOB imgui_headers "${DEAR_IMGUI_PREFIX}/*.h*")
