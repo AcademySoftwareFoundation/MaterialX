@@ -110,9 +110,14 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
             "installed Cycles package must define Cycles_SHADER_DIR.")
     endif()
 
-    if(NOT IS_DIRECTORY "${MATERIALX_CYCLES_SHADER_DIR}" OR
-       NOT EXISTS "${MATERIALX_CYCLES_SHADER_DIR}/stdosl.h" OR
-       NOT EXISTS "${MATERIALX_CYCLES_SHADER_DIR}/stdcycles.h")
+    # An embedded Cycles build creates its shader directory (headers and
+    # compiled node_*.oso files) during the build via cycles_build_shaders, so
+    # it does not exist yet at configure time.  Only an installed package is
+    # expected to ship a complete shader directory up front.
+    if(NOT _materialx_cycles_embedded AND
+       (NOT IS_DIRECTORY "${MATERIALX_CYCLES_SHADER_DIR}" OR
+        NOT EXISTS "${MATERIALX_CYCLES_SHADER_DIR}/stdosl.h" OR
+        NOT EXISTS "${MATERIALX_CYCLES_SHADER_DIR}/stdcycles.h"))
         message(FATAL_ERROR "The Cycles shader directory is incomplete: "
             "'${MATERIALX_CYCLES_SHADER_DIR}'. Expected stdosl.h, stdcycles.h, "
             "and the compiled node_*.oso shaders.")
