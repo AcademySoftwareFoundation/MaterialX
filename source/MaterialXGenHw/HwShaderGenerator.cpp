@@ -68,6 +68,7 @@ HwShaderGenerator::HwShaderGenerator(TypeSystemPtr typeSystem, SyntaxPtr syntax)
     _tokenSubstitutions[HW::T_GEOMPROP] = HW::GEOMPROP;
     _tokenSubstitutions[HW::T_ALPHA_THRESHOLD] = HW::ALPHA_THRESHOLD;
     _tokenSubstitutions[HW::T_NUM_ACTIVE_LIGHT_SOURCES] = HW::NUM_ACTIVE_LIGHT_SOURCES;
+    _tokenSubstitutions[HW::T_XYZ_TO_WORKING_SPACE] = HW::XYZ_TO_WORKING_SPACE;
     _tokenSubstitutions[HW::T_ENV_MATRIX] = HW::ENV_MATRIX;
     _tokenSubstitutions[HW::T_ENV_RADIANCE] = HW::ENV_RADIANCE;
     _tokenSubstitutions[HW::T_ENV_RADIANCE_SAMPLER2D] = HW::ENV_RADIANCE_SAMPLER2D;
@@ -172,6 +173,9 @@ ShaderPtr HwShaderGenerator::createShader(const string& name, ElementPtr element
 
     // Add a block for data from vertex to pixel shader.
     addStageConnectorBlock(HW::VERTEX_DATA, HW::T_VERTEX_DATA_INSTANCE, *vs, *ps);
+
+    // Add the transform from CIE XYZ to the working color space.
+    psPrivateUniforms->add(Type::MATRIX33, HW::T_XYZ_TO_WORKING_SPACE, Value::createValue(context.getOptions().xyzToWorkingSpace));
 
     // Add uniforms for transparent rendering.
     if (context.getOptions().hwTransparency)
@@ -448,24 +452,24 @@ void HwShaderGenerator::toVec4(TypeDesc type, string& variable) const
 
     if (type.isFloat3())
     {
-        variable = vec4+"(" + variable + ", 1.0)";
+        variable = vec4 + "(" + variable + ", 1.0)";
     }
     else if (type.isFloat2())
     {
-        variable = vec4+"(" + variable + ", 0.0, 1.0)";
+        variable = vec4 + "(" + variable + ", 0.0, 1.0)";
     }
     else if (type == Type::FLOAT || type == Type::INTEGER || type == Type::BOOLEAN)
     {
-        variable = vec4+"(" + variable + ", " + variable + ", " + variable + ", 1.0)";
+        variable = vec4 + "(" + variable + ", " + variable + ", " + variable + ", 1.0)";
     }
     else if (type == Type::BSDF || type == Type::EDF)
     {
-        variable = vec4+"(" + variable + ", 1.0)";
+        variable = vec4 + "(" + variable + ", 1.0)";
     }
     else
     {
         // Can't understand other types. Just return black.
-        variable = vec4+"(0.0, 0.0, 0.0, 1.0)";
+        variable = vec4 + "(0.0, 0.0, 0.0, 1.0)";
     }
 }
 
