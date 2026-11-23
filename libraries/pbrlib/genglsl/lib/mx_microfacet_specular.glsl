@@ -349,8 +349,8 @@ vec3 mx_fresnel_airy(float cosTheta, FresnelData fd)
     {
         mx_fresnel_conductor_phase_polarized(cosThetaT, eta2, eta3, kappa3, phi23p, phi23s);
     }
-    vec3 r123p = max(sqrt(R12.x*R23p), 0.0);
-    vec3 r123s = max(sqrt(R12.y*R23s), 0.0);
+    vec3 r123p = sqrt(max(R12.x*R23p, 0.0));
+    vec3 r123s = sqrt(max(R12.y*R23s, 0.0));
 
     // Iridescence term
     vec3 I = vec3(0.0);
