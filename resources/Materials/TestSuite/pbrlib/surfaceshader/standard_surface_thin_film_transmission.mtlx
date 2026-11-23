@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<materialx version="1.39" colorspace="lin_rec709">
+  <surfacematerial name="M_standard_surface_thin_film_transmission" type="material">
+    <input name="surfaceshader" type="surfaceshader" nodename="SR_standard_surface_thin_film_transmission" />
+  </surfacematerial>
+  <standard_surface name="SR_standard_surface_thin_film_transmission" type="surfaceshader">
+    <input name="base" type="float" value="0.0" />
+    <input name="specular" type="float" value="0.0" />
+    <input name="specular_roughness" type="float" value="0.0" />
+    <input name="transmission" type="float" value="1.0" />
+    <input name="thin_film_thickness" type="float" value="550.0" />
+  </standard_surface>
+</materialx>
