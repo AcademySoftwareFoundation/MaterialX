@@ -46,7 +46,7 @@ endif()
 
 add_subdirectory(MaterialXGenShader)
 target_link_libraries(MaterialXTest MaterialXGenShader)
-if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG)
+if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MDL OR MATERIALX_BUILD_GEN_MSL OR MATERIALX_BUILD_GEN_SLANG OR MATERIALX_BUILD_GEN_HLSL)
   if(MATERIALX_BUILD_GEN_GLSL)
     add_subdirectory(MaterialXGenGlsl)
     target_link_libraries(MaterialXTest MaterialXGenGlsl)
@@ -54,6 +54,10 @@ if(MATERIALX_BUILD_GEN_GLSL OR MATERIALX_BUILD_GEN_OSL OR MATERIALX_BUILD_GEN_MD
   if(MATERIALX_BUILD_GEN_SLANG)
     add_subdirectory(MaterialXGenSlang)
     target_link_libraries(MaterialXTest MaterialXGenSlang)
+  endif()
+  if(MATERIALX_BUILD_GEN_HLSL)
+    add_subdirectory(MaterialXGenHlsl)
+    target_link_libraries(MaterialXTest MaterialXGenHlsl)
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXGenOsl)
@@ -79,6 +83,26 @@ if(MATERIALX_BUILD_RENDER)
   if(MATERIALX_BUILD_GEN_SLANG AND MATERIALX_SLANG_RHI_SOURCE_DIR)
     add_subdirectory(MaterialXRenderSlang)
     target_link_libraries(MaterialXTest MaterialXRenderSlang)
+  endif()
+  if(MATERIALX_BUILD_GEN_HLSL AND WIN32 AND NOT MATERIALX_BUILD_APPLE_EMBEDDED)
+    add_subdirectory(MaterialXRenderHlsl)
+    target_link_libraries(MaterialXTest MaterialXRenderHlsl)
+    # Stage the DXC redistributable next to MaterialXTest.exe so the DXC
+    # backend tests can dynamically load it without requiring callers to
+    # alter PATH. The path is discovered in MaterialXRenderHlsl's
+    # CMakeLists; if it wasn't found these copies are skipped.
+    if(MATERIALX_HLSL_DXCOMPILER_DLL)
+      add_custom_command(TARGET MaterialXTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MATERIALX_HLSL_DXCOMPILER_DLL}" "$<TARGET_FILE_DIR:MaterialXTest>/"
+        COMMENT "Staging dxcompiler.dll for HLSL DXC tests")
+    endif()
+    if(MATERIALX_HLSL_DXIL_DLL)
+      add_custom_command(TARGET MaterialXTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MATERIALX_HLSL_DXIL_DLL}" "$<TARGET_FILE_DIR:MaterialXTest>/"
+        COMMENT "Staging dxil.dll for HLSL DXC tests")
+    endif()
   endif()
   if(MATERIALX_BUILD_GEN_OSL)
     add_subdirectory(MaterialXRenderOsl)
