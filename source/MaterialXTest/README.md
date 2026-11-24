@@ -34,8 +34,12 @@ Refer to the [test suite documentation](../../resources/Materials/TestSuite/READ
 - GenOsl.cpp : OSL shader generation tests which are run when the test tag `[genosl]` is specified.
 - GenMdl.cpp : MDL shader generation tests which are run when the test tag `[genmdl]` is specified.
 - GenMsl.cpp : MSL shader generation tests which are run when the test tag `[genmsl]` is specified.
+- GenSlang.cpp : Slang shader generation tests which are run when the test tag `[genslang]` is specified.
+- GenWgsl.cpp : WGSL shader generation tests which are run when the test tag `[genwgsl]` is specified.
 
 Per-language tests will scan MaterialX files in the test suite for input materials.
+
+CI also runs [`mxvalidategenwgsl.py`](../MaterialXGenWgsl/tools/mxvalidategenwgsl.py) to naga-compile full shaders over TestSuite and Examples (see [WGSL Shader Generation](../../documents/DeveloperGuide/WGSLShaderGeneration.md#wgsl-validation)).
 
 #### Test Outputs
 Depending on which tests are executed log files are produced at the location that MaterialXTest was executed.

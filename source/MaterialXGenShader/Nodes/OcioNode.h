@@ -35,7 +35,10 @@ class OcioNode : public ShaderNodeImpl
     void emitFunctionCall(const ShaderNode& node, GenContext& context, ShaderStage& stage)
         const override;
 
-  private:
+    /// OCIO GPU function name from an implementation name.
+    static string getFunctionNameFromImplName(const string& implName);
+
+  protected:
     string getFunctionName() const;
 };
 
