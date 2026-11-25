@@ -178,8 +178,10 @@ Notes on this backend:
   times (default 2); more passes smooth more strongly but can soften fine
   detail.  It only affects the displayed and captured frame, not the
   accumulated render result.
-- It uses a single constant environment background or an HDRI environment map
-  for lighting.  The `Lighting` menu scales the environment intensity.
+- It uses a constant screen color as the visible background.  When an HDRI
+  environment map is available, it is used for scene lighting only and is not
+  shown behind the object.  The `Lighting` menu scales the environment
+  intensity and re-renders the scene lighting without changing the background.
 - `Combined`, `Albedo`, `Normal`, and `UV` display modes are available.
 - `Max Samples` is exposed in the `Sampling` menu.
 - The `testrender` backend links the OSL version selected by `OSL_DIR`, or the
