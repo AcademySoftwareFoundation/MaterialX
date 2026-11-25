@@ -22,6 +22,8 @@
 #   COPY_FILES           Files to copy unconditionally (e.g. a SONAME symlink).
 #   PRE_EXCLUDE_REGEXES  Regexes applied before dependency resolution.
 #   POST_EXCLUDE_REGEXES Regexes applied after dependency resolution.
+#   INCLUDE_SYSTEM_LIBS  Also bundle libraries found under /usr/lib and /lib
+#                        (for example the LLVM and Imath/OpenEXR runtimes).
 
 cmake_minimum_required(VERSION 3.26)
 
@@ -45,13 +47,52 @@ if(NOT DEFINED PRE_EXCLUDE_REGEXES OR "${PRE_EXCLUDE_REGEXES}" STREQUAL "")
         "libstdc\\+\\+\\.so.*")
 endif()
 if(NOT DEFINED POST_EXCLUDE_REGEXES OR "${POST_EXCLUDE_REGEXES}" STREQUAL "")
-    set(POST_EXCLUDE_REGEXES
-        "^/lib/"
-        "^/lib64/"
-        "^/usr/lib"
-        "^/usr/local/lib"
-        "^/System/Library/"
-        "^[a-zA-Z]:/Windows/")
+    if(INCLUDE_SYSTEM_LIBS)
+        # Bundle the non-platform runtime (LLVM, Imath/OpenEXR, zlib, ...) but
+        # leave the window-system and GL client libraries to the host.  Those
+        # are tightly coupled to the installed graphics driver, so shipping
+        # copies of them is more likely to break than to help.
+        set(POST_EXCLUDE_REGEXES
+            ".*libX11\\.so.*"
+            ".*libXext\\.so.*"
+            ".*libXt\\.so.*"
+            ".*libXau\\.so.*"
+            ".*libxcb\\.so.*"
+            ".*libSM\\.so.*"
+            ".*libICE\\.so.*"
+            ".*libuuid\\.so.*"
+            ".*libGL\\.so.*"
+            ".*libGLX\\.so.*"
+            ".*libGLdispatch\\.so.*"
+            ".*libOpenGL\\.so.*"
+            ".*libEGL\\.so.*"
+            ".*libdrm\\.so.*"
+            ".*libgbm\\.so.*"
+            ".*libwayland-.*"
+            ".*libvulkan\\.so.*"
+            ".*libcuda\\.so.*"
+            ".*libnvidia-.*"
+            ".*libamdgpu.*"
+            ".*libhip.*"
+            "^$")
+        if(APPLE)
+            list(APPEND POST_EXCLUDE_REGEXES
+                "^/System/Library/"
+                "^/usr/lib/"
+                "^/lib/")
+        elseif(WIN32)
+            list(APPEND POST_EXCLUDE_REGEXES
+                "^[a-zA-Z]:/Windows/")
+        endif()
+    else()
+        set(POST_EXCLUDE_REGEXES
+            "^/lib/"
+            "^/lib64/"
+            "^/usr/lib"
+            "^/usr/local/lib"
+            "^/System/Library/"
+            "^[a-zA-Z]:/Windows/")
+    endif()
 endif()
 
 # The Cycles library itself lives in the build tree, not in the bundled

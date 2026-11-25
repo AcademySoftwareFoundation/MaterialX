@@ -59,10 +59,113 @@ cmake -S . -B build \
 cmake --build build --config Release
 ```
 
-The OSL installation must be built with `-DOSL_BUILD_TESTRENDER_LIB=ON` so that
-it exports the `OSL::libtestrender` CMake target and installs
-`include/OSL/testrender.h`.  If OSL's dependencies are not in the default
-search path, also pass `-DOpenImageIO_DIR=...` and `-Dpugixml_DIR=...`.
+The OSL installation must be configured with `-DOSL_BUILD_TESTRENDER_LIB=ON`
+and installed.  That option installs the `OSL::libtestrender` CMake target and
+`include/OSL/testrender.h`.  For a library-only OSL build without the testrender
+executable or test suite:
+
+```
+cmake -S OpenShadingLanguage -B osl-build \
+  -DOSL_BUILD_TESTRENDER_LIB=ON \
+  -DOSL_BUILD_TESTS=OFF \
+  -DCMAKE_INSTALL_PREFIX=/path/to/OSL
+cmake --build osl-build --target install
+```
+
+Without `OSL_BUILD_TESTRENDER_LIB=ON`, `find_package(OSL)` still succeeds but
+the `OSL::libtestrender` target and testrender header are not installed.  Then
+configure MaterialX with:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_OSL_TESTRENDER=ON \
+  -DOSL_DIR=/path/to/OSL/lib/cmake/OSL
+```
+
+If OpenImageIO is not in the default search path, pass
+`-DOpenImageIO_DIR=/path/to/OpenImageIO/lib/cmake/OpenImageIO`.  A static OSL
+build also requires pugixml at configure time.  A shared OSL install only needs
+the pugixml runtime library, but if pugixml lives in a non-standard prefix,
+pass `-Dpugixml_DIR=/path/to/pugixml/lib/cmake/pugixml` so the build can link
+and bundle it.
+
+### Embedding OSL
+
+Instead of pointing at an installed OSL package, the build can compile OSL as
+part of the MaterialX build:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_OSL_TESTRENDER=ON \
+  -DMATERIALX_FETCH_OSL=ON
+```
+
+`MATERIALX_FETCH_OSL` uses `FetchContent` with
+`MATERIALX_OSL_GIT_REPOSITORY` / `MATERIALX_OSL_GIT_TAG`.  The defaults fetch
+the `testrender-library` branch of the
+[OpenShadingLanguage fork](https://github.com/sg3-141-592/OpenShadingLanguage),
+which contains the reusable `libtestrender` changes.  Override the repository
+and tag to use a different checkout, or pin the tag to a commit hash for a
+reproducible build.  To use an existing source tree instead, set
+`MATERIALX_OSL_SOURCE_DIR=/path/to/OpenShadingLanguage`.
+Both modes set the OSL options needed by the preview backend (`libtestrender`
+enabled, tests, plugins, Qt, and Python disabled) and build OSL as shared
+libraries.  LLVM, Imath, OpenImageIO, pugixml, Bison, and Flex must still be
+installed and discoverable; OSL does not bundle them.
+
+If OpenImageIO or pugixml are not in the default CMake search path, pass their
+package directories explicitly:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_OSL_TESTRENDER=ON \
+  -DMATERIALX_FETCH_OSL=ON \
+  -DOpenImageIO_DIR=/path/to/OpenImageIO/lib/cmake/OpenImageIO \
+  -Dpugixml_DIR=/path/to/pugixml/lib/cmake/pugixml
+```
+
+The same approach applies to LLVM, Imath, Bison, and Flex: point CMake at their
+installation directories or executable paths if they are not found
+automatically.
+
+The runtime locates `stdosl.h` relative to the executable, so the install tree
+can be moved.  `MATERIALX_OSL_SHADER_PATH` (or `OSL_ROOT`) can point at a
+different OSL shader directory at run time.
+
+### Relocatable release package
+
+When `MATERIALX_OSL_BUNDLE_RUNTIME` is enabled (the default), the build copies
+the entire OSL, OpenImageIO, pugixml, and LLVM runtime closure next to
+`MaterialXGraphEditor` and uses `$ORIGIN` (`@loader_path` on macOS) rpaths.
+The install target copies the same libraries into `<prefix>/bin`, and OSL's
+standard shader headers are installed under `<prefix>/share/OSL/shaders`.
+Window-system and GL client libraries are intentionally left to the host.
+
+On macOS, dependencies that were linked with absolute install names must also
+be rewritten to `@loader_path` with `install_name_tool`; the Linux and Windows
+layouts do not need this extra step.
+
+To build an archive that runs after being moved to another machine:
+
+```
+cmake -S . -B build-bundle \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_FETCH_OSL=ON \
+  -DMATERIALX_BUILD_RENDER_OSL_TESTRENDER=ON \
+  -DMATERIALX_BUILD_TESTS=OFF
+cmake --build build-bundle
+scripts/package-graph-editor.sh build-bundle dist/MaterialXGraphEditor-linux-$(uname -m).zip
+```
+
+The packaging script installs into a staging prefix, keeps only the runtime
+layout, verifies that `ldd` reports no unresolved libraries, and produces a
+zip that can be published as a GitHub release asset.  Set
+`MATERIALX_STRIP_RUNTIME=1` to strip the binaries and bundled libraries before
+archiving.
 
 Notes on this backend:
 
@@ -74,13 +177,13 @@ Notes on this backend:
   for lighting.  The `Lighting` menu scales the environment intensity.
 - `Combined`, `Albedo`, `Normal`, and `UV` display modes are available.
 - `Max Samples` is exposed in the `Sampling` menu.
-- The `testrender` backend links the OSL version selected by `OSL_DIR`.
+- The `testrender` backend links the OSL version selected by `OSL_DIR`, or the
+  OSL version built by `MATERIALX_FETCH_OSL` / `MATERIALX_OSL_SOURCE_DIR`.
   Do not link it against a different OSL version than the one used by other
   backends in the same executable (for example the OSL libraries bundled with
   Cycles); OSL does not guarantee ABI compatibility across minor versions.
   When evaluating this backend, build with `MATERIALX_BUILD_RENDER_CYCLES=OFF`,
   or align the OSL versions.
-
 
 ### Renderer Backend Architecture
 

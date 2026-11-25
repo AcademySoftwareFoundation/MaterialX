@@ -173,22 +173,137 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
 endif()
 
 if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
-    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl OSL::libtestrender pugixml::pugixml)
+    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl OSL::libtestrender)
+    # Optional: static OSL exports pugixml through its CMake package, and shared
+    # OSL installs may still need libpugixml on the link/runtime path.
+    if(TARGET pugixml::pugixml)
+        list(APPEND MATERIALX_LIBRARIES pugixml::pugixml)
+    endif()
 
-    get_filename_component(_materialx_osl_prefix "${OSL_INCLUDE_DIR}/.." ABSOLUTE)
-    set(_materialx_osl_stdosl "${_materialx_osl_prefix}/share/OSL/shaders/stdosl.h")
+    # Determine the compiled-in fallback location of stdosl.h.  At runtime the
+    # pipeline prefers a location relative to the executable (or
+    # MATERIALX_OSL_SHADER_PATH), so this only matters for uninstalled builds.
+    if(MATERIALX_OSL_INCLUDE_PATH)
+        set(_materialx_osl_stdosl "${MATERIALX_OSL_INCLUDE_PATH}/stdosl.h")
+    elseif(MATERIALX_OSL_EMBEDDED AND MATERIALX_OSL_SOURCE_ROOT AND
+           EXISTS "${MATERIALX_OSL_SOURCE_ROOT}/src/shaders/stdosl.h")
+        # Uninstalled embedded builds use OSL's source shader directory.
+        set(_materialx_osl_stdosl
+            "${MATERIALX_OSL_SOURCE_ROOT}/src/shaders/stdosl.h")
+    elseif(MATERIALX_OSL_EMBEDDED)
+        set(_materialx_osl_stdosl
+            "${CMAKE_INSTALL_PREFIX}/share/OSL/shaders/stdosl.h")
+    elseif(DEFINED OSL_INCLUDE_DIR AND OSL_INCLUDE_DIR)
+        get_filename_component(_materialx_osl_prefix "${OSL_INCLUDE_DIR}/.." ABSOLUTE)
+        set(_materialx_osl_stdosl
+            "${_materialx_osl_prefix}/share/OSL/shaders/stdosl.h")
+    else()
+        set(_materialx_osl_stdosl "")
+    endif()
     target_compile_definitions(MaterialXGraphEditor PRIVATE
         MATERIALX_BUILD_RENDER_OSL_TESTRENDER
         MATERIALX_OSL_STDOSL_PATH="${_materialx_osl_stdosl}")
 
-    # The installed executable still needs OSL and its configured dependencies.
-    # Record their locations so the install tree can run without an explicit
-    # LD_LIBRARY_PATH.  (A package script can copy these next to the binary.)
-    get_filename_component(_materialx_osl_rpath "${OSL_LIB_DIR}" ABSOLUTE)
-    get_filename_component(_materialx_oiio_rpath "${OpenImageIO_DIR}/../.." ABSOLUTE)
-    get_filename_component(_materialx_pugi_rpath "${pugixml_DIR}/../.." ABSOLUTE)
-    set_property(TARGET MaterialXGraphEditor APPEND PROPERTY INSTALL_RPATH
-        "${_materialx_osl_rpath};${_materialx_oiio_rpath};${_materialx_pugi_rpath}")
+    if(MATERIALX_OSL_BUNDLE_RUNTIME AND RPATH_RELATIVE_SYMBOL)
+        # Copy the entire OSL/OpenImageIO/LLVM runtime closure next to the
+        # executable and resolve it through a relative rpath so the resulting
+        # install tree and release archive can be moved anywhere.
+        set_target_properties(MaterialXGraphEditor PROPERTIES
+            BUILD_RPATH "${RPATH_RELATIVE_SYMBOL}"
+            INSTALL_RPATH "${RPATH_RELATIVE_SYMBOL};${RPATH_RELATIVE_SYMBOL}/../${MATERIALX_INSTALL_LIB_PATH}")
+        if(UNIX AND NOT APPLE)
+            # Emit DT_RPATH instead of DT_RUNPATH so that the executable's
+            # $ORIGIN also resolves transitive dependencies of the bundled
+            # libraries (for example libclang-cpp -> libLLVM).
+            target_link_options(MaterialXGraphEditor PRIVATE "-Wl,--disable-new-dtags")
+        endif()
+
+        set(_materialx_osl_runtime_dirs "")
+        if(DEFINED OSL_LIB_DIR AND OSL_LIB_DIR)
+            get_filename_component(_materialx_osl_lib_dir "${OSL_LIB_DIR}" ABSOLUTE)
+            list(APPEND _materialx_osl_runtime_dirs "${_materialx_osl_lib_dir}")
+        endif()
+        foreach(_target OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util pugixml::pugixml)
+            if(TARGET ${_target})
+                get_target_property(_materialx_dep_location ${_target} IMPORTED_LOCATION)
+                if(NOT _materialx_dep_location)
+                    get_target_property(_materialx_dep_location ${_target} IMPORTED_IMPLIB)
+                endif()
+                if(_materialx_dep_location)
+                    get_filename_component(_materialx_dep_dir
+                        "${_materialx_dep_location}" DIRECTORY)
+                    list(APPEND _materialx_osl_runtime_dirs "${_materialx_dep_dir}")
+                endif()
+            endif()
+        endforeach()
+        # Locate the LLVM runtime directory.  LLVM_DIR is set by find_package
+        # in an embedded OSL build; otherwise ask llvm-config.
+        if(DEFINED LLVM_DIR AND LLVM_DIR)
+            get_filename_component(_materialx_llvm_lib_dir "${LLVM_DIR}/../.." ABSOLUTE)
+            list(APPEND _materialx_osl_runtime_dirs "${_materialx_llvm_lib_dir}")
+        else()
+            find_program(_materialx_llvm_config NAMES llvm-config)
+            if(_materialx_llvm_config)
+                execute_process(COMMAND "${_materialx_llvm_config}" --libdir
+                    OUTPUT_VARIABLE _materialx_llvm_lib_dir
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET)
+                if(_materialx_llvm_lib_dir)
+                    list(APPEND _materialx_osl_runtime_dirs "${_materialx_llvm_lib_dir}")
+                endif()
+            endif()
+        endif()
+        list(REMOVE_DUPLICATES _materialx_osl_runtime_dirs)
+        list(JOIN _materialx_osl_runtime_dirs ";" _materialx_osl_runtime_dirs_arg)
+
+        add_custom_command(TARGET MaterialXGraphEditor POST_BUILD
+            COMMAND "${CMAKE_COMMAND}"
+                "-DEXECUTABLE=$<TARGET_FILE:MaterialXGraphEditor>"
+                "-DDESTINATION=$<TARGET_FILE_DIR:MaterialXGraphEditor>"
+                "-DDIRECTORIES=${_materialx_osl_runtime_dirs_arg}"
+                "-DINCLUDE_SYSTEM_LIBS=ON"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/BundleCyclesRuntime.cmake"
+            COMMENT "Bundling OSL runtime libraries beside MaterialXGraphEditor"
+            VERBATIM)
+        set_property(TARGET MaterialXGraphEditor APPEND PROPERTY LINK_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/BundleCyclesRuntime.cmake")
+    else()
+        # Without bundling, record the configured dependency locations so the
+        # install tree can run without an explicit LD_LIBRARY_PATH.
+        set(_materialx_osl_rpaths "")
+        if(DEFINED OSL_LIB_DIR AND OSL_LIB_DIR)
+            get_filename_component(_dir "${OSL_LIB_DIR}" ABSOLUTE)
+            list(APPEND _materialx_osl_rpaths "${_dir}")
+        endif()
+        foreach(_target OpenImageIO::OpenImageIO OpenImageIO::OpenImageIO_Util pugixml::pugixml)
+            if(TARGET ${_target})
+                get_target_property(_materialx_dep_location ${_target} IMPORTED_LOCATION)
+                if(NOT _materialx_dep_location)
+                    get_target_property(_materialx_dep_location ${_target} IMPORTED_IMPLIB)
+                endif()
+                if(_materialx_dep_location)
+                    get_filename_component(_materialx_dep_dir
+                        "${_materialx_dep_location}" DIRECTORY)
+                    list(APPEND _materialx_osl_rpaths "${_materialx_dep_dir}")
+                endif()
+            endif()
+        endforeach()
+        if(_materialx_osl_rpaths)
+            list(REMOVE_DUPLICATES _materialx_osl_rpaths)
+            set_property(TARGET MaterialXGraphEditor APPEND PROPERTY INSTALL_RPATH
+                "${_materialx_osl_rpaths}")
+        endif()
+    endif()
+
+    # When OSL is an external package, install its standard shader headers so
+    # the graph editor can find stdosl.h in a self-contained install tree.
+    # An embedded OSL build installs its own shaders.
+    if(NOT MATERIALX_OSL_EMBEDDED AND EXISTS "${_materialx_osl_stdosl}")
+        get_filename_component(_materialx_osl_shader_dir
+            "${_materialx_osl_stdosl}" DIRECTORY)
+        install(DIRECTORY "${_materialx_osl_shader_dir}/"
+                DESTINATION "share/OSL/shaders")
+    endif()
 endif()
 
 if(APPLE)
@@ -289,6 +404,19 @@ if(MATERIALX_BUILD_RENDER_CYCLES AND MATERIALX_CYCLES_BUNDLE_RUNTIME AND _materi
             \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.dll\")
          if(_materialx_cycles_runtime_libs)
             file(INSTALL \${_materialx_cycles_runtime_libs}
+                DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_BIN_PATH}\")
+         endif()")
+endif()
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER AND MATERIALX_OSL_BUNDLE_RUNTIME)
+    # Install the OSL runtime closure that was copied beside the build-tree
+    # executable so the install tree is relocatable as well.
+    install(CODE
+        "file(GLOB _materialx_osl_runtime_libs
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.so*\"
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.dylib*\"
+            \"$<TARGET_FILE_DIR:MaterialXGraphEditor>/*.dll\")
+         if(_materialx_osl_runtime_libs)
+            file(INSTALL \${_materialx_osl_runtime_libs}
                 DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${MATERIALX_INSTALL_BIN_PATH}\")
          endif()")
 endif()

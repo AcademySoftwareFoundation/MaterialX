@@ -17,10 +17,16 @@
 
 #include <MaterialXGenShader/Util.h>
 
+#ifndef MATERIALX_OSL_STDOSL_PATH
+#define MATERIALX_OSL_STDOSL_PATH ""
+#endif
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -35,6 +41,58 @@ double currentTimeSeconds()
 {
     return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch())
         .count();
+}
+
+// Locate stdosl.h at run time so installed and bundled copies do not depend on
+// the build-tree path compiled into MATERIALX_OSL_STDOSL_PATH.
+std::string findOslStdoslPath()
+{
+    mx::FilePathVec searchDirs;
+
+    const char* shaderPath = std::getenv("MATERIALX_OSL_SHADER_PATH");
+    if (shaderPath && *shaderPath)
+    {
+        searchDirs.emplace_back(shaderPath);
+    }
+    for (const char* envName : { "OSL_SHADER_PATH", "OSLHOME", "OSL_ROOT", "OSL_ROOT_DIR" })
+    {
+        const char* value = std::getenv(envName);
+        if (!value || !*value)
+        {
+            continue;
+        }
+        const mx::FilePath root(value);
+        searchDirs.push_back(root);
+        searchDirs.push_back(root / "share" / "OSL" / "shaders");
+        searchDirs.push_back(root / "share" / "shaders");
+    }
+
+    try
+    {
+        const mx::FilePath moduleDir = mx::FilePath::getModulePath();
+        searchDirs.push_back(moduleDir / "shaders");
+        searchDirs.push_back(moduleDir / "share" / "OSL" / "shaders");
+        searchDirs.push_back(moduleDir / ".." / "share" / "OSL" / "shaders");
+        searchDirs.push_back(moduleDir / ".." / "share" / "shaders");
+    }
+    catch (const std::exception&)
+    {
+    }
+
+    if (const char* compiledPath = MATERIALX_OSL_STDOSL_PATH; compiledPath && *compiledPath)
+    {
+        searchDirs.push_back(mx::FilePath(compiledPath).getParentPath());
+    }
+
+    for (const mx::FilePath& dir : searchDirs)
+    {
+        const mx::FilePath candidate = dir / "stdosl.h";
+        if (candidate.exists())
+        {
+            return candidate.asString();
+        }
+    }
+    return {};
 }
 
 void appendSphere(OSL::TestRenderMesh& mesh)
@@ -456,11 +514,18 @@ bool OslTestRenderPipeline::createSession(const RenderSettings& settings,
     renderSettings.maxBounces = TESTRENDER_PREVIEW_BOUNCES;
     renderSettings.rrDepth = 5;
     renderSettings.noJitter = false;
-    renderSettings.stdoslPath = MATERIALX_OSL_STDOSL_PATH;
+    const std::string stdoslPath = findOslStdoslPath();
+    renderSettings.stdoslPath = stdoslPath;
     renderSettings.textureSearchPath = _searchPath.asString();
     renderSettings.screenColor[0] = mx::DEFAULT_SCREEN_COLOR_LIN_REC709[0];
     renderSettings.screenColor[1] = mx::DEFAULT_SCREEN_COLOR_LIN_REC709[1];
     renderSettings.screenColor[2] = mx::DEFAULT_SCREEN_COLOR_LIN_REC709[2];
+
+    if (!stdoslPath.empty())
+    {
+        renderSettings.includePaths.push_back(
+            mx::FilePath(stdoslPath).getParentPath().asString());
+    }
 
     mx::FilePath genOslIncludePath = _searchPath.find("libraries/stdlib/genosl/include");
     if (!genOslIncludePath.isEmpty())

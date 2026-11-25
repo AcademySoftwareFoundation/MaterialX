@@ -37,7 +37,12 @@ option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindi
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_RENDER_CYCLES "Build the Cycles render backend for the graph editor. Fetches a Cycles fork that can be linked as a library. Requires MATERIALX_BUILD_GRAPH_EDITOR and MATERIALX_BUILD_GEN_OSL." OFF)
-option(MATERIALX_BUILD_RENDER_OSL_TESTRENDER "Build the OSL testrender preview backend for the graph editor. Requires an OSL build with libtestrender (OSL_BUILD_TESTRENDER_LIB=ON)." OFF)
+option(MATERIALX_BUILD_RENDER_OSL_TESTRENDER "Build the OSL testrender preview backend for the graph editor. Uses an installed OSL with libtestrender, or an embedded OSL build enabled with MATERIALX_FETCH_OSL / MATERIALX_OSL_SOURCE_DIR." OFF)
+set(MATERIALX_OSL_SOURCE_DIR "" CACHE PATH "Path to an OSL source tree to embed in this build. When empty, MATERIALX_FETCH_OSL fetches OSL or an installed OSL package is used.")
+option(MATERIALX_FETCH_OSL "Fetch and build OSL from source instead of using an installed package. Requires LLVM, Imath, OpenImageIO, pugixml, Bison, and Flex to be discoverable." OFF)
+set(MATERIALX_OSL_GIT_REPOSITORY "https://github.com/sg3-141-592/OpenShadingLanguage.git" CACHE STRING "Git repository for OSL when MATERIALX_FETCH_OSL is enabled.")
+set(MATERIALX_OSL_GIT_TAG "testrender-library" CACHE STRING "Git tag or branch for OSL when MATERIALX_FETCH_OSL is enabled.")
+option(MATERIALX_OSL_BUNDLE_RUNTIME "Copy the OSL runtime dependencies next to MaterialXGraphEditor so that it runs without LD_LIBRARY_PATH." ON)
 set(MATERIALX_CYCLES_GIT_REPOSITORY "https://github.com/seang-ilm/cycles.git" CACHE STRING "Git repository for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
 set(MATERIALX_CYCLES_GIT_TAG "5_1-add-library-build-support" CACHE STRING "Git tag or branch for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
 set(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR "" CACHE PATH "Directory containing the precompiled Cycles/Blender dependency libraries (the lib/ folder). When empty, MATERIALX_BUILD_RENDER_CYCLES fetches them into the build tree.")
@@ -198,6 +203,11 @@ mark_as_advanced(MATERIALX_CYCLES_GIT_TAG)
 mark_as_advanced(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR)
 mark_as_advanced(MATERIALX_CYCLES_FETCH_PRECOMPILED_LIBS)
 mark_as_advanced(MATERIALX_CYCLES_BUNDLE_RUNTIME)
+mark_as_advanced(MATERIALX_OSL_SOURCE_DIR)
+mark_as_advanced(MATERIALX_FETCH_OSL)
+mark_as_advanced(MATERIALX_OSL_GIT_REPOSITORY)
+mark_as_advanced(MATERIALX_OSL_GIT_TAG)
+mark_as_advanced(MATERIALX_OSL_BUNDLE_RUNTIME)
 mark_as_advanced(MATERIALX_BUILD_OIIO)
 mark_as_advanced(MATERIALX_BUILD_OCIO)
 mark_as_advanced(MATERIALX_BUILD_BENCHMARK_TESTS)
@@ -300,15 +310,94 @@ if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
     if(NOT MATERIALX_BUILD_GEN_OSL)
         message(FATAL_ERROR "MATERIALX_BUILD_RENDER_OSL_TESTRENDER requires MATERIALX_BUILD_GEN_OSL.")
     endif()
-    find_package(OSL CONFIG REQUIRED)
+
+    # OSL can come from an installed package, a source tree supplied through
+    # MATERIALX_OSL_SOURCE_DIR, or a FetchContent checkout.  Embedding OSL makes
+    # the build self-contained and lets the install step place the OSL shaders
+    # and runtime libraries in the same prefix as the graph editor, which is
+    # what the relocatable release package uses.
+    set(MATERIALX_OSL_EMBEDDED OFF)
+    if(NOT TARGET OSL::libtestrender)
+        if(MATERIALX_FETCH_OSL OR MATERIALX_OSL_SOURCE_DIR)
+            set(OSL_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+            set(OSL_BUILD_TESTRENDER_LIB ON CACHE BOOL "" FORCE)
+            set(OSL_BUILD_SHADERS ON CACHE BOOL "" FORCE)
+            set(OSL_BUILD_PLUGINS OFF CACHE BOOL "" FORCE)
+            set(OSL_BUILD_BATCHED OFF CACHE BOOL "" FORCE)
+            set(OSL_USE_OPTIX OFF CACHE BOOL "" FORCE)
+            set(USE_PYTHON OFF CACHE BOOL "" FORCE)
+            set(USE_QT OFF CACHE BOOL "" FORCE)
+            set(INSTALL_DOCS OFF CACHE BOOL "" FORCE)
+
+            # OSL uses BUILD_SHARED_LIBS to choose between shared and static
+            # libraries.  Build shared OSL libraries so that the runtime
+            # dependency bundle stays small and the OSL libraries can be
+            # shared with other consumers.  Restore the previous value after
+            # OSL has been configured.
+            if(DEFINED BUILD_SHARED_LIBS)
+                set(_materialx_saved_build_shared_libs "${BUILD_SHARED_LIBS}")
+                set(_materialx_saved_build_shared_libs_defined ON)
+            else()
+                set(_materialx_saved_build_shared_libs_defined OFF)
+            endif()
+            set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
+
+            if(MATERIALX_FETCH_OSL)
+                include(FetchContent)
+                FetchContent_Declare(osl
+                    GIT_REPOSITORY "${MATERIALX_OSL_GIT_REPOSITORY}"
+                    GIT_TAG "${MATERIALX_OSL_GIT_TAG}"
+                    GIT_SHALLOW TRUE)
+                FetchContent_MakeAvailable(osl)
+                set(MATERIALX_OSL_SOURCE_ROOT "${osl_SOURCE_DIR}")
+            else()
+                get_filename_component(_materialx_osl_source_dir
+                    "${MATERIALX_OSL_SOURCE_DIR}" ABSOLUTE)
+                if(NOT IS_DIRECTORY "${_materialx_osl_source_dir}")
+                    message(FATAL_ERROR "MATERIALX_OSL_SOURCE_DIR does not exist: "
+                        "'${_materialx_osl_source_dir}'")
+                endif()
+                add_subdirectory("${_materialx_osl_source_dir}"
+                    "${CMAKE_BINARY_DIR}/osl")
+                set(MATERIALX_OSL_SOURCE_ROOT "${_materialx_osl_source_dir}")
+                unset(_materialx_osl_source_dir)
+            endif()
+
+            if(_materialx_saved_build_shared_libs_defined)
+                set(BUILD_SHARED_LIBS "${_materialx_saved_build_shared_libs}"
+                    CACHE BOOL "Build shared libraries" FORCE)
+            else()
+                unset(BUILD_SHARED_LIBS CACHE)
+            endif()
+            unset(_materialx_saved_build_shared_libs)
+            unset(_materialx_saved_build_shared_libs_defined)
+
+            set(MATERIALX_OSL_EMBEDDED ON)
+        else()
+            find_package(OSL CONFIG REQUIRED)
+        endif()
+    else()
+        set(MATERIALX_OSL_EMBEDDED ON)
+    endif()
+
+    # Older embedded OSL trees may not provide the namespace alias that the
+    # installed package does.
+    if(NOT TARGET OSL::libtestrender AND TARGET libtestrender)
+        add_library(OSL::libtestrender ALIAS libtestrender)
+    endif()
     if(NOT TARGET OSL::libtestrender)
         message(FATAL_ERROR "MATERIALX_BUILD_RENDER_OSL_TESTRENDER requires an OSL package that "
             "exports OSL::libtestrender. Build and install OSL with "
-            "-DOSL_BUILD_TESTRENDER_LIB=ON.")
+            "-DOSL_BUILD_TESTRENDER_LIB=ON, or enable MATERIALX_FETCH_OSL.")
     endif()
-    # liboslexec links pugixml; expose it so the link is reproducible alongside
-    # MaterialX's own vendored pugixml.
-    find_package(pugixml CONFIG REQUIRED)
+
+    # A shared OSL install does not export pugixml through its CMake package,
+    # but liboslexec still has a runtime dependency on it.  Locate pugixml
+    # opportunistically so linking, runtime bundling, and install rpaths can
+    # include it when available; this is not required to configure OSL.
+    if(NOT TARGET pugixml::pugixml)
+        find_package(pugixml CONFIG QUIET)
+    endif()
 endif()
 
 if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER AND MATERIALX_BUILD_RENDER_CYCLES)
