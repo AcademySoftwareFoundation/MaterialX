@@ -24,6 +24,8 @@ set(materialx_source
     "${CMAKE_CURRENT_SOURCE_DIR}/GlslRenderPipeline.cpp")
 
 if(MATERIALX_BUILD_RENDER_CYCLES)
+    list(APPEND materialx_source
+        "${CMAKE_CURRENT_SOURCE_DIR}/GraphEditorOslGenerator.cpp")
     list(APPEND materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.cpp")
 endif()
 
@@ -42,6 +44,8 @@ set(materialx_headers
     "${CMAKE_CURRENT_SOURCE_DIR}/UiNode.h")
 
 if(MATERIALX_BUILD_RENDER_CYCLES)
+    list(APPEND materialx_headers
+        "${CMAKE_CURRENT_SOURCE_DIR}/GraphEditorOslGenerator.h")
     list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.h")
 endif()
 

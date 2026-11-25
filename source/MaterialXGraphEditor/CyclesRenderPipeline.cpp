@@ -15,10 +15,7 @@
 #include <MaterialXRender/Mesh.h>
 #include <MaterialXRender/Util.h>
 
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/Shader.h>
 #include <MaterialXGenShader/Util.h>
-#include <MaterialXFormat/Util.h>
 
 #include "device/device.h"
 #include "scene/attribute.h"
@@ -322,7 +319,7 @@ CyclesRenderPipeline::CyclesRenderPipeline(mx::DocumentPtr doc,
     _searchPath(searchPath),
     _meshFilename(meshFilename),
     _envRadianceFilename(envRadianceFilename),
-    _genContext(std::make_unique<mx::GenContext>(mx::OslShaderGenerator::create())),
+    _oslGenerator(std::make_unique<GraphEditorOslGenerator>(nullptr, searchPath)),
     _renderPass(renderPass),
     _cameraPosition(0.0f, 0.0f, 5.0f),
     _cameraTarget(0.0f, 0.0f, 0.0f),
@@ -1226,7 +1223,10 @@ void CyclesRenderPipeline::setDocument(mx::DocumentPtr document)
 {
     _document = document;
     _currentElement = nullptr;
-    initContext(*_genContext);
+    if (_oslGenerator)
+    {
+        _oslGenerator->setDocument(document);
+    }
     _materialDirty = true;
     _materialImmediate = true;
     _materialDirtyTime = currentTimeSeconds();
@@ -1252,127 +1252,29 @@ void CyclesRenderPipeline::updateMaterials(mx::TypedElementPtr typedElem)
     _materialDirtyTime = currentTimeSeconds();
 }
 
-void CyclesRenderPipeline::initContext(mx::GenContext& context)
-{
-    if (!_document)
-    {
-        return;
-    }
-
-    // Initialize search paths, including the folder holding the MaterialX OSL
-    // support headers (e.g. mx_funcs.h).
-    context.registerSourceCodeSearchPath(_searchPath);
-    mx::FilePath genOslIncludePath = _searchPath.find("libraries/stdlib/genosl/include");
-    if (!genOslIncludePath.isEmpty())
-    {
-        context.registerSourceCodeSearchPath(genOslIncludePath);
-    }
-
-    // Initialize unit management.
-    mx::UnitTypeDefPtr distanceTypeDef = _document->getUnitTypeDef("distance");
-    mx::LinearUnitConverterPtr distanceConverter = mx::LinearUnitConverter::create(distanceTypeDef);
-    mx::UnitConverterRegistryPtr unitRegistry = mx::UnitConverterRegistry::create();
-    unitRegistry->addUnitConverter(distanceTypeDef, distanceConverter);
-    mx::UnitTypeDefPtr angleTypeDef = _document->getUnitTypeDef("angle");
-    mx::LinearUnitConverterPtr angleConverter = mx::LinearUnitConverter::create(angleTypeDef);
-    unitRegistry->addUnitConverter(angleTypeDef, angleConverter);
-
-    // Initialize color management.
-    mx::ColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(
-        context.getShaderGenerator().getTarget());
-    cms->loadLibrary(_document);
-    context.getShaderGenerator().setColorManagementSystem(cms);
-
-    // Initialize unit management.
-    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(context.getShaderGenerator().getTarget());
-    unitSystem->loadLibrary(_document);
-    unitSystem->setUnitConverterRegistry(unitRegistry);
-    context.getShaderGenerator().setUnitSystem(unitSystem);
-    context.getOptions().targetDistanceUnit = "meter";
-
-    // Publish only the shader's nodedef interface as parameters. The default
-    // COMPLETE interface exposes every unconnected input on every node, which
-    // for textured or layered materials easily exceeds the 64-input limit of
-    // Cycles' NodeType (SocketModifiedFlags is a 64-bit mask) and trips an
-    // assertion. The graph editor regenerates the shader whenever values
-    // change, so per-node runtime uniforms are not needed.
-    context.getOptions().shaderInterfaceType = mx::SHADER_INTERFACE_REDUCED;
-
-    // Register type definitions.
-    context.getShaderGenerator().registerTypeDefs(_document);
-}
-
 void CyclesRenderPipeline::generateOsl(mx::TypedElementPtr typedElem)
 {
     _oslSource.clear();
     _oslOutputName.clear();
 
-    if (!_document)
+    if (!_oslGenerator)
     {
         return;
     }
 
-    try
+    const GraphEditorOslGenerator::Result result = _oslGenerator->generate(typedElem);
+    if (!result)
     {
-        if (!typedElem)
+        if (!_oslGenerator->getLastError().empty())
         {
-            std::vector<mx::TypedElementPtr> elements = mx::findRenderableElements(_document);
-            if (!elements.empty())
-            {
-                typedElem = elements[0];
-            }
+            std::cerr << "Cycles: failed to generate OSL shader: "
+                      << _oslGenerator->getLastError() << std::endl;
         }
-
-        // Skip material nodes without upstream shaders.
-        mx::NodePtr node = typedElem ? typedElem->asA<mx::Node>() : nullptr;
-        if (node && node->getCategory() == mx::SURFACE_MATERIAL_NODE_STRING &&
-            mx::getShaderNodes(node).empty())
-        {
-            typedElem = nullptr;
-        }
-
-        if (!typedElem)
-        {
-            return;
-        }
-
-        mx::DocumentPtr genDoc = _document->copy();
-        mx::FileSearchPath sourceSearchPath = _searchPath;
-        sourceSearchPath.append(mx::getSourceSearchPath(_document));
-        mx::flattenFilenames(genDoc, sourceSearchPath);
-        mx::ElementPtr resolvedElem = genDoc->getDescendant(typedElem->getNamePath());
-        mx::TypedElementPtr genElem = resolvedElem ? resolvedElem->asA<mx::TypedElement>() : nullptr;
-        if (!genElem)
-        {
-            genDoc = _document;
-            genElem = typedElem;
-        }
-
-        _genContext->clearUserData();
-        const std::string shaderName = genElem->getNamePath();
-        mx::ShaderPtr shader = _genContext->getShaderGenerator().generate(
-            shaderName, genElem, *_genContext);
-
-        const mx::ShaderStage& stage = shader->getStage(mx::Stage::PIXEL);
-        const mx::VariableBlock& outputs = stage.getOutputBlock(mx::OSL::OUTPUTS);
-        if (!outputs.empty())
-        {
-            _oslOutputName = outputs[0]->getVariable();
-            _oslSource = customizeOslForCycles(shader->getSourceCode(mx::Stage::PIXEL));
-        }
+        return;
     }
-    catch (mx::Exception& e)
-    {
-        std::cerr << "Cycles: failed to generate OSL shader: " << e.what() << std::endl;
-        _oslSource.clear();
-        _oslOutputName.clear();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "Cycles: failed to generate OSL shader: " << e.what() << std::endl;
-        _oslSource.clear();
-        _oslOutputName.clear();
-    }
+
+    _oslOutputName = result.outputName;
+    _oslSource = customizeOslForCycles(result.source);
 }
 
 void CyclesRenderPipeline::rebuildMaterial()

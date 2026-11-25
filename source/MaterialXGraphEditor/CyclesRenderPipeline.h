@@ -9,11 +9,9 @@
 #ifdef MATERIALX_BUILD_RENDER_CYCLES
 
 #include <MaterialXGraphEditor/RenderPipeline.h>
+#include <MaterialXGraphEditor/GraphEditorOslGenerator.h>
 
 #include <MaterialXRender/GeometryHandler.h>
-
-#include <MaterialXGenShader/GenContext.h>
-#include <MaterialXGenOsl/OslShaderGenerator.h>
 
 #include "session/display_driver.h"
 
@@ -72,6 +70,7 @@ class CyclesRenderPipeline : public RenderPipeline
         caps.passes = { { "combined", "Combined" }, { "albedo", "Albedo" } };
         caps.denoising = true;
         caps.adaptiveSampling = true;
+        caps.sampling = true;
         caps.lightIntensity = true;
         caps.asynchronous = true;
         return caps;
@@ -196,7 +195,6 @@ class CyclesRenderPipeline : public RenderPipeline
     void setActive(bool active);
 
   private:
-    void initContext(mx::GenContext& context);
     void generateOsl(mx::TypedElementPtr typedElem);
     void rebuildMaterial();
     void buildScene();
@@ -225,7 +223,7 @@ class CyclesRenderPipeline : public RenderPipeline
     mx::GeometryHandlerPtr _geometryHandler;
 
     // MaterialX OSL shader generation.
-    std::unique_ptr<mx::GenContext> _genContext;
+    std::unique_ptr<GraphEditorOslGenerator> _oslGenerator;
     mx::TypedElementPtr _currentElement;
     std::string _oslSource;
     std::string _oslOutputName;
