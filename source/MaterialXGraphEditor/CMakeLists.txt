@@ -173,7 +173,10 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
 endif()
 
 if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
-    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl OSL::libtestrender)
+    if(NOT TARGET OpenImageIO::OpenImageIO)
+        find_package(OpenImageIO CONFIG REQUIRED)
+    endif()
+    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl OSL::libtestrender OpenImageIO::OpenImageIO)
     # Optional: static OSL exports pugixml through its CMake package, and shared
     # OSL installs may still need libpugixml on the link/runtime path.
     if(TARGET pugixml::pugixml)

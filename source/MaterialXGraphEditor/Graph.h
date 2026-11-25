@@ -136,6 +136,7 @@ class Graph
     // Backends without a denoiser ignore these.
     void setDenoise(bool enabled);
     void setDenoiseStartSample(int samples);
+    void setDenoisePasses(int passes);
     void setAdaptiveSampling(bool enabled);
     void setAdaptiveThreshold(float threshold);
     void setAdaptiveMinSamples(int samples);

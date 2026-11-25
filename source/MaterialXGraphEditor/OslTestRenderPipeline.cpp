@@ -17,6 +17,9 @@
 
 #include <MaterialXGenShader/Util.h>
 
+#include <OpenImageIO/imagebuf.h>
+#include <OpenImageIO/imagebufalgo.h>
+
 #ifndef MATERIALX_OSL_STDOSL_PATH
 #define MATERIALX_OSL_STDOSL_PATH ""
 #endif
@@ -36,11 +39,50 @@ namespace
 
 const double MATERIAL_SETTLE_SECONDS = 0.5;
 const int TESTRENDER_PREVIEW_BOUNCES = 8;
+const int TESTRENDER_DENOISE_KERNEL_SIZE = 3;
+const int TESTRENDER_MAX_DENOISE_PASSES = 3;
 
 double currentTimeSeconds()
 {
     return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch())
         .count();
+}
+
+// Apply a simple median filter to the published preview frame.  The filter is
+// only used for display and capture; it does not change the accumulated render.
+bool denoiseFrame(std::vector<float>& frame, int width, int height, int passes)
+{
+    if (width <= 0 || height <= 0 || passes <= 0)
+    {
+        return false;
+    }
+
+    const size_t pixelCount = static_cast<size_t>(width) * static_cast<size_t>(height);
+    if (frame.size() < pixelCount * 3)
+    {
+        return false;
+    }
+
+    const OIIO::ImageSpec spec(width, height, 3, OIIO::TypeDesc::FLOAT);
+    const OIIO::ImageBuf source(spec, frame.data());
+    OIIO::ImageBuf ping(spec);
+    OIIO::ImageBuf pong(spec);
+    const OIIO::ImageBuf* input = &source;
+    OIIO::ImageBuf* output = &ping;
+    for (int i = 0; i < passes; ++i)
+    {
+        if (!OIIO::ImageBufAlgo::median_filter(*output, *input,
+                                               TESTRENDER_DENOISE_KERNEL_SIZE,
+                                               TESTRENDER_DENOISE_KERNEL_SIZE))
+        {
+            return false;
+        }
+        input = output;
+        output = (output == &ping) ? &pong : &ping;
+    }
+
+    return input->get_pixels(OIIO::ROI::All(), OIIO::TypeDesc::FLOAT,
+                             frame.data());
 }
 
 // Locate stdosl.h at run time so installed and bundled copies do not depend on
@@ -182,7 +224,8 @@ RenderCapabilities OslTestRenderPipeline::getCapabilities() const
                     { "albedo", "Albedo" },
                     { "normal", "Normal" },
                     { "uv", "UV" } };
-    caps.denoising = false;
+    caps.denoising = true;
+    caps.maxDenoisePasses = TESTRENDER_MAX_DENOISE_PASSES;
     caps.adaptiveSampling = false;
     caps.sampling = true;
     caps.lightIntensity = true;
@@ -837,13 +880,26 @@ void OslTestRenderPipeline::workerLoop()
                 int frameHeight = 0;
                 if (session->copyFrame(frame, frameWidth, frameHeight))
                 {
+                    const int samplesDone = session->samplesDone();
+                    if (settings.denoise && settings.renderPass == "combined" &&
+                        samplesDone >= settings.denoiseStartSample)
+                    {
+                        const int passes = std::clamp(settings.denoisePasses, 1,
+                                                      TESTRENDER_MAX_DENOISE_PASSES);
+                        denoiseFrame(frame, frameWidth, frameHeight, passes);
+                    }
+
                     std::lock_guard<std::mutex> lock(_frameMutex);
                     _frame = std::move(frame);
                     _frameWidth = frameWidth;
                     _frameHeight = frameHeight;
                     ++_frameVersion;
+                    _samplesDone = samplesDone;
                 }
-                _samplesDone = session->samplesDone();
+                else
+                {
+                    _samplesDone = session->samplesDone();
+                }
                 _busy = false;
             }
             else

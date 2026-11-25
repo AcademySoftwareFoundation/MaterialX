@@ -30,6 +30,7 @@ struct RenderCapabilities
 {
     std::vector<RenderPassDesc> passes;
     bool denoising = false;
+    int maxDenoisePasses = 0;
     bool adaptiveSampling = false;
     bool sampling = false;
     bool lightIntensity = false;
@@ -45,6 +46,7 @@ struct RenderSettings
     std::string renderPass = "combined";
     bool denoise = true;
     int denoiseStartSample = 16;
+    int denoisePasses = 2;
     bool adaptiveSampling = false;
     float adaptiveThreshold = 0.01f;
     int adaptiveMinSamples = 0;

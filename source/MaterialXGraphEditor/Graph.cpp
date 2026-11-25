@@ -12,6 +12,7 @@
 #include <imgui_node_editor_internal.h>
 #include <widgets.h>
 
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <unordered_set>
@@ -208,6 +209,14 @@ void Graph::setDenoiseStartSample(int samples)
     if (_renderView)
     {
         _renderView->setDenoiseStartSample(samples);
+    }
+}
+
+void Graph::setDenoisePasses(int passes)
+{
+    if (_renderView)
+    {
+        _renderView->setDenoisePasses(passes);
     }
 }
 
@@ -3364,6 +3373,13 @@ void Graph::graphButtons()
                 {
                     renderSettings.denoiseStartSample = std::max(0, renderSettings.denoiseStartSample);
                     setDenoiseStartSample(renderSettings.denoiseStartSample);
+                }
+                if (capabilities.maxDenoisePasses > 0 &&
+                    ImGui::InputInt("Passes", &renderSettings.denoisePasses))
+                {
+                    renderSettings.denoisePasses = std::clamp(renderSettings.denoisePasses, 1,
+                                                              capabilities.maxDenoisePasses);
+                    setDenoisePasses(renderSettings.denoisePasses);
                 }
                 ImGui::EndDisabled();
 

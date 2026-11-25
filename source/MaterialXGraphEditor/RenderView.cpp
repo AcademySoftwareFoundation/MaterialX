@@ -401,6 +401,15 @@ void RenderView::setDenoiseStartSample(int samples)
     }
 }
 
+void RenderView::setDenoisePasses(int passes)
+{
+    _settings.denoisePasses = passes;
+    if (_activePipeline)
+    {
+        applySettings(*_activePipeline);
+    }
+}
+
 void RenderView::setAdaptiveSampling(bool enabled)
 {
     _settings.adaptiveSampling = enabled;

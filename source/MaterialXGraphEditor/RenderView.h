@@ -156,6 +156,9 @@ class RenderView
     /// Set the number of samples to render before denoising begins.
     void setDenoiseStartSample(int samples);
 
+    /// Set the number of median-filter denoising passes.
+    void setDenoisePasses(int passes);
+
     /// Enable or disable adaptive (noise-threshold) sampling.
     void setAdaptiveSampling(bool enabled);
 

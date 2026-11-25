@@ -172,7 +172,12 @@ Notes on this backend:
 - It is a CPU path tracer and uses per-sample progressive rendering.  Each
   completed sample pass is uploaded to the render view, so the image refines
   while the renderer continues in the background.
-- It does not currently support denoising or adaptive sampling.
+- Adaptive sampling is not currently supported.  Denoising uses a `3x3`
+  OpenImageIO median filter on the `Combined` pass, starting at the configured
+  `Start Sample`.  The `Passes` control repeats the filter between 1 and 3
+  times (default 2); more passes smooth more strongly but can soften fine
+  detail.  It only affects the displayed and captured frame, not the
+  accumulated render result.
 - It uses a single constant environment background or an HDRI environment map
   for lighting.  The `Lighting` menu scales the environment intensity.
 - `Combined`, `Albedo`, `Normal`, and `UV` display modes are available.
