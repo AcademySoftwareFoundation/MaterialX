@@ -23,10 +23,18 @@ set(materialx_source
     "${CMAKE_CURRENT_SOURCE_DIR}/UiNode.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/GlslRenderPipeline.cpp")
 
-if(MATERIALX_BUILD_RENDER_CYCLES)
+if(MATERIALX_BUILD_RENDER_CYCLES OR MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
     list(APPEND materialx_source
         "${CMAKE_CURRENT_SOURCE_DIR}/GraphEditorOslGenerator.cpp")
+endif()
+
+if(MATERIALX_BUILD_RENDER_CYCLES)
     list(APPEND materialx_source "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.cpp")
+endif()
+
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
+    list(APPEND materialx_source
+        "${CMAKE_CURRENT_SOURCE_DIR}/OslTestRenderPipeline.cpp")
 endif()
 
 if (APPLE)
@@ -43,10 +51,18 @@ set(materialx_headers
     "${CMAKE_CURRENT_SOURCE_DIR}/RenderView.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/UiNode.h")
 
-if(MATERIALX_BUILD_RENDER_CYCLES)
+if(MATERIALX_BUILD_RENDER_CYCLES OR MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
     list(APPEND materialx_headers
         "${CMAKE_CURRENT_SOURCE_DIR}/GraphEditorOslGenerator.h")
+endif()
+
+if(MATERIALX_BUILD_RENDER_CYCLES)
     list(APPEND materialx_headers "${CMAKE_CURRENT_SOURCE_DIR}/CyclesRenderPipeline.h")
+endif()
+
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
+    list(APPEND materialx_headers
+        "${CMAKE_CURRENT_SOURCE_DIR}/OslTestRenderPipeline.h")
 endif()
 
 file(GLOB imgui_source "${DEAR_IMGUI_PREFIX}/*.cpp")
@@ -154,6 +170,25 @@ if(MATERIALX_BUILD_RENDER_CYCLES)
     target_compile_definitions(MaterialXGraphEditor PRIVATE
         MATERIALX_BUILD_RENDER_CYCLES
         CYCLES_SHADER_DIR="${MATERIALX_CYCLES_SHADER_DIR}")
+endif()
+
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
+    list(APPEND MATERIALX_LIBRARIES MaterialXGenOsl OSL::libtestrender pugixml::pugixml)
+
+    get_filename_component(_materialx_osl_prefix "${OSL_INCLUDE_DIR}/.." ABSOLUTE)
+    set(_materialx_osl_stdosl "${_materialx_osl_prefix}/share/OSL/shaders/stdosl.h")
+    target_compile_definitions(MaterialXGraphEditor PRIVATE
+        MATERIALX_BUILD_RENDER_OSL_TESTRENDER
+        MATERIALX_OSL_STDOSL_PATH="${_materialx_osl_stdosl}")
+
+    # The installed executable still needs OSL and its configured dependencies.
+    # Record their locations so the install tree can run without an explicit
+    # LD_LIBRARY_PATH.  (A package script can copy these next to the binary.)
+    get_filename_component(_materialx_osl_rpath "${OSL_LIB_DIR}" ABSOLUTE)
+    get_filename_component(_materialx_oiio_rpath "${OpenImageIO_DIR}/../.." ABSOLUTE)
+    get_filename_component(_materialx_pugi_rpath "${pugixml_DIR}/../.." ABSOLUTE)
+    set_property(TARGET MaterialXGraphEditor APPEND PROPERTY INSTALL_RPATH
+        "${_materialx_osl_rpath};${_materialx_oiio_rpath};${_materialx_pugi_rpath}")
 endif()
 
 if(APPLE)

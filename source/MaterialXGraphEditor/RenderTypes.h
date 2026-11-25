@@ -31,6 +31,7 @@ struct RenderCapabilities
     std::vector<RenderPassDesc> passes;
     bool denoising = false;
     bool adaptiveSampling = false;
+    bool sampling = false;
     bool lightIntensity = false;
     bool uniformUpdates = false;
     bool meshReload = false;

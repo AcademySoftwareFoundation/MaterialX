@@ -9,6 +9,9 @@
 #ifdef MATERIALX_BUILD_RENDER_CYCLES
 #include <MaterialXGraphEditor/CyclesRenderPipeline.h>
 #endif
+#ifdef MATERIALX_BUILD_RENDER_OSL_TESTRENDER
+#include <MaterialXGraphEditor/OslTestRenderPipeline.h>
+#endif
 
 #include <MaterialXRenderGlsl/External/Glad/glad.h>
 
@@ -74,6 +77,9 @@ std::vector<std::string> RenderView::getAvailableBackends()
 #ifdef MATERIALX_BUILD_RENDER_CYCLES
     backends.push_back("Cycles");
 #endif
+#ifdef MATERIALX_BUILD_RENDER_OSL_TESTRENDER
+    backends.push_back("OSL (testrender)");
+#endif
     return backends;
 }
 
@@ -90,6 +96,15 @@ RenderPipelinePtr RenderView::createPipeline(const std::string& backendName)
     if (backendName == "Cycles")
     {
         return std::make_shared<CyclesRenderPipeline>(
+            _document, _stdLib, _meshFilename.asString(),
+            _envRadianceFilename.asString(), _searchPath,
+            _viewWidth, _viewHeight, _settings.renderPass);
+    }
+#endif
+#ifdef MATERIALX_BUILD_RENDER_OSL_TESTRENDER
+    if (backendName == "OSL (testrender)")
+    {
+        return std::make_shared<OslTestRenderPipeline>(
             _document, _stdLib, _meshFilename.asString(),
             _envRadianceFilename.asString(), _searchPath,
             _viewWidth, _viewHeight, _settings.renderPass);

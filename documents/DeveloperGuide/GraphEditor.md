@@ -41,12 +41,54 @@ Once built, the active renderer can be selected from the **Viewer** menu.  When 
 
 At runtime Cycles reads its OSL node shaders and headers from its shader directory.  When built from MaterialX, the path is compiled in through `CYCLES_SHADER_DIR` and applied via the `CYCLES_SHADER_PATH` environment variable unless that variable is already set.  The Cycles runtime shared libraries are copied next to the **MaterialXGraphEditor** executable and located through a relative rpath, so the executable can be launched directly without setting `LD_LIBRARY_PATH`.  Set `MATERIALX_CYCLES_BUNDLE_RUNTIME=OFF` to skip this bundling (for example when the Cycles libraries are already provided by the environment).
 
+## OSL testrender Render Backend
+
+The Graph Editor can preview materials with the CPU path tracer from
+OpenShadingLanguage's `testrender` application.  This backend uses the same
+MaterialX OSL shader generator as the Cycles backend, compiles the generated
+shader in-process with `liboslcomp`, and renders it with the reusable
+`libtestrender` core.
+
+Enable it with:
+
+```
+cmake -S . -B build \
+  -DMATERIALX_BUILD_GRAPH_EDITOR=ON \
+  -DMATERIALX_BUILD_RENDER_OSL_TESTRENDER=ON \
+  -DOSL_DIR=/path/to/OSL/lib/cmake/OSL
+cmake --build build --config Release
+```
+
+The OSL installation must be built with `-DOSL_BUILD_TESTRENDER_LIB=ON` so that
+it exports the `OSL::libtestrender` CMake target and installs
+`include/OSL/testrender.h`.  If OSL's dependencies are not in the default
+search path, also pass `-DOpenImageIO_DIR=...` and `-Dpugixml_DIR=...`.
+
+Notes on this backend:
+
+- It is a CPU path tracer and uses per-sample progressive rendering.  Each
+  completed sample pass is uploaded to the render view, so the image refines
+  while the renderer continues in the background.
+- It does not currently support denoising or adaptive sampling.
+- It uses a single constant environment background or an HDRI environment map
+  for lighting.  The `Lighting` menu scales the environment intensity.
+- `Combined`, `Albedo`, `Normal`, and `UV` display modes are available.
+- `Max Samples` is exposed in the `Sampling` menu.
+- The `testrender` backend links the OSL version selected by `OSL_DIR`.
+  Do not link it against a different OSL version than the one used by other
+  backends in the same executable (for example the OSL libraries bundled with
+  Cycles); OSL does not guarantee ABI compatibility across minor versions.
+  When evaluating this backend, build with `MATERIALX_BUILD_RENDER_CYCLES=OFF`,
+  or align the OSL versions.
+
+
 ### Renderer Backend Architecture
 
 The Graph Editor separates presentation from rendering:
 
 - `RenderView` owns the document, camera interaction, render settings, ImGui presentation, and frame capture lifecycle.
-- `RenderPipeline` is the renderer abstraction.  `GlslRenderPipeline` and `CyclesRenderPipeline` implement the backend-specific rendering, materials, framebuffers, and render sessions.
+- `RenderPipeline` is the renderer abstraction.  `GlslRenderPipeline`, `CyclesRenderPipeline`, and `OslTestRenderPipeline` implement the backend-specific rendering, materials, framebuffers, and render sessions.
+- `GraphEditorOslGenerator` provides the shared MaterialX-to-OSL generation path used by the Cycles and testrender backends; backend-specific source fixups stay in the pipelines.
 - `RenderCapabilities` and `RenderSettings` describe which controls a backend supports, so the Viewer menu is built from backend capabilities rather than backend-name checks.
 
 To add a renderer, implement a new `RenderPipeline`, register it in `RenderView::getAvailableBackends()` and `RenderView::createPipeline()`, and advertise its supported passes and controls through `getCapabilities()`.  Backend-specific headers should stay out of `RenderView` and other common UI code.

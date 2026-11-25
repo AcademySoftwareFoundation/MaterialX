@@ -37,6 +37,7 @@ option(MATERIALX_BUILD_PYTHON "Build the MaterialX Python package from C++ bindi
 option(MATERIALX_BUILD_VIEWER "Build the MaterialX Viewer." OFF)
 option(MATERIALX_BUILD_GRAPH_EDITOR "Build the MaterialX Graph Editor." OFF)
 option(MATERIALX_BUILD_RENDER_CYCLES "Build the Cycles render backend for the graph editor. Fetches a Cycles fork that can be linked as a library. Requires MATERIALX_BUILD_GRAPH_EDITOR and MATERIALX_BUILD_GEN_OSL." OFF)
+option(MATERIALX_BUILD_RENDER_OSL_TESTRENDER "Build the OSL testrender preview backend for the graph editor. Requires an OSL build with libtestrender (OSL_BUILD_TESTRENDER_LIB=ON)." OFF)
 set(MATERIALX_CYCLES_GIT_REPOSITORY "https://github.com/seang-ilm/cycles.git" CACHE STRING "Git repository for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
 set(MATERIALX_CYCLES_GIT_TAG "5_1-add-library-build-support" CACHE STRING "Git tag or branch for the Cycles fork used by MATERIALX_BUILD_RENDER_CYCLES.")
 set(MATERIALX_CYCLES_PRECOMPILED_LIB_DIR "" CACHE PATH "Directory containing the precompiled Cycles/Blender dependency libraries (the lib/ folder). When empty, MATERIALX_BUILD_RENDER_CYCLES fetches them into the build tree.")
@@ -94,6 +95,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "iOS" OR CMAKE_SYSTEM_NAME MATCHES "tvOS" OR CMAKE
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
     set(MATERIALX_BUILD_RENDER_CYCLES OFF)
+    set(MATERIALX_BUILD_RENDER_OSL_TESTRENDER OFF)
     set(MATERIALX_BUILD_GEN_GLSL OFF)
     set(MATERIALX_BUILD_GEN_OSL OFF)
     set(MATERIALX_BUILD_GEN_MDL OFF)
@@ -113,6 +115,7 @@ if (MATERIALX_BUILD_APPLE_FRAMEWORK)
     set(MATERIALX_BUILD_VIEWER OFF)
     set(MATERIALX_BUILD_GRAPH_EDITOR OFF)
     set(MATERIALX_BUILD_RENDER_CYCLES OFF)
+    set(MATERIALX_BUILD_RENDER_OSL_TESTRENDER OFF)
     set(MATERIALX_BUILD_TESTS OFF)
     set(MATERIALX_BUILD_SHARED_LIBS ON)
 endif()
@@ -288,6 +291,30 @@ endif()
 # fetching and rebuilding Cycles from source.
 if(Cycles_DIR)
     find_package(Cycles CONFIG REQUIRED)
+endif()
+
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER)
+    if(NOT MATERIALX_BUILD_GRAPH_EDITOR)
+        message(FATAL_ERROR "MATERIALX_BUILD_RENDER_OSL_TESTRENDER requires MATERIALX_BUILD_GRAPH_EDITOR.")
+    endif()
+    if(NOT MATERIALX_BUILD_GEN_OSL)
+        message(FATAL_ERROR "MATERIALX_BUILD_RENDER_OSL_TESTRENDER requires MATERIALX_BUILD_GEN_OSL.")
+    endif()
+    find_package(OSL CONFIG REQUIRED)
+    if(NOT TARGET OSL::libtestrender)
+        message(FATAL_ERROR "MATERIALX_BUILD_RENDER_OSL_TESTRENDER requires an OSL package that "
+            "exports OSL::libtestrender. Build and install OSL with "
+            "-DOSL_BUILD_TESTRENDER_LIB=ON.")
+    endif()
+    # liboslexec links pugixml; expose it so the link is reproducible alongside
+    # MaterialX's own vendored pugixml.
+    find_package(pugixml CONFIG REQUIRED)
+endif()
+
+if(MATERIALX_BUILD_RENDER_OSL_TESTRENDER AND MATERIALX_BUILD_RENDER_CYCLES)
+    message(WARNING "MATERIALX_BUILD_RENDER_OSL_TESTRENDER links the OSL selected by OSL_DIR. "
+        "Cycles links its own OSL dependency. Building both in one executable is only "
+        "safe when both use the same OSL version and ABI.")
 endif()
 
 if(MATERIALX_BUILD_RENDER_CYCLES AND NOT TARGET Cycles::cycles)

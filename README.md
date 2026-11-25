@@ -19,6 +19,7 @@ MaterialX is an open standard for representing rich material and look-developmen
 - Select the `MATERIALX_BUILD_VIEWER` option to build the [MaterialX Viewer](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/Viewer.md).
 - Select the `MATERIALX_BUILD_GRAPH_EDITOR` option to build the [MaterialX Graph Editor](https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/documents/DeveloperGuide/GraphEditor.md).
 - Select the `MATERIALX_BUILD_RENDER_CYCLES` option, together with `MATERIALX_BUILD_GRAPH_EDITOR`, to add the [Cycles](https://www.cycles-renderer.org/) path-traced render backend to the Graph Editor.
+- Select the `MATERIALX_BUILD_RENDER_OSL_TESTRENDER` option, together with `MATERIALX_BUILD_GRAPH_EDITOR`, to add the OSL testrender CPU preview backend. This requires an OSL build with `OSL_BUILD_TESTRENDER_LIB=ON`.
 
 ## Supported Platforms
 

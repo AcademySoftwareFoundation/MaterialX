@@ -3340,6 +3340,17 @@ void Graph::graphButtons()
                 ImGui::EndDisabled();
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Sampling"))
+            {
+                ImGui::BeginDisabled(!capabilities.sampling);
+                if (ImGui::InputInt("Max Samples", &renderSettings.maxSamples))
+                {
+                    renderSettings.maxSamples = std::max(1, renderSettings.maxSamples);
+                    setMaxSamples(renderSettings.maxSamples);
+                }
+                ImGui::EndDisabled();
+                ImGui::EndMenu();
+            }
             if (ImGui::BeginMenu("Denoising"))
             {
                 ImGui::BeginDisabled(!capabilities.denoising && !capabilities.adaptiveSampling);
@@ -3370,11 +3381,6 @@ void Graph::graphButtons()
                 {
                     renderSettings.adaptiveMinSamples = std::max(0, renderSettings.adaptiveMinSamples);
                     setAdaptiveMinSamples(renderSettings.adaptiveMinSamples);
-                }
-                if (ImGui::InputInt("Max Samples", &renderSettings.maxSamples))
-                {
-                    renderSettings.maxSamples = std::max(1, renderSettings.maxSamples);
-                    setMaxSamples(renderSettings.maxSamples);
                 }
                 ImGui::EndDisabled();
 
