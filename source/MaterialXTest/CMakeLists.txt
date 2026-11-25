@@ -31,6 +31,8 @@ function(add_tests _sources)
 endfunction()
 
 add_executable(MaterialXTest ${materialx_source} ${materialx_headers})
+find_package(Threads REQUIRED)
+target_link_libraries(MaterialXTest Threads::Threads)
 
 target_include_directories( MaterialXTest PUBLIC
     ${EXTERNAL_INCLUDE_DIRS}

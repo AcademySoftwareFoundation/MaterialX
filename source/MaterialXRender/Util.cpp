@@ -7,6 +7,8 @@
 
 #include <MaterialXGenShader/ShaderGenerator.h>
 
+#include <filesystem>
+
 MATERIALX_NAMESPACE_BEGIN
 
 const Color3 DEFAULT_SCREEN_COLOR_SRGB(0.3f, 0.3f, 0.32f);
@@ -340,6 +342,45 @@ void createUIPropertyGroups(DocumentPtr doc, const VariableBlock& block, UIPrope
             unnamedGroups.emplace(EMPTY_STRING, item);
         }
     }
+}
+
+string quoteCommandArgument(const string& value)
+{
+#if defined(_WIN32)
+    // Quotes/newlines cannot appear in Windows filenames. Percent expansion is
+    // performed even within cmd.exe quotes, so reject it rather than executing
+    // a different command from the one requested.
+    if (value.find_first_of("\"\r\n%") != string::npos)
+        throw Exception("Unsupported character in command argument: " + value);
+    // Double trailing backslashes before the closing quote for the CRT parser.
+    auto last = value.find_last_not_of('\\');
+    size_t trailing = last == string::npos ? value.size() : value.size() - last - 1;
+    return "\"" + value + string(trailing, '\\') + "\"";
+#else
+    string result = "'";
+    for (char c : value)
+        result += c == '\'' ? "'\\''" : string(1, c);
+    return result + "'";
+#endif
+}
+
+string commandInDirectory(const string& command, const FilePath& directory)
+{
+    if (directory.isEmpty())
+        return command;
+#if defined(_WIN32)
+    return "cd /d " + quoteCommandArgument(directory.asString()) + " && " + command;
+#else
+    return "cd " + quoteCommandArgument(directory.asString()) + " && " + command;
+#endif
+}
+
+void removeStaleFile(const FilePath& path)
+{
+    std::error_code error;
+    std::filesystem::remove(path.asString(), error);
+    if (error)
+        throw Exception("Cannot remove stale output " + path.asString() + ": " + error.message());
 }
 
 MATERIALX_NAMESPACE_END
