@@ -19,10 +19,10 @@
     Node: <point_light>
   -->
   <nodedef name="ND_point_light" node="point_light" nodegroup="light" doc="A light shader node of 'point' type.">
-    <input name="position" type="vector3" doc="Light source position." />
-    <input name="color" type="color3" doc="Light color." />
-    <input name="intensity" type="float" doc="Light intensity." />
-    <input name="decay_rate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay." />
+    <input name="position" type="vector3" doc="Light source position." uiname="Position" />
+    <input name="color" type="color3" doc="Light color." uiname="Color" />
+    <input name="intensity" type="float" doc="Light intensity." uiname="Intensity" />
+    <input name="decay_rate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay." uiname="Decay Rate" />
     <output name="out" type="lightshader" />
   </nodedef>
 
@@ -30,9 +30,9 @@
     Node: <directional_light>
   -->
   <nodedef name="ND_directional_light" node="directional_light" nodegroup="light" doc="A light shader node of 'directional' type.">
-    <input name="direction" type="vector3" doc="Light source direction." />
-    <input name="color" type="color3" doc="Light color." />
-    <input name="intensity" type="float" doc="Light intensity." />
+    <input name="direction" type="vector3" doc="Light source direction." uiname="Direction" />
+    <input name="color" type="color3" doc="Light color." uiname="Color" />
+    <input name="intensity" type="float" doc="Light intensity." uiname="Intensity" />
     <output name="out" type="lightshader" />
   </nodedef>
 
@@ -40,13 +40,13 @@
     Node: <spot_light>
   -->
   <nodedef name="ND_spot_light" node="spot_light" nodegroup="light" doc="A light shader node of 'spot' type.">
-    <input name="position" type="vector3" doc="Light source position." />
-    <input name="direction" type="vector3" doc="Light source direction." />
-    <input name="color" type="color3" doc="Light color." />
-    <input name="intensity" type="float" doc="Light intensity." />
-    <input name="decay_rate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay." />
-    <input name="inner_angle" type="float" doc="Inner cone angle." />
-    <input name="outer_angle" type="float" doc="Outer cone angle." />
+    <input name="position" type="vector3" doc="Light source position." uiname="Position" />
+    <input name="direction" type="vector3" doc="Light source direction." uiname="Direction" />
+    <input name="color" type="color3" doc="Light color." uiname="Color" />
+    <input name="intensity" type="float" doc="Light intensity." uiname="Intensity" />
+    <input name="decay_rate" type="float" value="2.0" doc="Light decay exponent. Defaults to 2 for quadratic decay." uiname="Decay Rate" />
+    <input name="inner_angle" type="float" doc="Inner cone angle." uiname="Inner Angle" />
+    <input name="outer_angle" type="float" doc="Outer cone angle." uiname="Outer Angle" />
     <output name="out" type="lightshader" />
   </nodedef>
 
