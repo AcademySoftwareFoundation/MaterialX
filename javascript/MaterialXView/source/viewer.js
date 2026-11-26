@@ -600,7 +600,7 @@ export class Material
         });
     }
 
-    async loadMaterials(viewer, materialFilename)
+    async loadMaterials(viewer, materialFilename, clearFilePrefix = false)
     {
         var startTime = performance.now();
 
@@ -632,6 +632,20 @@ export class Material
         if (mtlxMaterial)
             try {                
                 await mx.readFromXmlString(doc, mtlxMaterial, searchPath);
+
+                // Dropped files aren't on disk at their document's original relative location,
+                // so authored fileprefix attributes are cleared.
+                if (clearFilePrefix)
+                {
+                    for (const elem of doc.traverseTree())
+                    {
+                        if (elem.hasFilePrefix())
+                        {
+                            elem.setFilePrefix('');
+                        }
+                        elem.delete();
+                    }
+                }
             }
             catch (error) {
                 console.log('Error loading material file: ', error);
