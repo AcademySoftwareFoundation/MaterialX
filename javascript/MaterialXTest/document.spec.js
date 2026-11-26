@@ -185,4 +185,100 @@ test.describe('Document', () =>
         nodeGraph.delete();
         doc.delete();
     });
+
+    // Sample node graph for defintion tests
+    function create_sample_graph()
+    {
+        const doc = mx.createDocument();
+        
+        // Create a node graph with a single image node and output.
+        const nodeGraph = doc.addNodeGraph('NG_wrapper');
+        expect(doc.getNodeGraphs().length).toBe(1);
+        const image = nodeGraph.addNode('image');
+        const nodes = nodeGraph.getNodes();
+        expect(nodes.length).toBe(1);
+        expect(nodes[0]).toEqual(image);
+
+        image.setInputValueString('file', 'image1.png', 'filename');
+        const input = image.getInput('file');
+        expect(input).not.toBeNull();
+
+        const output = nodeGraph.addOutput();
+        const outputs = nodeGraph.getOutputs();
+        expect(outputs.length).toBe(1);
+        expect(outputs[0]).toEqual(output);
+
+        // Verify the graph is valid
+        expect(doc.validate()).toBe(true);
+        return { doc, nodeGraph };
+    }
+
+    test('Create NodeDef from NodeGraph with child implementation', () =>
+    {
+        const { doc, nodeGraph } = create_sample_graph();
+        
+        // Create DefinitionOptions with addImplementationAsChild set to true
+        const options = new mx.DefinitionOptions();
+        options.addImplementationAsChild = true;
+        
+        // Create NodeDef from the NodeGraph with embedded implementation
+        const nodeDef = doc.addNodeDefFromGraph(
+            nodeGraph,
+            'ND_wrapper',
+            'texture',
+            'NG_wrapper',
+            options
+        );
+        
+        expect(nodeDef).toBeTruthy();
+                
+        // Verify the implementation was created as a child of the nodedef
+        const impl = nodeDef.getImplementation();
+        expect(impl).toBeTruthy();
+        expect(impl.isANodeGraph()).toBe(true);
+        expect(impl.getName()).toBe('NG_wrapper');
+                
+        // Verify the implementation matches the original node graph
+        let diff_options = new mx.ElementEquivalenceOptions();
+        let differences = {};
+        options.performValueComparisons = false;
+        let result = impl.isEquivalent(nodeGraph, diff_options, differences);
+        expect(result).toBe(true);
+
+        // Cleanup
+        diff_options.delete();
+        options.delete();
+        doc.delete();
+    });
+    
+    test('Create NodeDef from NodeGraph with referencing implementation', () =>
+    {
+        const { doc, nodeGraph } = create_sample_graph();
+        
+        // Create DefinitionOptions with addImplementationAsChild set to true
+        const options = new mx.DefinitionOptions();
+        options.addImplementationAsChild = false
+
+        const nodeDef2 = doc.addNodeDefFromGraph(
+            nodeGraph,
+            'ND_wrapper_2',
+            'texture',
+            'NG_wrapper_2',
+            options
+        );
+        
+        expect(nodeDef2).toBeTruthy();
+
+        // Verify the implementation was created as a referenced implementation
+        const impl2 = nodeDef2.getImplementation();
+        expect(impl2).toBeTruthy();
+        expect(impl2.isANodeGraph()).toBe(true);
+        expect(impl2.getName()).toBe('NG_wrapper_2');
+        const nodedef_string = impl2.getNodeDefString();
+        expect(nodedef_string).toBe('ND_wrapper_2');
+
+        // Cleanup
+        options.delete();
+        doc.delete();
+    });
 });
