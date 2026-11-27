@@ -126,11 +126,11 @@
     <input name="in3" type="color3" value="0.6533, 0.7210, 0.8070" colorspace="Utility - sRGB - Texture" />
     <input name="in4" type="color3" value="0.6190, 0.6825, 0.5495" colorspace="Utility - sRGB - Texture" />
     <input name="in5" type="color3" value="0.7494, 0.7366, 0.8511" colorspace="Utility - sRGB - Texture" />
-    <input name="in6" type="color3" value="0.6681, 0.8762, 0.8360" colorspace="Utility - sRGB - Texture" />
-    <input name="in7" type="color3" value="0.9257, 0.7315, 0.4523" colorspace="Utility - sRGB - Texture" />
-    <input name="in8" type="color3" value="0.5959, 0.6317, 0.8272" colorspace="Utility - sRGB - Texture" />
-    <input name="in9" type="color3" value="0.8844, 0.6286, 0.6563" colorspace="Utility - sRGB - Texture" />
-    <input name="in10" type="color3" value="0.6411, 0.5223, 0.6825" colorspace="Utility - sRGB - Texture" />
+    <input name="in6" type="color3" value="0.6681, 0.8762, 0.8360" colorspace="sRGB Encoded Rec.709 (sRGB)" />
+    <input name="in7" type="color3" value="0.9257, 0.7315, 0.4523" colorspace="sRGB Encoded Rec.709 (sRGB)" />
+    <input name="in8" type="color3" value="0.5959, 0.6317, 0.8272" colorspace="sRGB Encoded Rec.709 (sRGB)" />
+    <input name="in9" type="color3" value="0.8844, 0.6286, 0.6563" colorspace="sRGB Encoded Rec.709 (sRGB)" />
+    <input name="in10" type="color3" value="0.6411, 0.5223, 0.6825" colorspace="sRGB Encoded Rec.709 (sRGB)" />
     <input name="which" type="float" nodename="column_select" />
   </switch>
   <switch name="switch6" type="color3" nodedef="ND_switch_color3">

@@ -37,6 +37,8 @@
 #include <MaterialXGenSlang/SlangShaderGenerator.h>
 #endif
 
+#include <algorithm>
+#include <cctype>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -807,3 +809,93 @@ TEST_CASE("GenShader: User-Facing Color Space Names", "[genshader]")
     }
 #endif
 }
+
+#ifdef MATERIALX_BUILD_OCIO
+TEST_CASE("GenShader: OCIO Function Names", "[genshader]")
+{
+    // Color space names from the config can contain characters that are not legal in
+    // shader identifiers, or that begin or end with underscores. The function name
+    // generated for the transform must be a legal identifier without double underscores
+    // (which OCIO would collapse in the function definition, leaving the call site
+    // referring to a function that does not exist).
+    const std::vector<std::string> colorSpaceNames =
+    {
+        "sRGB AP1",
+        "sRGB (Scene-referred)",
+        "_sRGB__scene",
+        "srgb - scene_",
+        "srgb___dot.",
+        "((srgb/tex))",
+        "ocio:arrilogc4_awg4_scene"
+    };
+    const std::string referenceSpace = "ACES2065-1";
+
+    try
+    {
+        mx::FileSearchPath searchPath = mx::getDefaultDataSearchPath();
+        mx::FilePath minimalConfigFile = searchPath.find(
+            "resources/Materials/TestSuite/stdlib/color_management/minimal_config.ocio");
+        REQUIRE(minimalConfigFile.exists());
+
+        mx::OcioColorManagementSystemPtr cms =
+            mx::OcioColorManagementSystem::createFromFile(minimalConfigFile.asString(), "genglsl");
+
+        mx::DocumentPtr document = mx::createDocument();
+        mx::loadLibraries({ "libraries" }, searchPath, document);
+        cms->loadLibrary(document);
+
+        // Request each color space as both the source and the target of a transform.
+        for (const std::string& name : colorSpaceNames)
+        {
+            INFO(name);
+            CHECK(cms->supportsTransform(mx::ColorSpaceTransform(name, referenceSpace, mx::Type::COLOR3)));
+            CHECK(cms->supportsTransform(mx::ColorSpaceTransform(referenceSpace, name, mx::Type::COLOR3)));
+        }
+
+        // Examine every node def that the OCIO color management system created.
+        size_t ocioNodeDefCount = 0;
+        for (mx::NodeDefPtr nodeDef : document->getNodeDefs())
+        {
+            if (nodeDef->getSourceUri() != mx::OcioColorManagementSystem::OCIO_SOURCE_URI)
+            {
+                continue;
+            }
+            ocioNodeDefCount++;
+
+            const std::string& nodeDefName = nodeDef->getName();
+            const std::string& functionName = nodeDef->getNodeString();
+            INFO(nodeDefName);
+
+            // Names must be legal MaterialX names and legal shader identifiers, and
+            // must not contain double underscores.
+            CHECK(mx::isValidName(nodeDefName));
+            CHECK(nodeDefName.find("__") == std::string::npos);
+            CHECK(!functionName.empty());
+            CHECK(std::all_of(functionName.begin(), functionName.end(),
+                              [](char c) { return std::isalnum(static_cast<unsigned char>(c)) || c == '_'; }));
+            CHECK(!std::isdigit(static_cast<unsigned char>(functionName[0])));
+            CHECK(functionName.find("__") == std::string::npos);
+
+            // The function that OCIO generates must be defined using exactly the name that
+            // the generated shader will call.
+            bool foundImplementation = false;
+            for (mx::ImplementationPtr impl : document->getImplementations())
+            {
+                if (impl->getNodeDefString() == nodeDefName)
+                {
+                    foundImplementation = true;
+                    CHECK(cms->hasImplementation(impl->getName()));
+                    const std::string code = cms->getGpuProcessorCode(impl->getName(), functionName);
+                    CHECK(code.find(" " + functionName + "(") != std::string::npos);
+                }
+            }
+            CHECK(foundImplementation);
+        }
+        CHECK(ocioNodeDefCount > 0);
+    }
+    catch (const std::exception& e)
+    {
+        WARN(std::string("Could not create OcioColorManagementSystem from minimal_config.ocio: ") + e.what());
+    }
+}
+#endif
