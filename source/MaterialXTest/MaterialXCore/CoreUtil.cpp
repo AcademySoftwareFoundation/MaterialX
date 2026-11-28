@@ -38,6 +38,9 @@ TEST_CASE("String utilities", "[coreutil]")
     REQUIRE(mx::incrementName("testName99") == "testName100");
     REQUIRE(mx::incrementName("1testName1") == "1testName2");
     REQUIRE(mx::incrementName("41") == "42");
+    REQUIRE(mx::incrementName("testName007") == "testName8");
+    REQUIRE(mx::incrementName("testName2147483647") == "testName2147483648");
+    REQUIRE(mx::incrementName("testName99999999999999999999") == "testName100000000000000000000");
 
     REQUIRE(mx::splitString("robot1, robot2", ", ") == (std::vector<std::string>{"robot1", "robot2"}));
     REQUIRE(mx::splitString("[one...two...three]", "[.]") == (std::vector<std::string>{"one", "two", "three"}));

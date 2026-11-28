@@ -60,16 +60,28 @@ string incrementName(const string& name)
     size_t split = name.length();
     while (split > 0)
     {
-        if (!isdigit(name[split - 1]))
+        if (!isdigit((unsigned char) name[split - 1]))
             break;
         split--;
     }
 
     if (split < name.length())
     {
+        // Increment the numeric suffix as a string of digits, so that suffixes
+        // of any length are supported without integer overflow.  Leading zeros
+        // are dropped, keeping at least one digit.
         string prefix = name.substr(0, split);
-        string suffix = name.substr(split, name.length());
-        return prefix + std::to_string(std::stoi(suffix) + 1);
+        string suffix = name.substr(std::min(name.find_first_not_of('0', split), name.length() - 1));
+        size_t pos = suffix.length();
+        while (pos > 0 && suffix[pos - 1] == '9')
+        {
+            suffix[--pos] = '0';
+        }
+        if (pos > 0)
+            suffix[pos - 1]++;
+        else
+            suffix.insert(suffix.begin(), '1');
+        return prefix + suffix;
     }
     return name + "2";
 }
