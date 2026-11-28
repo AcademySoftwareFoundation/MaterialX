@@ -18,6 +18,7 @@
 #include <OpenColorIO/OpenColorIO.h>
 #include <OpenColorIO/OpenColorTypes.h>
 
+#include <algorithm>
 #include <exception>
 #include <stdexcept>
 #include <map>
@@ -227,34 +228,35 @@ NodeDefPtr OcioColorManagementSystemImpl::getNodeDef(const ColorSpaceTransform& 
     }
 
     // Build a function name from the source/target color space names and the first
-    // six characters of the cache ID.  Each name component is sanitized individually:
-    // invalid characters are replaced with underscores and consecutive underscores are
-    // collapsed to one so that OCIO's own identifier normalizer cannot produce a
-    // different name than the one we register on the node def.
-    auto sanitizeName = [](const string& s) -> string
+    // six characters of the cache ID.  OCIO collapses double underscores in the function
+    // name it emits, so the name registered on the node def must not contain any, or the
+    // generated call site would not match the generated function definition.
+    auto sanitizeName = [](const string& name) -> string
     {
-        string result = createValidName(s);
-        string collapsed;
-        bool prevUnderscore = false;
-        for (char c : result)
+        // Replace invalid characters with underscores, collapse runs of underscores to
+        // one, and strip leading and trailing underscores.  The colon is a valid
+        // MaterialX name character, so createValidName doesn't replace it, but is not
+        // legal in a shader identifier, so replace that separately.
+        string colonFree = name;
+        std::replace(colonFree.begin(), colonFree.end(), ':', '_');
+        string result;
+        for (char c : createValidName(colonFree))
         {
-            if (c == '_')
-            {
-                if (!prevUnderscore)
-                    collapsed += c;
-                prevUnderscore = true;
-            }
-            else
-            {
-                collapsed += c;
-                prevUnderscore = false;
-            }
+            if (c == '_' && (result.empty() || result.back() == '_'))
+                continue;
+            result += c;
         }
-        return collapsed;
+        if (!result.empty() && result.back() == '_')
+            result.pop_back();
+        return result;
     };
     static const auto NODE_NAME = string{ "ocio_color_conversion" };
     const string cacheID = processor->getCacheID();
-    const auto functionName = NODE_NAME + "_" + sanitizeName(sourceColorSpace) + "_to_" + sanitizeName(targetColorSpace) + "_" + cacheID.substr(0, 6);
+    const auto functionName = sanitizeName( NODE_NAME + "_" 
+        + sourceColorSpace + "_to_" + targetColorSpace
+        // The cacheID prevents the character substitutions from causing two different Processors
+        // to collapse to the same functionName.
+        + "_" + cacheID.substr(0, 6) );
     const auto implName = OcioColorManagementSystem::IMPL_PREFIX + functionName + "_" + transform.type.getName();
     const auto nodeDefName = ND_PREFIX + functionName + "_" + transform.type.getName();
     auto nodeDef = document->getNodeDef(nodeDefName);

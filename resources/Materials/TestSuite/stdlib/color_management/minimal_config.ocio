@@ -18,7 +18,7 @@ colorspaces:
 
   - !<ColorSpace>
     name: sRGB (Scene-referred)
-    aliases: [srgb_texture, srgb_rec709_scene]
+    aliases: [srgb_texture, srgb_rec709_scene, _sRGB__scene, srgb - scene_, srgb___dot., ((srgb/tex))]
     description: This is in both the cg-config and the DefaultColorManagementSystem, but has a different name.
     isdata: false
     from_scene_reference: !<GroupTransform>
