@@ -251,6 +251,15 @@ NodePtr GraphElement::addMaterialNode(const string& name, ConstNodePtr shaderNod
 void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 {
     vector<NodePtr> nodeQueue = getNodes();
+
+    // Track the chain of graphs that each queued node was expanded from, so
+    // that recursive graph implementations are detected and left unexpanded
+    // instead of being flattened forever.
+    std::unordered_map<NodePtr, std::set<const GraphElement*>> graphAncestorMap;
+    for (const NodePtr& node : nodeQueue)
+    {
+        graphAncestorMap[node] = { this };
+    }
     while (!nodeQueue.empty())
     {
         // Determine which nodes require processing, and precompute declarations
@@ -270,11 +279,19 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
             InterfaceElementPtr implement = node->getImplementation(target);
             if (implement && implement->isA<NodeGraph>())
             {
+                NodeGraphPtr sourceSubGraph = implement->asA<NodeGraph>();
+
+                // Skip a node whose implementation is already in its ancestry,
+                // since expanding it would regenerate the same node endlessly.
+                if (graphAncestorMap[node].count(sourceSubGraph.get()))
+                {
+                    continue;
+                }
                 processNodeVec.push_back(node);
-                graphImplMap[node] = implement->asA<NodeGraph>();
+                graphImplMap[node] = sourceSubGraph;
                 declarationMap[node] = node->getDeclaration(target);
                 downstreamPortMap[node] = node->getDownstreamPorts();
-                for (NodePtr sourceSubNode : implement->asA<NodeGraph>()->getNodes())
+                for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
                 {
                     downstreamPortMap[sourceSubNode] = sourceSubNode->getDownstreamPorts();
                 }
@@ -287,6 +304,9 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
         {
             NodeGraphPtr sourceSubGraph = graphImplMap[processNode];
             std::unordered_map<NodePtr, NodePtr> subNodeMap;
+            std::set<const GraphElement*> subNodeAncestors = graphAncestorMap[processNode];
+            subNodeAncestors.insert(sourceSubGraph.get());
+            graphAncestorMap.erase(processNode);
 
             // Create a new instance of each original subnode.
             for (NodePtr sourceSubNode : sourceSubGraph->getNodes())
@@ -300,6 +320,7 @@ void GraphElement::flattenSubgraphs(const string& target, NodePredicate filter)
 
                 // Store the mapping between subgraphs.
                 subNodeMap[sourceSubNode] = destSubNode;
+                graphAncestorMap[destSubNode] = subNodeAncestors;
 
                 // Add the subnode to the queue, allowing processing of nested subgraphs.
                 nodeQueue.push_back(destSubNode);

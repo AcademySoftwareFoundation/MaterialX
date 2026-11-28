@@ -426,6 +426,117 @@ TEST_CASE("Nodegraph implementation lookup", "[nodegraph]")
     REQUIRE(!graph->getNodeDef());
 }
 
+TEST_CASE("FlattenSubgraphs node cycle", "[nodegraph]")
+{
+    mx::DocumentPtr doc = mx::createDocument();
+
+    SECTION("self cycle")
+    {
+        mx::readFromXmlString(
+            doc,
+            R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_x" node="foo"/>
+  <implementation name="IMPL_x" nodedef="ND_x" nodegraph="NG"/>
+  <nodegraph name="NG">
+    <node name="n1" type="float" nodedef="ND_x"/>
+  </nodegraph>
+</materialx>)");
+
+        // The cycle is invisible to validation.
+        std::string validationErrors;
+        REQUIRE(doc->validate(&validationErrors));
+
+        // The recursive node is left in place rather than expanded forever.
+        mx::NodeGraphPtr graph = doc->getNodeGraph("NG");
+        REQUIRE_NOTHROW(graph->flattenSubgraphs());
+        REQUIRE(graph->getNodes().size() == 1);
+        REQUIRE(graph->getNode("n1")->getNodeDefString() == "ND_x");
+    }
+
+    SECTION("mutual cycle")
+    {
+        mx::readFromXmlString(
+            doc,
+            R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_x" node="foo"/>
+  <nodedef name="ND_y" node="bar"/>
+  <implementation name="IMPL_x" nodedef="ND_x" nodegraph="NG_x"/>
+  <implementation name="IMPL_y" nodedef="ND_y" nodegraph="NG_y"/>
+  <nodegraph name="NG_x">
+    <node name="n1" type="float" nodedef="ND_y"/>
+  </nodegraph>
+  <nodegraph name="NG_y">
+    <node name="n2" type="float" nodedef="ND_x"/>
+  </nodegraph>
+</materialx>)");
+
+        mx::NodeGraphPtr graphX = doc->getNodeGraph("NG_x");
+        REQUIRE_NOTHROW(graphX->flattenSubgraphs());
+        REQUIRE(graphX->getNodes().size() == 1);
+
+        mx::NodeGraphPtr graphY = doc->getNodeGraph("NG_y");
+        REQUIRE_NOTHROW(graphY->flattenSubgraphs());
+        REQUIRE(graphY->getNodes().size() == 1);
+    }
+
+    SECTION("document node cycle")
+    {
+        mx::readFromXmlString(
+            doc,
+            R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_x" node="foo"/>
+  <implementation name="IMPL_x" nodedef="ND_x" nodegraph="NG"/>
+  <nodegraph name="NG">
+    <node name="n1" type="float" nodedef="ND_x"/>
+  </nodegraph>
+  <node name="n_doc" type="float" nodedef="ND_x"/>
+</materialx>)");
+
+        // The document-level node is expanded once, and its recursive copy
+        // is left in place.
+        REQUIRE_NOTHROW(doc->flattenSubgraphs());
+        REQUIRE(!doc->getNode("n_doc"));
+        REQUIRE(doc->getNodes().size() == 1);
+    }
+
+    SECTION("repeated non-recursive use is not a cycle")
+    {
+        mx::readFromXmlString(
+            doc,
+            R"(<?xml version="1.0"?>
+<materialx>
+  <nodedef name="ND_leaf" node="leaf"/>
+  <nodedef name="ND_b" node="b"/>
+  <nodedef name="ND_a" node="a"/>
+  <implementation name="IMPL_b" nodedef="ND_b" nodegraph="NG_b"/>
+  <implementation name="IMPL_a" nodedef="ND_a" nodegraph="NG_a"/>
+  <nodegraph name="NG_b">
+    <node name="leaf1" type="float" nodedef="ND_leaf"/>
+  </nodegraph>
+  <nodegraph name="NG_a">
+    <node name="b1" type="float" nodedef="ND_b"/>
+    <node name="b2" type="float" nodedef="ND_b"/>
+  </nodegraph>
+  <nodegraph name="NG_top">
+    <node name="a1" type="float" nodedef="ND_a"/>
+    <node name="a2" type="float" nodedef="ND_a"/>
+  </nodegraph>
+</materialx>)");
+
+        // Shared subgraphs at several levels must still flatten completely.
+        mx::NodeGraphPtr graph = doc->getNodeGraph("NG_top");
+        graph->flattenSubgraphs();
+        REQUIRE(graph->getNodes().size() == 4);
+        for (mx::NodePtr node : graph->getNodes())
+        {
+            REQUIRE(node->getNodeDefString() == "ND_leaf");
+        }
+    }
+}
+
 TEST_CASE("Topological sort", "[nodegraph]")
 {
     // Create a document.
